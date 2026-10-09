@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: aetheryx
+    runtime: docker
+    rootDir: .
+    healthCheckPath: /frontend/public/index.html
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_NAME
+        value: aetheryx_db_new
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
