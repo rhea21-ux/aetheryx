@@ -10,6 +10,8 @@ services:
         sync: false
       - key: DB_NAME
         value: aetheryx_db_new
+      - key: DB_PORT
+        value: "3306"
       - key: DB_USER
         sync: false
       - key: DB_PASSWORD

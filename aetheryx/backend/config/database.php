@@ -9,13 +9,14 @@ declare(strict_types=1);
 */
 
 $host = getenv('DB_HOST') ?: '127.0.0.1';
+$port = getenv('DB_PORT') ?: '3306';
 $dbname = getenv('DB_NAME') ?: 'aetheryx_db_new';
 $username = getenv('DB_USER') ?: 'root';
 $password = getenv('DB_PASSWORD') ?: '';
 
 $charset = 'utf8mb4';
 
-$dsn = "mysql:host={$host};dbname={$dbname};charset={$charset}";
+$dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
 
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
