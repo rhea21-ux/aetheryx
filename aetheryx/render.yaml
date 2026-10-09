@@ -2,6 +2,7 @@ services:
   - type: web
     name: aetheryx
     runtime: docker
+    plan: free
     rootDir: .
     healthCheckPath: /frontend/public/index.html
     envVars:
