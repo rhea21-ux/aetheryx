@@ -1952,14 +1952,7 @@
             }
         }
 
-        /*
-         * CHECKOUT PLACEHOLDER
-         *
-         * Connect this button to your equipment request
-         * endpoint when your request workflow is ready.
-         */
-
-        function requestEquipment() {
+        async function requestEquipment() {
             if (state.items.length === 0) {
                 showToast(
                     "Your cart is empty.",
@@ -1969,10 +1962,61 @@
                 return;
             }
 
-            showToast(
-                "Equipment request workflow is not connected yet.",
-                "error"
-            );
+            if (state.updating) {
+                return;
+            }
+
+            setCartLoading(true);
+            elements.checkoutBtn.textContent = "SUBMITTING REQUEST...";
+
+            const submitted = [];
+            const failed = [];
+
+            try {
+                for (const item of state.items) {
+                    try {
+                        await apiRequest(`${API_BASE_URL}/requests/create.php`, {
+                            method: "POST",
+                            body: JSON.stringify({
+                                equipment_id: item.equipmentId,
+                                quantity: item.quantity
+                            })
+                        });
+                        submitted.push(item);
+                    } catch (error) {
+                        failed.push({ item, error });
+                    }
+                }
+
+                for (const item of submitted) {
+                    try {
+                        await apiRequest(`${API_BASE_URL}/cart/remove.php`, {
+                            method: "DELETE",
+                            body: JSON.stringify({ cart_id: item.cartId })
+                        });
+                    } catch (error) {
+                        console.error("Request submitted, but cart cleanup failed:", error);
+                    }
+                }
+
+                await loadCart();
+
+                if (failed.length === 0) {
+                    showToast(
+                        `Submitted ${submitted.length} equipment ${submitted.length === 1 ? "request" : "requests"}.`
+                    );
+                } else if (submitted.length > 0) {
+                    showToast(
+                        `${submitted.length} request(s) submitted; ${failed.length} failed. ${failed[0].error.message}`,
+                        "error"
+                    );
+                } else {
+                    showToast(failed[0]?.error.message || "Unable to submit equipment requests.", "error");
+                }
+            } finally {
+                setCartLoading(false);
+                elements.checkoutBtn.textContent = "REQUEST EQUIPMENT";
+            }
         }
 
         /*
