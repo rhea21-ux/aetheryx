@@ -441,9 +441,13 @@ html.ax-sidebar-collapsed .page{
 /* Sidebar/content and account-footer corrections */
 .sidebar .sidebar-bottom{flex:0 0 auto!important;margin-top:auto!important;padding-top:12px!important;gap:8px!important;overflow:hidden!important;background:var(--ax-sidebar)!important;}
 .sidebar .user-mini{width:100%!important;min-width:0!important;min-height:62px!important;display:flex!important;align-items:center!important;gap:10px!important;padding:10px 12px!important;margin:0!important;box-sizing:border-box!important;}
+.sidebar .user-mini{min-height:76px!important;padding:10px 14px!important;border-radius:13px!important;background:var(--ax-surface)!important;}
+.sidebar .avatar{width:44px!important;height:44px!important;min-width:44px!important;display:grid!important;place-items:center!important;border-radius:12px!important;background:var(--ax-accent)!important;color:#07131B!important;font-weight:700!important;}
 .sidebar .user-name{flex:1 1 auto!important;min-width:0!important;overflow:hidden!important;}
 .sidebar .user-name strong{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
-.sidebar .logout-btn{width:100%!important;min-height:44px!important;margin:0!important;flex:0 0 auto!important;}
+.sidebar .user-name .ax-account-handle{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;color:var(--ax-text)!important;font-size:14px!important;font-weight:700!important;}
+.sidebar .user-name .ax-account-role{display:block!important;margin-top:3px!important;color:var(--ax-muted)!important;font-family:"IBM Plex Mono",monospace!important;font-size:10px!important;letter-spacing:.1em!important;text-transform:uppercase!important;}
+.sidebar .logout-btn{width:100%!important;min-height:56px!important;margin:0!important;flex:0 0 auto!important;border-radius:12px!important;font-size:16px!important;font-weight:500!important;}
 .sidebar .section-label{flex:0 0 auto!important;}
 body.ax-compatibility-page .page{width:auto!important;max-width:none!important;margin-left:var(--ax-sidebar-w)!important;padding:30px 34px 48px!important;box-sizing:border-box!important;}
 @media(max-width:760px){body.ax-compatibility-page .page{margin-left:0!important;padding:76px 16px 28px!important;} .sidebar .nav{flex:1 1 auto!important;overflow-y:auto!important;}}

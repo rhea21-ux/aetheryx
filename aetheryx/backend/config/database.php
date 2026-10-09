@@ -13,10 +13,16 @@ $port = getenv('DB_PORT') ?: '3306';
 $dbname = getenv('DB_NAME') ?: 'aetheryx_db_new';
 $username = getenv('DB_USER') ?: 'root';
 $password = getenv('DB_PASSWORD') ?: '';
+$sslCa = getenv('DB_SSL_CA') ?: '';
 
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
+
+// Aiven MySQL requires TLS. Set DB_SSL_CA to the mounted CA certificate path.
+if ($sslCa !== '') {
+    $dsn .= ";sslmode=verify-ca;sslrootcert='{$sslCa}'";
+}
 
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

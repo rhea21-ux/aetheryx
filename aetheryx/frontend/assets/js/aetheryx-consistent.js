@@ -193,6 +193,102 @@
     updateButton();
   }
 
+  function normalizeSidebarAccount(sidebar) {
+    if (!sidebar || sidebar.classList.contains('ax-generated-sidebar')) return;
+
+    var logout = sidebar.querySelector('.logout-btn, .logout, #logoutBtn, #logoutButton, #logout');
+    if (!logout) {
+      logout = Array.prototype.find.call(sidebar.querySelectorAll('a'), function (link) {
+        return /\blogout\b|sign\s*out|terminate\s*session/i.test(link.textContent || '');
+      });
+    }
+    if (!logout) return;
+
+    var bottom = sidebar.querySelector('.sidebar-bottom');
+    if (!bottom) {
+      bottom = document.createElement('div');
+      bottom.className = 'sidebar-bottom ax-account-bottom';
+      sidebar.appendChild(bottom);
+    }
+
+    var account = sidebar.querySelector('.user-mini');
+    if (!account) {
+      account = document.createElement('div');
+      account.className = 'user-mini ax-account-card';
+
+      var avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.setAttribute('aria-hidden', 'true');
+
+      var name = document.createElement('div');
+      name.className = 'user-name';
+
+      var handle = document.createElement('strong');
+      handle.textContent = 'Authenticated';
+      var role = document.createElement('span');
+      role.className = 'ax-account-role';
+      role.textContent = 'Checking session';
+
+      var existingHandle = sidebar.querySelector('#sessionUser, #adminName');
+      if (existingHandle) {
+        existingHandle.classList.add('ax-account-handle');
+        handle = existingHandle;
+      }
+
+      var existingRole = sidebar.querySelector('#role, .admin-role');
+      if (existingRole) {
+        existingRole.className = 'ax-account-role';
+        role = existingRole;
+      }
+
+      name.appendChild(handle);
+      name.appendChild(role);
+      account.appendChild(avatar);
+      account.appendChild(name);
+    }
+
+    if (!bottom.contains(account)) bottom.insertBefore(account, bottom.firstChild);
+
+    var oldPanel = logout.closest('.session-box, .admin-card');
+    if (oldPanel) {
+      var sessionLabel = oldPanel.querySelector('.session-label');
+      if (sessionLabel) sessionLabel.remove();
+      var adminLabel = oldPanel.querySelector('.admin-role');
+      if (adminLabel && !account.contains(adminLabel)) adminLabel.remove();
+    }
+
+    logout.classList.remove('logout', 'nav-link', 'nav-item');
+    logout.classList.add('logout-btn');
+    logout.textContent = 'Sign out';
+    if (logout.tagName === 'A') {
+      logout.setAttribute('role', 'button');
+      logout.addEventListener('click', function (event) {
+        if (logout.getAttribute('href') === '#') event.preventDefault();
+      });
+    } else {
+      logout.type = 'button';
+    }
+    bottom.appendChild(logout);
+
+    if (oldPanel && oldPanel !== bottom && !oldPanel.querySelector('button, a')) oldPanel.remove();
+
+    fetch('../../backend/api/auth/session.php', {
+      method: 'GET', credentials: 'include', cache: 'no-store',
+      headers: { 'Accept': 'application/json' }
+    }).then(function (response) { return response.json(); }).then(function (data) {
+      if (!data || !data.success) return;
+      var rawRole = String(data.role || '').trim().toLowerCase();
+      var role = rawRole === 'enemy' ? 'Villain' : rawRole ? rawRole.charAt(0).toUpperCase() + rawRole.slice(1) : 'User';
+      var handleValue = String(data.handle || 'Authenticated');
+      var handleNode = account.querySelector('.user-name strong, .user-name .ax-account-handle');
+      var roleNode = account.querySelector('.user-name span, .user-name .ax-account-role');
+      var avatarNode = account.querySelector('.avatar');
+      if (handleNode) handleNode.textContent = handleValue;
+      if (roleNode) roleNode.textContent = role;
+      if (avatarNode) avatarNode.textContent = handleValue.charAt(0).toUpperCase() || 'U';
+    }).catch(function () {});
+  }
+
   function bindGeneratedSidebarAccount(sidebar) {
     if (!sidebar || !sidebar.classList.contains('ax-generated-sidebar')) return;
     var roleNode = sidebar.querySelector('#axUserRole');
@@ -248,6 +344,7 @@
 
     cleanPrimaryNav(sidebar);
     normalizeUserNav(sidebar);
+    normalizeSidebarAccount(sidebar);
     bindGeneratedSidebarAccount(sidebar);
     sidebar.querySelectorAll('.nav a').forEach(function (link) {
       var label = (link.textContent || '').replace(/\s+/g, ' ').trim();
