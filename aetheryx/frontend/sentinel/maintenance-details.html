@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maintenance Request — ÆTHERYX SENTINEL</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --base: #0D1117; --surface: #151B26; --surface-2: #1B2330; --border: rgba(255,255,255,.08);
+    --cyan: #4FE0C9; --violet: #8B6FEA; --text: #EEF2FF; --muted: #8E98B7;
+    --danger: #F07F8B; --warning: #E8B45C; --good: #5FD98A;
+    --sidebar: 230px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; background: var(--base); color: var(--text); font-family: "IBM Plex Sans", sans-serif; }
+
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar); padding: 24px 16px; background: var(--surface); border-right: 1px solid var(--border); }
+.brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+.brand span { color: var(--cyan); }
+.tagline { font-size: .68rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 28px; }
+.nav a { display: block; padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .88rem; font-weight: 500; margin-bottom: 2px; }
+.nav a.active, .nav a:hover { background: var(--surface-2); color: var(--text); }
+
+main { margin-left: var(--sidebar); padding: 28px 32px 60px; max-width: 820px; }
+.back-link { color: var(--muted); font-size: .84rem; text-decoration: none; display: inline-block; margin-bottom: 14px; }
+.back-link:hover { color: var(--cyan); }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
+.panel-title { font-size: .74rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 14px; }
+
+.req-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.req-head h1 { font-size: 1.3rem; font-weight: 700; }
+.req-head .sub { color: var(--muted); font-size: .86rem; margin-top: 4px; }
+
+.badge { font-size: .7rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+.badge.open { background: rgba(142,152,183,.15); color: var(--muted); }
+.badge.assigned { background: rgba(79,224,201,.15); color: var(--cyan); }
+.badge.in_progress { background: rgba(139,111,234,.15); color: var(--violet); }
+.badge.resolved { background: rgba(95,217,138,.15); color: var(--good); }
+.badge.cancelled { background: rgba(240,127,139,.1); color: var(--danger); }
+.pbadge { font-size: .68rem; font-weight: 700; padding: 3px 9px; border-radius: 6px; margin-left: 8px; }
+.pbadge.LOW { background: rgba(142,152,183,.15); color: var(--muted); }
+.pbadge.NORMAL { background: rgba(79,224,201,.1); color: var(--cyan); }
+.pbadge.HIGH { background: rgba(232,180,92,.15); color: var(--warning); }
+.pbadge.CRITICAL { background: rgba(240,127,139,.15); color: var(--danger); }
+
+.desc { font-size: .9rem; color: var(--text); margin-top: 14px; line-height: 1.5; }
+
+.timeline-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: .84rem; }
+.timeline-row:last-child { border-bottom: none; }
+.timeline-time { color: var(--muted); font-size: .76rem; white-space: nowrap; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.actions button {
+    border-radius: 8px; padding: 9px 14px; font-size: .84rem; cursor: pointer; font-family: inherit; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text);
+}
+.actions button.primary { background: var(--cyan); color: #06201C; border: none; font-weight: 600; }
+.actions button.danger { color: var(--danger); }
+
+.inline-form { margin-top: 14px; display: none; }
+.inline-form.open { display: block; }
+.inline-form textarea, .inline-form select {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 9px 11px; font-size: .86rem; font-family: inherit; margin-bottom: 10px;
+}
+.inline-form textarea { min-height: 80px; resize: vertical; }
+
+.state-message { color: var(--muted); font-size: .88rem; padding: 16px 0; text-align: center; }
+.action-msg { font-size: .8rem; margin-top: 10px; }
+.action-msg.error { color: var(--danger); }
+.action-msg.success { color: var(--good); }
+
+@media (max-width: 860px) { .sidebar { display: none; } main { margin-left: 0; padding: 20px; } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="brand">ÆTHERYX <span>SENTINEL</span></div>
+    <div class="tagline">Precision · Clarity · Intelligence</div>
+    <nav class="nav">
+        <a href="sentinel-dashboard.html">Command Center</a>
+        <a href="assets.html">Assets</a>
+        <a href="maintenance.html" class="active">Maintenance</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="activity-logs.html">Activity Logs</a>
+        <a href="reports.html">Reports</a>
+        <a href="profile.html">Profile</a>
+        <a href="../admin/admin-dashboard.html">← Back to ÆTHERYX</a>
+    </nav>
+</aside>
+
+<main>
+    <a href="maintenance.html" class="back-link">← Back to Maintenance</a>
+    <div id="loadingState" class="panel state-message">Loading request…</div>
+    <div id="errorState" class="panel state-message" style="display:none;">
+        Sentinel couldn't load this request. It may not exist, or you may not have access to it.
+    </div>
+    <div id="content" style="display:none;"></div>
+</main>
+
+<script>
+function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const params = new URLSearchParams(location.search);
+const requestId = params.get('id');
+const DETAILS_API = `../../backend/api/sentinel/maintenance/details.php?id=${encodeURIComponent(requestId || '')}`;
+const UPDATE_API = "../../backend/api/sentinel/maintenance/update.php";
+const ASSIGN_API = "../../backend/api/sentinel/maintenance/assign.php";
+const RESOLVE_API = "../../backend/api/sentinel/maintenance/resolve.php";
+const SESSION_API = "../../backend/api/auth/session.php";
+
+let currentUserId = null;
+let currentUserRole = null;
+
+async function loadSession() {
+    try {
+        const res = await fetch(SESSION_API, { credentials: 'include' });
+        const payload = await res.json();
+        if (payload.success) {
+            currentUserId = payload.user_id;
+            currentUserRole = payload.role;
+        }
+    } catch (err) {
+        // Non-fatal — doAssign() will just fail with a clear message if this didn't load.
+    }
+}
+
+function statusBadge(status) {
+    return `<span class="badge ${esc(status)}">${esc(status.replace('_', ' '))}</span>`;
+}
+
+function timeAgo(iso) {
+    const diffMs = Date.now() - new Date(iso.replace(' ', 'T')).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+}
+
+async function load() {
+    if (!requestId) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+        return;
+    }
+
+    try {
+        const res = await fetch(DETAILS_API, { credentials: 'include' });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) throw new Error(payload.message);
+
+        const r = payload.request;
+        const timeline = payload.timeline;
+
+        const timelineHtml = timeline.length > 0
+            ? timeline.map(t => `
+                <div class="timeline-row">
+                    <span class="timeline-time">${timeAgo(t.created_at)}</span>
+                    <span>${esc(t.actor_name || 'System')} — ${esc(t.old_status ? t.old_status + ' → ' : '')}${esc(t.new_status)}${esc(t.note ? ': ' + t.note : '')}</span>
+                </div>`).join('')
+            : '<div class="state-message">No timeline events yet.</div>';
+
+        const isAdmin = currentUserRole === 'admin';
+        const canAssign = isAdmin && ['open', 'assigned'].includes(r.status);
+        const canUpdate = isAdmin && ['open', 'assigned', 'in_progress'].includes(r.status);
+        const canResolve = isAdmin && ['assigned', 'in_progress'].includes(r.status);
+
+        document.getElementById('content').innerHTML = `
+            <div class="panel">
+                <div class="req-head">
+                    <div>
+                        <h1>#${r.id} — ${esc(r.equipmentName)}</h1>
+                        <div class="sub">Requested by ${esc(r.requesterName)}${esc(r.assignedName ? ' · assigned to ' + r.assignedName : '')}</div>
+                    </div>
+                    <div>${statusBadge(r.status)}${r.priority ? `<span class="pbadge ${r.priority.priority}">${r.priority.priority}</span>` : ''}</div>
+                </div>
+                <div class="desc">${esc(r.description)}</div>
+            </div>
+
+            ${r.priority ? `
+            <div class="panel">
+                <div class="panel-title">Priority Factors</div>
+                ${r.priority.factors.map(f => `<div class="timeline-row" style="border:none;padding:4px 0">${esc(f)}</div>`).join('')}
+            </div>` : ''}
+
+            ${r.resolutionNotes ? `
+            <div class="panel">
+                <div class="panel-title">Resolution</div>
+                <div class="desc">${esc(r.resolutionNotes)}</div>
+            </div>` : ''}
+
+            <div class="panel">
+                <div class="panel-title">Timeline</div>
+                ${timelineHtml}
+            </div>
+
+            ${isAdmin ? `
+            <div class="panel" id="actionsPanel">
+                <div class="panel-title">Actions</div>
+                <div class="actions">
+                    ${canAssign ? '<button onclick="toggleForm(\'assignForm\')">Assign to me</button>' : ''}
+                    ${canUpdate ? '<button onclick="toggleForm(\'statusForm\')">Change status</button>' : ''}
+                    ${canResolve ? '<button class="primary" onclick="toggleForm(\'resolveForm\')">Resolve</button>' : ''}
+                    ${!canAssign && !canUpdate && !canResolve ? '<span class="state-message">This request is closed — no further actions available.</span>' : ''}
+                </div>
+
+                <div class="inline-form" id="assignForm">
+                    <p style="font-size:.84rem;color:var(--muted);margin-bottom:10px">Assign this request to yourself.</p>
+                    <button class="primary" onclick="doAssign()">Confirm Assignment</button>
+                </div>
+
+                <div class="inline-form" id="statusForm">
+                    <select id="statusSelect">
+                        <option value="in_progress">In Progress</option>
+                        <option value="open">Reopen</option>
+                        <option value="cancelled">Cancel</option>
+                    </select>
+                    <textarea id="statusNote" placeholder="Optional note..."></textarea>
+                    <button class="primary" onclick="doUpdate()">Save Status</button>
+                </div>
+
+                <div class="inline-form" id="resolveForm">
+                    <textarea id="resolveNotes" placeholder="Describe how this was resolved (required)..."></textarea>
+                    <button class="primary" onclick="doResolve()">Confirm Resolution</button>
+                </div>
+
+                <div class="action-msg" id="actionMsg"></div>
+            </div>
+            ` : ''}
+        `;
+
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+    } catch (err) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+    }
+}
+
+function toggleForm(id) {
+    document.querySelectorAll('.inline-form').forEach(f => f.classList.toggle('open', f.id === id && !f.classList.contains('open')));
+}
+
+function setMsg(text, isError) {
+    const el = document.getElementById('actionMsg');
+    el.className = 'action-msg ' + (isError ? 'error' : 'success');
+    el.textContent = text;
+}
+
+async function doAssign() {
+    if (!currentUserId) { setMsg('Could not confirm your session — please reload the page.', true); return; }
+    try {
+        const res = await fetch(ASSIGN_API, {
+            method: 'POST', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ request_id: Number(requestId), assigned_to: currentUserId })
+        });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) { setMsg(payload.message || 'Unable to assign.', true); return; }
+        setMsg('Assigned — reloading…', false);
+        setTimeout(load, 600);
+    } catch (err) { setMsg('Network error.', true); }
+}
+
+async function doUpdate() {
+    const status = document.getElementById('statusSelect').value;
+    const note = document.getElementById('statusNote').value.trim();
+    try {
+        const res = await fetch(UPDATE_API, {
+            method: 'POST', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ request_id: Number(requestId), status, note })
+        });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) { setMsg(payload.message || 'Unable to update.', true); return; }
+        setMsg('Updated — reloading…', false);
+        setTimeout(load, 600);
+    } catch (err) { setMsg('Network error.', true); }
+}
+
+async function doResolve() {
+    const resolution_notes = document.getElementById('resolveNotes').value.trim();
+    if (resolution_notes.length < 5) { setMsg('Please describe how this was resolved.', true); return; }
+    try {
+        const res = await fetch(RESOLVE_API, {
+            method: 'POST', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ request_id: Number(requestId), resolution_notes })
+        });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) { setMsg(payload.message || 'Unable to resolve.', true); return; }
+        setMsg('Resolved — reloading…', false);
+        setTimeout(load, 600);
+    } catch (err) { setMsg('Network error.', true); }
+}
+
+(async () => {
+    // Sequential on purpose: load() decides which action buttons to show
+    // based on currentUserRole, so the role must be known first.
+    await loadSession();
+    await load();
+})();
+</script>
+
+</body>
+</html>

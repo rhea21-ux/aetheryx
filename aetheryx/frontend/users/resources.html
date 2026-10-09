@@ -1,0 +1,799 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="ÆTHERYX Resource Vault" name="description"/>
+<title>Resource Vault — ÆTHERYX</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --bg: #080d19;
+            --surface: #111a2c;
+            --surface-2: #17243a;
+            --border: rgba(79, 224, 201, .2);
+            --cyan: #4fe0c9;
+            --violet: #8b6fea;
+            --text: #eef2ff;
+            --muted: #8e98b7;
+            --danger: #ff718c;
+            --shadow: 0 20px 60px rgba(0, 0, 0, .35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 10% 10%, rgba(79,224,201,.1), transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(139,111,234,.13), transparent 30%),
+                var(--bg);
+            font-family: "IBM Plex Sans", sans-serif;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .16;
+            background-image:
+                linear-gradient(rgba(79,224,201,.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,224,201,.12) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            z-index: 10;
+            width: 260px;
+            height: 100vh;
+            padding: 28px 18px;
+            border-right: 1px solid var(--border);
+            background: rgba(8, 13, 25, .92);
+            backdrop-filter: blur(18px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 42px;
+            padding: 0 12px;
+        }
+
+        .brand-symbol {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+            border-radius: 12px;
+            font-family: "IBM Plex Mono", monospace;
+            font-weight: 700;
+            box-shadow: 0 0 25px rgba(79,224,201,.16);
+        }
+
+        .brand h1 {
+            font: 700 19px "Space Grotesk", sans-serif;
+            letter-spacing: 2px;
+        }
+
+        .brand span {
+            display: block;
+            margin-top: 3px;
+            color: var(--muted);
+            font: 10px "IBM Plex Mono", monospace;
+            letter-spacing: 2px;
+        }
+
+        .nav-title {
+            margin: 25px 12px 10px;
+            color: var(--muted);
+            font: 10px "IBM Plex Mono", monospace;
+            letter-spacing: 2px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 5px 0;
+            padding: 13px 14px;
+            color: var(--muted);
+            border: 1px solid transparent;
+            border-radius: 10px;
+            transition: .25s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--cyan);
+            border-color: var(--border);
+            background: rgba(79,224,201,.08);
+            transform: translateX(4px);
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+            font-family: "IBM Plex Mono", monospace;
+        }
+
+        .main {
+            width: 100%;
+            margin-left: 260px;
+            padding: 42px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .eyebrow {
+            color: var(--cyan);
+            font: 11px "IBM Plex Mono", monospace;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .heading {
+            margin-top: 10px;
+            font: 700 clamp(30px, 4vw, 52px) "Space Grotesk", sans-serif;
+            letter-spacing: -1.5px;
+        }
+
+        .description {
+            max-width: 620px;
+            margin-top: 12px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 14px;
+            color: var(--cyan);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            font: 11px "IBM Plex Mono", monospace;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--cyan);
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: rgba(17,26,44,.8);
+            box-shadow: var(--shadow);
+        }
+
+        .search {
+            flex: 1 1 260px;
+            min-width: 180px;
+            padding: 13px 16px;
+            color: var(--text);
+            outline: none;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #0b1424;
+        }
+
+        .search:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(79,224,201,.08);
+        }
+
+        .filter {
+            min-width: 170px;
+            padding: 13px;
+            color: var(--text);
+            outline: none;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #0b1424;
+        }
+
+        .button {
+            cursor: pointer;
+            padding: 13px 18px;
+            color: var(--bg);
+            border: 0;
+            border-radius: 10px;
+            background: var(--cyan);
+            font-weight: 700;
+            transition: .25s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79,224,201,.2);
+        }
+
+        .button.secondary {
+            color: var(--cyan);
+            border: 1px solid var(--border);
+            background: transparent;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .stat {
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: linear-gradient(145deg, rgba(23,36,58,.9), rgba(17,26,44,.75));
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font: 11px "IBM Plex Mono", monospace;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            margin-top: 10px;
+            color: var(--cyan);
+            font: 700 34px "Space Grotesk", sans-serif;
+        }
+
+        .message {
+            display: none;
+            margin-bottom: 20px;
+            padding: 15px 18px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(17,26,44,.9);
+            color: var(--muted);
+        }
+
+        .message.error {
+            display: block;
+            color: var(--danger);
+            border-color: rgba(255,113,140,.35);
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 18px;
+        }
+
+        .resource-card {
+            position: relative;
+            padding: 23px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            background: linear-gradient(145deg, rgba(23,36,58,.95), rgba(12,20,35,.95));
+            box-shadow: 0 10px 35px rgba(0,0,0,.16);
+            animation: appear .5s ease both;
+            transition: .25s ease;
+        }
+
+        .resource-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--cyan), var(--violet));
+        }
+
+        .resource-card:hover {
+            border-color: rgba(79,224,201,.55);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0,0,0,.3);
+        }
+
+        .resource-number {
+            color: var(--violet);
+            font: 11px "IBM Plex Mono", monospace;
+        }
+
+        .resource-name {
+            margin: 15px 0 10px;
+            font: 600 21px "Space Grotesk", sans-serif;
+            overflow-wrap: anywhere;
+        }
+
+        .resource-description {
+            min-height: 65px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .category {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 6px 10px;
+            color: var(--cyan);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            font: 10px "IBM Plex Mono", monospace;
+            text-transform: uppercase;
+        }
+
+        .empty {
+            display: none;
+            padding: 65px 20px;
+            color: var(--muted);
+            text-align: center;
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+        }
+
+        .empty strong {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text);
+            font: 600 22px "Space Grotesk", sans-serif;
+        }
+
+        .loading {
+            padding: 60px;
+            color: var(--cyan);
+            text-align: center;
+            font-family: "IBM Plex Mono", monospace;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .layout {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 25px 18px;
+            }
+
+            .sidebar {
+                padding: 20px;
+            }
+
+            .brand {
+                margin-bottom: 20px;
+            }
+
+            .nav-title {
+                display: none;
+            }
+
+            .nav-link {
+                display: inline-flex;
+                margin: 3px;
+                padding: 9px 11px;
+                font-size: 12px;
+            }
+
+            .topbar {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .heading {
+                font-size: 32px;
+            }
+
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<a class="brand" href="../public/index.html">
+<div class="brand-symbol">ÆX</div>
+<div>
+<h1>ÆTHERYX</h1>
+<span>RESOURCE NETWORK</span>
+</div>
+</a>
+<div class="nav-title">OPERATIONS</div>
+<a class="nav-link" href="./dashboard.html">
+<span class="nav-icon">⌂</span>
+        Dashboard
+    </a>
+<a class="nav-link" href="./marketplace.html">
+<span class="nav-icon">◈</span>
+        Marketplace
+    </a>
+<a class="nav-link" href="./inventory.html">
+<span class="nav-icon">▦</span>
+        Inventory
+    </a>
+<a class="nav-link active" href="./resources.html">
+<span class="nav-icon">◉</span>
+        Resource Vault
+    </a>
+<a class="nav-link" href="./notifications.html">
+<span class="nav-icon">◌</span>
+        Alerts
+    </a>
+<div class="nav-title">ACCOUNT</div>
+<a class="nav-link" href="./profile.html">
+<span class="nav-icon">◎</span>
+        Profile
+    </a>
+<a class="nav-link" href="../public/index.html">
+<span class="nav-icon">↪</span>
+        Logout
+    </a>
+</aside>
+<main class="main">
+<header class="topbar">
+<div>
+<div class="eyebrow">Knowledge | Secure Access</div>
+<h2 class="heading">Resource Vault</h2>
+<p class="description">
+                    Access verified knowledge modules, technical resources,
+                    and strategic information available through the ÆTHERYX network.
+                </p>
+</div>
+<div class="status">
+<span class="status-dot"></span>
+                VAULT ONLINE
+            </div>
+</header>
+<section class="stats">
+<div class="stat">
+<div class="stat-label">TOTAL RESOURCES</div>
+<div class="stat-value" id="totalCount">0</div>
+</div>
+<div class="stat">
+<div class="stat-label">CATEGORIES</div>
+<div class="stat-value" id="categoryCount">0</div>
+</div>
+<div class="stat">
+<div class="stat-label">VISIBLE RESULTS</div>
+<div class="stat-value" id="visibleCount">0</div>
+</div>
+</section>
+<section class="toolbar">
+<input autocomplete="off" class="search" id="searchInput" placeholder="Search resources..." type="search"/>
+<select class="filter" id="categoryFilter">
+<option value="all">All categories</option>
+</select>
+<button class="button" id="refreshButton">
+                ↻ Refresh
+            </button>
+</section>
+<div class="message" id="message"></div>
+<section class="resource-grid" id="resourceGrid">
+<div class="loading">INITIALIZING VAULT CONNECTION...</div>
+</section>
+<section class="empty" id="emptyState">
+<strong>No resources found</strong>
+            Try another search term or category.
+        </section>
+</main>
+</div>
+<script>
+"use strict";
+
+/*
+|--------------------------------------------------------------------------
+| API CONFIGURATION
+|--------------------------------------------------------------------------
+| This path assumes:
+| frontend/users/resources.html
+| backend/api/resources/list.php
+|--------------------------------------------------------------------------
+*/
+
+const API_URL = "../../backend/api/resources/list.php";
+
+const state = {
+    resources: [],
+    filtered: []
+};
+
+const elements = {
+    grid: document.getElementById("resourceGrid"),
+    empty: document.getElementById("emptyState"),
+    message: document.getElementById("message"),
+    search: document.getElementById("searchInput"),
+    category: document.getElementById("categoryFilter"),
+    refresh: document.getElementById("refreshButton"),
+    total: document.getElementById("totalCount"),
+    categories: document.getElementById("categoryCount"),
+    visible: document.getElementById("visibleCount")
+};
+
+function showMessage(message, isError = false) {
+    elements.message.textContent = message;
+    elements.message.className = isError
+        ? "message error"
+        : "message";
+
+    if (!isError) {
+        elements.message.style.display = "block";
+    }
+}
+
+function clearMessage() {
+    elements.message.textContent = "";
+    elements.message.className = "message";
+    elements.message.style.display = "none";
+}
+
+async function requestJSON(url) {
+    const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+        headers: {
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    });
+
+    const rawText = await response.text();
+
+    let data;
+
+    try {
+        data = rawText ? JSON.parse(rawText) : {};
+    } catch (error) {
+        console.error("Invalid server response:", rawText);
+
+        throw new Error(
+            `The server returned invalid JSON. HTTP ${response.status}.`
+        );
+    }
+
+    if (response.status === 401) {
+        throw new Error("Your session has expired. Please log in again.");
+    }
+
+    if (response.status === 403) {
+        throw new Error("You are not authorized to access the Resource Vault.");
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || `Request failed with HTTP ${response.status}.`
+        );
+    }
+
+    if (data.success !== true) {
+        throw new Error(
+            data.message || "The resource service rejected the request."
+        );
+    }
+
+    return data;
+}
+
+function normalizeResources(data) {
+    const records = Array.isArray(data.resources)
+        ? data.resources
+        : Array.isArray(data.data)
+            ? data.data
+            : [];
+
+    return records.map((resource, index) => ({
+        id: resource.id ?? index + 1,
+        name: String(resource.name ?? "Unnamed Resource"),
+        description: String(resource.description ?? "No description available."),
+        category: String(resource.category ?? "General")
+    }));
+}
+
+function updateStats() {
+    const categories = new Set(
+        state.resources.map(resource => resource.category.toLowerCase())
+    );
+
+    elements.total.textContent = state.resources.length;
+    elements.categories.textContent = categories.size;
+    elements.visible.textContent = state.filtered.length;
+}
+
+function populateCategories() {
+    const currentValue = elements.category.value;
+
+    const categories = [...new Set(
+        state.resources
+            .map(resource => resource.category.trim())
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    elements.category.innerHTML = '<option value="all">All categories</option>';
+
+    categories.forEach(category => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        elements.category.appendChild(option);
+    });
+
+    if (categories.includes(currentValue)) {
+        elements.category.value = currentValue;
+    }
+}
+
+function createResourceCard(resource, index) {
+    const card = document.createElement("article");
+    card.className = "resource-card";
+    card.style.animationDelay = `${index * 45}ms`;
+
+    const number = document.createElement("div");
+    number.className = "resource-number";
+    number.textContent = `RESOURCE // ${String(resource.id).padStart(3, "0")}`;
+
+    const name = document.createElement("h3");
+    name.className = "resource-name";
+    name.textContent = resource.name;
+
+    const description = document.createElement("p");
+    description.className = "resource-description";
+    description.textContent = resource.description;
+
+    const category = document.createElement("span");
+    category.className = "category";
+    category.textContent = resource.category;
+
+    card.append(number, name, description, category);
+
+    return card;
+}
+
+function renderResources() {
+    const searchTerm = elements.search.value.trim().toLowerCase();
+    const selectedCategory = elements.category.value;
+
+    state.filtered = state.resources.filter(resource => {
+        const searchableText = [
+            resource.name,
+            resource.description,
+            resource.category
+        ].join(" ").toLowerCase();
+
+        const matchesSearch = searchableText.includes(searchTerm);
+
+        const matchesCategory =
+            selectedCategory === "all" ||
+            resource.category === selectedCategory;
+
+        return matchesSearch && matchesCategory;
+    });
+
+    elements.grid.innerHTML = "";
+
+    state.filtered.forEach((resource, index) => {
+        elements.grid.appendChild(createResourceCard(resource, index));
+    });
+
+    elements.empty.style.display =
+        state.filtered.length === 0 ? "block" : "none";
+
+    updateStats();
+}
+
+async function loadResources() {
+    clearMessage();
+
+    elements.refresh.disabled = true;
+    elements.refresh.textContent = "Loading...";
+
+    elements.grid.innerHTML =
+        '<div class="loading">SYNCHRONIZING RESOURCE DATA...</div>';
+
+    try {
+        const data = await requestJSON(API_URL);
+
+        state.resources = normalizeResources(data);
+
+        populateCategories();
+        renderResources();
+
+        if (state.resources.length === 0) {
+            showMessage("The Resource Vault is currently empty.");
+        }
+    } catch (error) {
+        console.error("Resource Vault error:", error);
+
+        state.resources = [];
+        state.filtered = [];
+
+        elements.grid.innerHTML = "";
+        elements.empty.style.display = "none";
+
+        showMessage(error.message, true);
+        updateStats();
+    } finally {
+        elements.refresh.disabled = false;
+        elements.refresh.textContent = "↻ Refresh";
+    }
+}
+
+elements.search.addEventListener("input", renderResources);
+elements.category.addEventListener("change", renderResources);
+elements.refresh.addEventListener("click", loadResources);
+
+document.addEventListener("DOMContentLoaded", loadResources);
+</script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asset Details — ÆTHERYX SENTINEL</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --base: #0D1117; --surface: #151B26; --surface-2: #1B2330; --border: rgba(255,255,255,.08);
+    --cyan: #4FE0C9; --violet: #8B6FEA; --text: #EEF2FF; --muted: #8E98B7;
+    --danger: #F07F8B; --warning: #E8B45C; --good: #5FD98A;
+    --sidebar: 230px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; background: var(--base); color: var(--text); font-family: "IBM Plex Sans", sans-serif; }
+
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar); padding: 24px 16px; background: var(--surface); border-right: 1px solid var(--border); }
+.brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+.brand span { color: var(--cyan); }
+.tagline { font-size: .68rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 28px; }
+.nav a { display: block; padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .88rem; font-weight: 500; margin-bottom: 2px; }
+.nav a.active, .nav a:hover { background: var(--surface-2); color: var(--text); }
+
+main { margin-left: var(--sidebar); padding: 28px 32px 60px; max-width: 980px; }
+.back-link { color: var(--muted); font-size: .84rem; text-decoration: none; display: inline-block; margin-bottom: 14px; }
+.back-link:hover { color: var(--cyan); }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
+.panel-title { font-size: .74rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 14px; }
+
+.asset-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.asset-head h1 { font-size: 1.4rem; font-weight: 700; }
+.asset-head .brand-sub { color: var(--muted); font-size: .86rem; margin-top: 2px; }
+
+.badge { font-size: .7rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+.badge.CRITICAL, .badge.RETIREMENT_REVIEW { background: rgba(240,127,139,.15); color: var(--danger); }
+.badge.ATTENTION { background: rgba(232,180,92,.15); color: var(--warning); }
+.badge.MONITOR { background: rgba(142,152,183,.15); color: var(--muted); }
+.badge.HEALTHY { background: rgba(95,217,138,.15); color: var(--good); }
+
+.kv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+.kv-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.kv-value { font-size: .98rem; font-weight: 600; margin-top: 2px; text-transform: capitalize; }
+
+.health-score { font-family: "IBM Plex Mono", monospace; font-size: 2.2rem; font-weight: 700; }
+
+.reason-list { list-style: none; margin-top: 10px; }
+.reason-list li { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: .86rem; }
+.reason-list li:last-child { border-bottom: none; }
+.reason-delta { font-family: "IBM Plex Mono", monospace; color: var(--danger); }
+
+.recommend-action { color: var(--cyan); font-weight: 600; font-size: .95rem; }
+.recommend-why { color: var(--muted); font-size: .84rem; margin-top: 6px; }
+
+.history-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: .84rem; }
+.history-row:last-child { border-bottom: none; }
+.history-time { color: var(--muted); font-size: .76rem; white-space: nowrap; }
+
+.state-message { color: var(--muted); font-size: .88rem; padding: 16px 0; text-align: center; }
+
+@media (max-width: 860px) { .sidebar { display: none; } main { margin-left: 0; padding: 20px; } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="brand">ÆTHERYX <span>SENTINEL</span></div>
+    <div class="tagline">Precision · Clarity · Intelligence</div>
+    <nav class="nav">
+        <a href="sentinel-dashboard.html">Command Center</a>
+        <a href="assets.html" class="active">Assets</a>
+        <a href="maintenance.html">Maintenance</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="activity-logs.html">Activity Logs</a>
+        <a href="reports.html">Reports</a>
+        <a href="profile.html">Profile</a>
+        <a href="../admin/admin-dashboard.html">← Back to ÆTHERYX</a>
+    </nav>
+</aside>
+
+<main>
+    <a href="assets.html" class="back-link">← Back to Assets</a>
+    <div id="loadingState" class="panel state-message">Loading asset details…</div>
+    <div id="errorState" class="panel state-message" style="display:none;">
+        Sentinel couldn't load this asset. It may not exist, or you may need to be logged in as an administrator.
+    </div>
+    <div id="content" style="display:none;"></div>
+</main>
+
+<script>
+function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const params = new URLSearchParams(location.search);
+const assetId = params.get('id');
+const API_URL = `../../backend/api/sentinel/assets/details.php?id=${encodeURIComponent(assetId || '')}`;
+
+function badge(state) {
+    return `<span class="badge ${esc(state)}">${esc(state.replace('_', ' '))}</span>`;
+}
+
+function timeAgo(iso) {
+    const diffMs = Date.now() - new Date(iso.replace(' ', 'T')).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+}
+
+function healthColor(score) {
+    if (score >= 80) return 'var(--good)';
+    if (score >= 50) return 'var(--text)';
+    if (score >= 25) return 'var(--warning)';
+    return 'var(--danger)';
+}
+
+async function load() {
+    if (!assetId) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').textContent = 'No asset id was provided.';
+        document.getElementById('errorState').style.display = 'block';
+        return;
+    }
+
+    try {
+        const res = await fetch(API_URL, { credentials: 'include' });
+        const payload = await res.json();
+
+        if (!res.ok || !payload.success) {
+            throw new Error(payload.message || 'Request failed');
+        }
+
+        const a = payload.asset;
+        const s = payload.sentinelAnalysis;
+        const maint = payload.maintenanceRequests;
+        const inv = payload.inventoryHistory;
+
+        const reasonsHtml = (s.health.reasons.length > 0)
+            ? '<ul class="reason-list">' + s.health.reasons.map(r =>
+                `<li><span>${esc(r.label)}</span><span class="reason-delta">${r.delta}</span></li>`
+              ).join('') + '</ul>'
+            : '<div class="state-message">No deductions — nothing flagged.</div>';
+
+        const maintHtml = maint.length > 0
+            ? maint.map(m => `
+                <div class="history-row">
+                    <span>${esc(m.description.slice(0, 80))}${m.description.length > 80 ? '…' : ''} — <span style="text-transform:capitalize">${esc(m.status)}</span> (${esc(m.reported_severity)})</span>
+                    <span class="history-time">${timeAgo(m.created_at)}</span>
+                </div>`).join('')
+            : '<div class="state-message">No maintenance requests for this asset.</div>';
+
+        const invHtml = inv.length > 0
+            ? inv.map(i => `
+                <div class="history-row">
+                    <span>${esc(i.user_full_name || 'Unknown user')} — <span style="text-transform:capitalize">${esc(i.status)}</span></span>
+                    <span class="history-time">${timeAgo(i.assigned_at)}</span>
+                </div>`).join('')
+            : '<div class="state-message">No assignment history recorded.</div>';
+
+        const riskHtml = s.compatibilityRisk.riskLevel === 'UNKNOWN'
+            ? `<div class="state-message">${esc(s.compatibilityRisk.reason)}</div>`
+            : `<div><strong>${esc(s.compatibilityRisk.riskLevel)}</strong> — ${esc(s.compatibilityRisk.reason)}<div class="recommend-why">${esc(s.compatibilityRisk.recommendedAction)}</div></div>`;
+
+        document.getElementById('content').innerHTML = `
+            <div class="panel">
+                <div class="asset-head">
+                    <div>
+                        <h1>${esc(a.name)}</h1>
+                        <div class="brand-sub">${esc(a.brand || '')} · ${esc(a.category)}</div>
+                    </div>
+                    ${badge(s.lifecycle.state)}
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Current State</div>
+                <div class="kv-grid">
+                    <div><div class="kv-label">Status</div><div class="kv-value">${esc(a.status)}</div></div>
+                    <div><div class="kv-label">Condition</div><div class="kv-value">${esc(a.conditionStatus || 'Not recorded')}</div></div>
+                    <div><div class="kv-label">Availability</div><div class="kv-value" style="text-transform:none">${a.availableQuantity} / ${a.quantity}</div></div>
+                    <div><div class="kv-label">Access Role</div><div class="kv-value">${esc(a.accessRole)}</div></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Sentinel Analysis</div>
+                <div class="health-score" style="color:${healthColor(s.health.score)}">${s.health.score} <span style="font-size:1rem;color:var(--muted);font-weight:400">/ 100</span></div>
+                <div style="color:var(--muted);font-size:.84rem;margin-top:2px">${esc(s.lifecycle.reason)}</div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Why Is This Flagged?</div>
+                ${reasonsHtml}
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Recommended Action</div>
+                <div class="recommend-action">${esc(s.recommendation.action)}</div>
+                <div class="recommend-why">${esc(s.recommendation.why.join(' · '))}</div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Compatibility Risk</div>
+                ${riskHtml}
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Maintenance</div>
+                ${maintHtml}
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Activity History (Assignments)</div>
+                ${invHtml}
+            </div>
+        `;
+
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+    } catch (err) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+    }
+}
+
+load();
+</script>
+
+</body>
+</html>

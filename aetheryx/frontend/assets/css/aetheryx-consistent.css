@@ -1,0 +1,449 @@
+/* ÆTHERYX CONSISTENT SHELL
+   Shared visual/navigation layer for user dashboards and workspace pages.
+   No gradients, no glow, one predictable animation system. */
+:root{
+  --ax-bg:#0B1020;
+  --ax-sidebar:#0A0F1C;
+  --ax-surface:#12182A;
+  --ax-surface-2:#171E31;
+  --ax-border:#283147;
+  --ax-border-strong:#35415E;
+  --ax-text:#E6EAF2;
+  --ax-muted:#929CAF;
+  --ax-accent:#49C9B5;
+  --ax-accent-hover:#5AD7C3;
+  --ax-danger:#E66B7B;
+  --ax-warning:#E7B85D;
+  --ax-success:#5FD39A;
+  --ax-info:#8FA7F0;
+  --ax-sidebar-w:260px;
+  --ax-sidebar-collapsed:84px;
+  --ax-motion:220ms cubic-bezier(.2,.75,.25,1);
+}
+
+html{scroll-behavior:smooth;}
+html,body{min-height:100%;}
+
+body{
+  background:var(--ax-bg)!important;
+  color:var(--ax-text)!important;
+  overflow-x:hidden;
+}
+
+/* Remove the older visual effects so every page shares one visual language. */
+body::before,body::after,.aurora,.scanline{display:none!important;}
+.mobile-header{display:none!important;}
+
+/* ---------- Shared sidebar ---------- */
+.sidebar{
+  position:fixed!important;
+  inset:0 auto 0 0!important;
+  width:var(--ax-sidebar-w)!important;
+  min-width:var(--ax-sidebar-w)!important;
+  height:100vh!important;
+  max-height:100vh!important;
+  padding:22px 16px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:16px!important;
+  background:var(--ax-sidebar)!important;
+  border-right:1px solid var(--ax-border)!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+  z-index:1000!important;
+  transition:width var(--ax-motion),min-width var(--ax-motion),transform var(--ax-motion)!important;
+}
+
+.sidebar *, .sidebar *::before, .sidebar *::after{box-sizing:border-box!important;}
+
+.sidebar .brand{
+  flex:0 0 auto!important;
+  min-height:48px!important;
+  padding:0 8px 8px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  overflow:hidden!important;
+}
+
+.sidebar .brand-symbol,.sidebar .logo{
+  width:42px!important;height:42px!important;min-width:42px!important;
+  display:grid!important;place-items:center!important;
+  border-radius:11px!important;
+  background:var(--ax-surface)!important;
+  border:1px solid var(--ax-border-strong)!important;
+  color:var(--ax-accent)!important;
+  box-shadow:none!important;
+}
+
+.sidebar .brand-name{color:var(--ax-text)!important;white-space:nowrap!important;}
+.sidebar .brand-sub,.sidebar .brand-subtitle{color:var(--ax-muted)!important;white-space:nowrap!important;}
+
+.sidebar .nav-label,.sidebar .section-label{
+  flex:0 0 auto!important;
+  color:var(--ax-muted)!important;
+  padding:0 10px!important;
+  margin:2px 0 0!important;
+  font-size:11px!important;
+  letter-spacing:.13em!important;
+  text-transform:uppercase!important;
+  white-space:nowrap!important;
+  transition:opacity var(--ax-motion),transform var(--ax-motion)!important;
+}
+
+.sidebar .nav{
+  flex:1 1 auto!important;
+  width:100%!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-items:stretch!important;
+  gap:4px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding-right:2px!important;
+}
+
+.sidebar .nav a,.sidebar .nav-item{
+  position:relative!important;
+  min-height:46px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:11px 12px!important;
+  border:1px solid transparent!important;
+  border-radius:10px!important;
+  background:transparent!important;
+  color:var(--ax-muted)!important;
+  text-decoration:none!important;
+  font-size:15px!important;
+  font-weight:500!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  transition:background var(--ax-motion),color var(--ax-motion),border-color var(--ax-motion),padding var(--ax-motion)!important;
+}
+
+.sidebar .nav a:hover,.sidebar .nav-item:hover{
+  color:var(--ax-text)!important;
+  background:var(--ax-surface)!important;
+  border-color:var(--ax-border)!important;
+}
+
+.sidebar .nav a.active,.sidebar .nav-item.active{
+  color:var(--ax-accent)!important;
+  background:var(--ax-surface-2)!important;
+  border-color:var(--ax-border)!important;
+  box-shadow:inset 3px 0 0 var(--ax-accent)!important;
+}
+
+.sidebar .nav-icon{
+  flex:0 0 22px!important;
+  width:22px!important;
+  min-width:22px!important;
+  height:22px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  color:inherit!important;
+  font-size:15px!important;
+  line-height:1!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+.sidebar .nav-text{transition:opacity var(--ax-motion),transform var(--ax-motion)!important;}
+
+.sidebar .sidebar-bottom{
+  flex:0 0 auto!important;
+  margin-top:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:9px!important;
+  overflow:hidden!important;
+}
+
+.sidebar .session-box,.sidebar .user-mini{
+  background:var(--ax-surface)!important;
+  border:1px solid var(--ax-border)!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+
+.sidebar .session-box{padding:10px!important;}
+.sidebar .session-label{color:var(--ax-muted)!important;font-size:10px!important;letter-spacing:.1em!important;}
+.sidebar .session-user{color:var(--ax-text)!important;white-space:nowrap!important;}
+.sidebar .user-name strong{color:var(--ax-text)!important;}
+.sidebar .user-name span{color:var(--ax-muted)!important;}
+
+.sidebar .logout-btn{
+  min-height:44px!important;
+  border:1px solid var(--ax-border)!important;
+  border-radius:9px!important;
+  background:transparent!important;
+  color:var(--ax-danger)!important;
+  box-shadow:none!important;
+  transition:background var(--ax-motion),border-color var(--ax-motion),color var(--ax-motion)!important;
+}
+.sidebar .logout-btn:hover{background:var(--ax-surface)!important;border-color:var(--ax-danger)!important;}
+
+/* Desktop collapse control */
+.ax-sidebar-toggle{
+  position:absolute!important;
+  top:30px!important;
+  right:-16px!important;
+  width:32px!important;
+  height:32px!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid var(--ax-border-strong)!important;
+  border-radius:50%!important;
+  background:var(--ax-surface)!important;
+  color:var(--ax-text)!important;
+  font:600 18px/1 var(--font-mono,monospace)!important;
+  cursor:pointer!important;
+  z-index:1002!important;
+  box-shadow:none!important;
+  transition:transform var(--ax-motion),background var(--ax-motion),color var(--ax-motion)!important;
+}
+.ax-sidebar-toggle:hover{background:var(--ax-surface-2)!important;color:var(--ax-accent)!important;transform:scale(1.05)!important;}
+
+/* ---------- Collapsed desktop state ---------- */
+html.ax-sidebar-collapsed .sidebar{
+  width:var(--ax-sidebar-collapsed)!important;
+  min-width:var(--ax-sidebar-collapsed)!important;
+  padding-left:12px!important;
+  padding-right:12px!important;
+}
+html.ax-sidebar-collapsed .sidebar .brand{justify-content:center!important;padding-left:0!important;padding-right:0!important;}
+html.ax-sidebar-collapsed .sidebar .brand > *:not(.brand-symbol):not(.logo){display:none!important;}
+html.ax-sidebar-collapsed .sidebar .nav-label,
+html.ax-sidebar-collapsed .sidebar .section-label,
+html.ax-sidebar-collapsed .sidebar .nav-text,
+html.ax-sidebar-collapsed .sidebar .session-label,
+html.ax-sidebar-collapsed .sidebar .session-user,
+html.ax-sidebar-collapsed .sidebar .user-name,
+html.ax-sidebar-collapsed .sidebar .logout-btn,
+html.ax-sidebar-collapsed .sidebar .text-size-btn{opacity:0!important;transform:translateX(-8px)!important;pointer-events:none!important;}
+html.ax-sidebar-collapsed .sidebar .nav{gap:6px!important;}
+html.ax-sidebar-collapsed .sidebar .nav a,
+html.ax-sidebar-collapsed .sidebar .nav-item{
+  width:100%!important;
+  min-height:48px!important;
+  height:48px!important;
+  justify-content:center!important;
+  align-items:center!important;
+  padding:0!important;
+  margin:0!important;
+}
+html.ax-sidebar-collapsed .sidebar .nav-icon{
+  width:24px!important;
+  min-width:24px!important;
+  height:24px!important;
+  margin:0!important;
+  display:inline-flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+html.ax-sidebar-collapsed .sidebar .nav a.active{box-shadow:inset 3px 0 0 var(--ax-accent)!important;}
+html.ax-sidebar-collapsed .sidebar .user-mini{justify-content:center!important;padding:7px!important;}
+html.ax-sidebar-collapsed .sidebar .logout-btn{height:0!important;min-height:0!important;padding:0!important;margin:0!important;border-width:0!important;overflow:hidden!important;}
+html.ax-sidebar-collapsed .sidebar .text-size-btn{height:0!important;min-height:0!important;padding:0!important;margin:0!important;border-width:0!important;overflow:hidden!important;}
+html.ax-sidebar-collapsed .sidebar .sidebar-bottom{gap:8px!important;align-items:center!important;}
+html.ax-sidebar-collapsed .sidebar .user-mini{width:52px!important;min-width:52px!important;height:52px!important;min-height:52px!important;padding:5px!important;margin:0 auto!important;}
+html.ax-sidebar-collapsed .sidebar .avatar{width:42px!important;height:42px!important;min-width:42px!important;}
+html.ax-sidebar-collapsed .ax-sidebar-toggle{right:-16px!important;}
+
+/* Main areas from the different legacy page shells are normalized here. */
+.main,.main-content{
+  margin-left:var(--ax-sidebar-w)!important;
+  width:auto!important;
+  min-width:0!important;
+  padding:34px clamp(22px,4vw,48px) 56px!important;
+  transition:margin-left var(--ax-motion)!important;
+}
+html.ax-sidebar-collapsed .main,
+html.ax-sidebar-collapsed .main-content{margin-left:var(--ax-sidebar-collapsed)!important;}
+
+.page,.app-shell{min-height:100vh!important;}
+.page{margin-left:var(--ax-sidebar-w)!important;padding:34px clamp(22px,4vw,48px) 56px!important;transition:margin-left var(--ax-motion)!important;}
+html.ax-sidebar-collapsed .page{margin-left:var(--ax-sidebar-collapsed)!important;}
+
+/* Compatibility page gets the same shell through JS. */
+body.ax-compatibility-page .page{margin-left:var(--ax-sidebar-w)!important;}
+body.ax-compatibility-page .page>.topbar{display:none!important;}
+html.ax-sidebar-collapsed body.ax-compatibility-page .page{margin-left:var(--ax-sidebar-collapsed)!important;}
+
+/* Consistent page headers */
+.main>.topbar,.main>.header,.main-content>.topbar,.page>.topbar,.page>header.topbar{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  gap:20px!important;
+  margin-bottom:28px!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+.main h1,.main-content h1,.page h1{font-family:var(--font-head,"Space Grotesk",sans-serif)!important;color:var(--ax-text)!important;letter-spacing:-.02em!important;}
+.main .eyebrow,.main-content .eyebrow,.page .eyebrow{color:var(--ax-accent)!important;}
+.main .intro,.main-content .intro,.page .intro{color:var(--ax-muted)!important;}
+
+/* Consistent content surfaces */
+.panel,.hero-panel,.requests-panel,.stat,.card,.action-card,.footer-panel,.toolbar,.matrix,.state,.empty-state,.nf-list,.profile-card,.content-card{
+  box-shadow:none!important;
+}
+
+/* All major panels use the same solid surface where possible. */
+.panel,.hero-panel,.requests-panel,.stat,.card,.action-card,.footer-panel,.nf-list,.profile-card,.content-card{
+  background:var(--ax-surface)!important;
+  border-color:var(--ax-border)!important;
+}
+
+input,select,textarea{
+  background:var(--ax-surface)!important;
+  color:var(--ax-text)!important;
+  border-color:var(--ax-border)!important;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--ax-accent)!important;box-shadow:none!important;}
+
+button,.btn,.primary-btn,.logout-btn{box-shadow:none!important;}
+
+/* ---------- Mobile ---------- */
+.mobile-toggle,.menu-btn{
+  position:fixed!important;
+  top:12px!important;
+  left:12px!important;
+  z-index:1200!important;
+  width:42px!important;
+  height:42px!important;
+  min-height:42px!important;
+  padding:0!important;
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:1px solid var(--ax-border-strong)!important;
+  border-radius:10px!important;
+  background:var(--ax-surface)!important;
+  color:var(--ax-text)!important;
+  cursor:pointer!important;
+}
+
+.ax-sidebar-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:900;
+  background:rgba(0,0,0,.48);
+}
+
+@media (max-width:900px){
+  .sidebar{
+    width:min(290px,86vw)!important;
+    min-width:min(290px,86vw)!important;
+    transform:translateX(-105%)!important;
+    box-shadow:none!important;
+  }
+  .sidebar.open{transform:translateX(0)!important;}
+  html.ax-sidebar-collapsed .sidebar{width:min(290px,86vw)!important;min-width:min(290px,86vw)!important;}
+  html.ax-sidebar-collapsed .sidebar .brand>div:not(.brand-symbol):not(.logo),
+  html.ax-sidebar-collapsed .sidebar .nav-text,
+  html.ax-sidebar-collapsed .sidebar .user-name,
+  html.ax-sidebar-collapsed .sidebar .session-label,
+  html.ax-sidebar-collapsed .sidebar .session-user{display:block!important;opacity:1!important;transform:none!important;pointer-events:auto!important;}
+  html.ax-sidebar-collapsed .sidebar .nav a,
+  html.ax-sidebar-collapsed .sidebar .nav-item{justify-content:flex-start!important;padding:11px 12px!important;}
+  html.ax-sidebar-collapsed .sidebar .logout-btn{height:auto!important;min-height:44px!important;padding:10px!important;border-width:1px!important;}
+  .ax-sidebar-toggle{display:none!important;}
+  .mobile-toggle,.menu-btn{display:flex!important;}
+  .ax-sidebar-overlay.visible{display:block!important;}
+  .main,.main-content,.page,
+  html.ax-sidebar-collapsed .main,
+  html.ax-sidebar-collapsed .main-content,
+  html.ax-sidebar-collapsed .page{margin-left:0!important;padding:72px 16px 40px!important;}
+  .main>.topbar,.main>.header,.main-content>.topbar,.page>.topbar,.page>header.topbar{flex-direction:column!important;gap:14px!important;}
+}
+
+@media (max-width:640px){
+  .main,.main-content,.page{padding-left:14px!important;padding-right:14px!important;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .sidebar,.main,.main-content,.page,.nav a,.nav-item,.nav-text,.ax-sidebar-toggle{transition:none!important;}
+}
+
+
+/* Compatibility utility link used from equipment details. */
+.ax-compatibility-link{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:42px!important;padding:0 14px!important;border:1px solid var(--ax-border)!important;
+  border-radius:9px!important;background:var(--ax-surface)!important;color:var(--ax-text)!important;
+  font-weight:600!important;text-decoration:none!important;white-space:nowrap!important;
+}
+.ax-compatibility-link:hover{border-color:var(--ax-accent)!important;color:var(--ax-accent)!important;background:var(--ax-surface-2)!important;}
+
+@media (min-width:901px){
+/* ---------- True closed sidebar mode ----------
+   When collapsed, the sidebar becomes a zero-width rail.
+   Only the toggle remains visible. No icon boxes, nav items, avatar,
+   or empty controls are shown. */
+html.ax-sidebar-collapsed .sidebar{
+  width:0!important;
+  min-width:0!important;
+  max-width:0!important;
+  padding:0!important;
+  gap:0!important;
+  border-right:0!important;
+  overflow:visible!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+html.ax-sidebar-collapsed .sidebar .brand,
+html.ax-sidebar-collapsed .sidebar .section-label,
+html.ax-sidebar-collapsed .sidebar .nav,
+html.ax-sidebar-collapsed .sidebar .sidebar-bottom{
+  display:none!important;
+}
+
+html.ax-sidebar-collapsed .sidebar .ax-sidebar-toggle,
+html.ax-sidebar-collapsed .ax-sidebar-toggle{
+  display:grid!important;
+  position:absolute!important;
+  top:28px!important;
+  right:-16px!important;
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  min-height:32px!important;
+  margin:0!important;
+  padding:0!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  z-index:1005!important;
+}
+
+html.ax-sidebar-collapsed .main,
+html.ax-sidebar-collapsed .main-content,
+html.ax-sidebar-collapsed .page{
+  margin-left:0!important;
+}
+
+}
+
+/* Sidebar/content and account-footer corrections */
+.sidebar .sidebar-bottom{flex:0 0 auto!important;margin-top:auto!important;padding-top:12px!important;gap:8px!important;overflow:hidden!important;background:var(--ax-sidebar)!important;}
+.sidebar .user-mini{width:100%!important;min-width:0!important;min-height:62px!important;display:flex!important;align-items:center!important;gap:10px!important;padding:10px 12px!important;margin:0!important;box-sizing:border-box!important;}
+.sidebar .user-name{flex:1 1 auto!important;min-width:0!important;overflow:hidden!important;}
+.sidebar .user-name strong{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+.sidebar .logout-btn{width:100%!important;min-height:44px!important;margin:0!important;flex:0 0 auto!important;}
+.sidebar .section-label{flex:0 0 auto!important;}
+body.ax-compatibility-page .page{width:auto!important;max-width:none!important;margin-left:var(--ax-sidebar-w)!important;padding:30px 34px 48px!important;box-sizing:border-box!important;}
+@media(max-width:760px){body.ax-compatibility-page .page{margin-left:0!important;padding:76px 16px 28px!important;} .sidebar .nav{flex:1 1 auto!important;overflow-y:auto!important;}}

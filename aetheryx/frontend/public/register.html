@@ -1,0 +1,2141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Registry Enrollment — ÆTHERYX</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        :root {
+
+            --base: #0D1321;
+            --surface: #161B2E;
+            --surface-light: #1D2438;
+
+            --cyan: #4FE0C9;
+            --violet: #8B6FEA;
+
+            --text: #EEF2FF;
+            --muted: #8E98B7;
+
+            --danger: #FF6B81;
+
+            --border:
+                rgba(255,255,255,0.08);
+        }
+
+
+        * {
+
+            box-sizing: border-box;
+
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                "IBM Plex Sans",
+                sans-serif;
+
+            color: var(--text);
+
+            background:
+
+                radial-gradient(
+                    circle at 15% 20%,
+                    rgba(79,224,201,0.10),
+                    transparent 32%
+                ),
+
+                radial-gradient(
+                    circle at 85% 80%,
+                    rgba(139,111,234,0.12),
+                    transparent 32%
+                ),
+
+                var(--base);
+
+            overflow-x: hidden;
+        }
+
+
+        .background-grid {
+
+            position: fixed;
+
+            inset: 0;
+
+            pointer-events: none;
+
+            opacity: 0.18;
+
+            background-image:
+
+                linear-gradient(
+                    rgba(255,255,255,0.035) 1px,
+                    transparent 1px
+                ),
+
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.035) 1px,
+                    transparent 1px
+                );
+
+            background-size: 42px 42px;
+        }
+
+
+        .aurora {
+
+            position: fixed;
+
+            width: 420px;
+            height: 420px;
+
+            border-radius: 50%;
+
+            filter: blur(100px);
+
+            opacity: 0.13;
+
+            pointer-events: none;
+        }
+
+
+        .aurora-one {
+
+            top: -180px;
+            left: -140px;
+
+            background: var(--cyan);
+
+            animation:
+                driftOne 12s ease-in-out infinite alternate;
+        }
+
+
+        .aurora-two {
+
+            right: -160px;
+            bottom: -160px;
+
+            background: var(--violet);
+
+            animation:
+                driftTwo 14s ease-in-out infinite alternate;
+        }
+
+
+        @keyframes driftOne {
+
+            from {
+                transform: translate(0,0);
+            }
+
+            to {
+                transform: translate(60px,40px);
+            }
+        }
+
+
+        @keyframes driftTwo {
+
+            from {
+                transform: translate(0,0);
+            }
+
+            to {
+                transform: translate(-50px,-30px);
+            }
+        }
+
+
+        .scanline {
+
+            position: fixed;
+
+            left: 0;
+            right: 0;
+
+            height: 1px;
+
+            background:
+                rgba(79,224,201,0.10);
+
+            pointer-events: none;
+
+            animation:
+                scan 8s linear infinite;
+        }
+
+
+        @keyframes scan {
+
+            from {
+                top: -2px;
+            }
+
+            to {
+                top: 100%;
+            }
+        }
+
+
+        .page {
+
+            position: relative;
+
+            z-index: 1;
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 35px 20px;
+        }
+
+
+        .registry {
+
+            width:
+                min(1050px, 100%);
+
+            display: grid;
+
+            grid-template-columns:
+                0.85fr 1.15fr;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 26px;
+
+            overflow: hidden;
+
+            background:
+                rgba(13,19,33,0.90);
+
+            box-shadow:
+                0 30px 100px rgba(0,0,0,0.45);
+
+            backdrop-filter:
+                blur(20px);
+
+            animation:
+                appear 0.7s ease;
+        }
+
+
+        @keyframes appear {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                    translateY(20px);
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+            }
+        }
+
+
+        /* ============================================================
+           INTRO
+           ============================================================ */
+
+        .intro {
+
+            padding: 48px;
+
+            border-right:
+                1px solid var(--border);
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: space-between;
+        }
+
+
+        .brand {
+
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size: 28px;
+
+            font-weight: 700;
+
+            letter-spacing: 4px;
+        }
+
+
+        .brand span {
+
+            color: var(--cyan);
+
+            text-shadow:
+                0 0 20px
+                rgba(79,224,201,0.3);
+        }
+
+
+        .eyebrow {
+
+            margin-top: 15px;
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 10px;
+
+            letter-spacing: 2px;
+
+            color: var(--violet);
+
+            text-transform:
+                uppercase;
+        }
+
+
+        .intro-content {
+
+            margin-top: 80px;
+        }
+
+
+        .intro-content h1 {
+
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size:
+                clamp(40px,5vw,62px);
+
+            line-height: 0.98;
+
+            letter-spacing: -2px;
+        }
+
+
+        .intro-content h1 span {
+
+            background:
+                linear-gradient(
+                    120deg,
+                    var(--cyan),
+                    var(--violet)
+                );
+
+            -webkit-background-clip:
+                text;
+
+            background-clip:
+                text;
+
+            color: transparent;
+        }
+
+
+        .intro-content p {
+
+            margin-top: 22px;
+
+            max-width: 390px;
+
+            color: var(--muted);
+
+            line-height: 1.8;
+
+            font-size: 14px;
+        }
+
+
+        .system-status {
+
+            margin-top: 35px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            width: fit-content;
+
+            padding: 9px 13px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 999px;
+
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            letter-spacing: 1px;
+        }
+
+
+        .status-dot {
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background:
+                var(--cyan);
+
+            box-shadow:
+                0 0 12px
+                var(--cyan);
+        }
+
+
+        .footer-code {
+
+            margin-top: 50px;
+
+            color:
+                rgba(142,152,183,0.55);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            line-height: 1.8;
+
+            letter-spacing: 1px;
+        }
+
+
+        /* ============================================================
+           FORM
+           ============================================================ */
+
+        .form-card {
+
+            padding: 45px;
+        }
+
+
+        .form-header {
+
+            margin-bottom: 28px;
+        }
+
+
+        .form-header .label {
+
+            color:
+                var(--violet);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 10px;
+
+            letter-spacing: 2px;
+
+            text-transform:
+                uppercase;
+        }
+
+
+        .form-header h2 {
+
+            margin-top: 8px;
+
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size: 30px;
+        }
+
+
+        .form-header p {
+
+            margin-top: 8px;
+
+            color: var(--muted);
+
+            font-size: 13px;
+        }
+
+
+        form {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 17px;
+        }
+
+
+        .field-row {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 15px;
+        }
+
+
+        .field {
+
+            display: flex;
+
+            flex-direction: column;
+        }
+
+
+        .field label {
+
+            margin-bottom: 8px;
+
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            letter-spacing: 1.4px;
+
+            text-transform:
+                uppercase;
+        }
+
+
+        .field input {
+
+            width: 100%;
+
+            height: 49px;
+
+            padding: 0 14px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.09);
+
+            border-radius: 10px;
+
+            outline: none;
+
+            background:
+                rgba(5,9,20,0.65);
+
+            color: var(--text);
+
+            font-family:
+                "IBM Plex Sans",
+                sans-serif;
+
+            font-size: 14px;
+
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s;
+        }
+
+
+        .field input:focus {
+
+            border-color:
+                rgba(79,224,201,0.65);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(79,224,201,0.07);
+        }
+
+
+        .hint {
+
+            margin-top: 6px;
+
+            color:
+                rgba(142,152,183,0.55);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 8px;
+        }
+
+
+        /* ============================================================
+           ROLE SELECTION
+           ============================================================ */
+
+        .alignment-title {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            margin-bottom: 9px;
+        }
+
+
+        .alignment-title span:first-child {
+
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            letter-spacing: 1.4px;
+
+            text-transform:
+                uppercase;
+        }
+
+
+        .alignment-title span:last-child {
+
+            color:
+                rgba(142,152,183,0.45);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 8px;
+        }
+
+
+        .role-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 12px;
+        }
+
+
+        .role-option {
+
+            cursor: pointer;
+        }
+
+
+        .role-option input {
+
+            position: absolute;
+
+            opacity: 0;
+
+            pointer-events: none;
+        }
+
+
+        .role-card {
+
+            position: relative;
+
+            min-height: 92px;
+
+            padding: 18px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            border-radius: 13px;
+
+            background:
+                rgba(255,255,255,0.018);
+
+            transition:
+                0.2s ease;
+        }
+
+
+        .role-card:hover {
+
+            transform:
+                translateY(-2px);
+
+            border-color:
+                rgba(255,255,255,0.18);
+        }
+
+
+        .role-option input:checked
+        + .role-card {
+
+            border-color:
+                rgba(79,224,201,0.75);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(79,224,201,0.10),
+                    rgba(139,111,234,0.07)
+                );
+
+            box-shadow:
+                0 0 25px
+                rgba(79,224,201,0.07);
+        }
+
+
+        .role-indicator {
+
+            position: absolute;
+
+            top: 14px;
+            right: 14px;
+
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.25);
+        }
+
+
+        .role-option input:checked
+        + .role-card
+        .role-indicator {
+
+            background:
+                var(--cyan);
+
+            border-color:
+                var(--cyan);
+
+            box-shadow:
+                0 0 12px
+                var(--cyan);
+        }
+
+
+        .role-name {
+
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-weight: 700;
+
+            font-size: 14px;
+
+            letter-spacing: 1px;
+        }
+
+
+        .role-description {
+
+            margin-top: 6px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+            line-height: 1.5;
+        }
+
+
+        /* ============================================================
+           STATUS
+           ============================================================ */
+
+        .status {
+
+            display: none;
+
+            padding: 12px 14px;
+
+            border-radius: 9px;
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 10px;
+
+            line-height: 1.5;
+        }
+
+
+        .status.show {
+
+            display: block;
+        }
+
+
+        .status.error {
+
+            color: #ffdce2;
+
+            border:
+                1px solid
+                rgba(255,107,129,0.28);
+
+            background:
+                rgba(255,107,129,0.08);
+        }
+
+
+        .status.success {
+
+            color: #d9fff8;
+
+            border:
+                1px solid
+                rgba(79,224,201,0.28);
+
+            background:
+                rgba(79,224,201,0.08);
+        }
+
+
+        /* ============================================================
+           BUTTON
+           ============================================================ */
+
+        .submit-btn {
+
+            width: 100%;
+
+            height: 53px;
+
+            border:
+                1px solid
+                rgba(79,224,201,0.45);
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    100deg,
+                    rgba(79,224,201,0.14),
+                    rgba(139,111,234,0.16)
+                );
+
+            color: var(--text);
+
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            letter-spacing: 2px;
+
+            cursor: pointer;
+
+            transition:
+                0.2s ease;
+        }
+
+
+        .submit-btn:hover {
+
+            transform:
+                translateY(-2px);
+
+            border-color:
+                var(--cyan);
+
+            box-shadow:
+                0 0 30px
+                rgba(79,224,201,0.10);
+        }
+
+
+        .submit-btn:disabled {
+
+            opacity: 0.55;
+
+            cursor: wait;
+
+            transform: none;
+        }
+
+
+        .login-link {
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+
+        .login-link a {
+
+            color: var(--cyan);
+
+            text-decoration: none;
+
+            font-weight: 600;
+        }
+
+
+        .login-link a:hover {
+
+            text-decoration:
+                underline;
+        }
+
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+
+        @media (max-width: 850px) {
+
+            .registry {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .intro {
+
+                border-right: none;
+
+                border-bottom:
+                    1px solid
+                    var(--border);
+            }
+
+
+            .intro-content {
+
+                margin-top: 45px;
+            }
+        }
+
+
+        @media (max-width: 560px) {
+
+            .page {
+
+                padding: 15px;
+            }
+
+
+            .intro,
+            .form-card {
+
+                padding:
+                    30px 22px;
+            }
+
+
+            .field-row,
+            .role-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .intro-content h1 {
+
+                font-size: 42px;
+            }
+        }
+
+    </style>
+
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+</head>
+
+
+<body>
+
+    <div class="background-grid"></div>
+
+    <div class="aurora aurora-one"></div>
+
+    <div class="aurora aurora-two"></div>
+
+    <div class="scanline"></div>
+
+
+    <main class="page">
+
+        <section class="registry">
+
+
+            <!-- =====================================================
+                 INTRO
+                 ===================================================== -->
+
+            <div class="intro">
+
+                <div>
+
+                    <div class="brand">
+                        ÆTHER<span>YX</span>
+                    </div>
+
+
+                    <div class="eyebrow">
+                        New Identity / Registry 01
+                    </div>
+
+
+                    <div class="intro-content">
+
+                        <h1>
+
+                            Enter the
+
+                            <span>
+                                ÆTHERYX.
+                            </span>
+
+                        </h1>
+
+
+                        <p>
+
+                            Initialize your ÆTHERYX identity
+                            and connect to the resource network.
+                            Select your alignment to determine
+                            your account classification.
+
+                        </p>
+
+
+                        <div class="system-status">
+
+                            <span class="status-dot"></span>
+
+                            REGISTRY ONLINE
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="footer-code">
+
+                    ÆTHERYX NETWORK
+                    <br>
+
+                    IDENTITY PROTOCOL | ACTIVE
+                    <br>
+
+                    AUTHORIZATION LAYER | SECURED
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 REGISTRATION FORM
+                 ===================================================== -->
+
+            <div class="form-card">
+
+
+                <div class="form-header">
+
+                    <div class="label">
+                        Secure Enrollment
+                    </div>
+
+
+                    <h2>
+                        Registry Enrollment
+                    </h2>
+
+
+                    <p>
+                        Initialize your account credentials.
+                    </p>
+
+                </div>
+
+
+                <form
+                    id="registerForm"
+                    novalidate
+                >
+
+
+                    <!-- NAME + HANDLE -->
+
+                    <div class="field-row">
+
+
+                        <div class="field">
+
+                            <label for="fullName">
+                                Full Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="fullName"
+                                name="fullName"
+                                placeholder="Your full name"
+                                autocomplete="name"
+                                maxlength="100"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="handle">
+                                Handle
+                            </label>
+
+                            <input
+                                type="text"
+                                id="handle"
+                                name="handle"
+                                placeholder="hero01"
+                                autocomplete="username"
+                                maxlength="30"
+                                required
+                            >
+
+                            <div class="hint">
+                                3–30 characters:
+                                letters, numbers, _ or -
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="field">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            maxlength="150"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="field-row">
+
+
+                        <div class="field">
+
+                            <label for="password">
+                                Password
+                            </label>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Minimum 8 characters"
+                                autocomplete="new-password"
+                                minlength="8"
+                                maxlength="72"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="confirmPassword">
+                                Confirm Password
+                            </label>
+
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder="Repeat password"
+                                autocomplete="new-password"
+                                minlength="8"
+                                maxlength="72"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         ROLE
+                         ================================================= -->
+
+                    <div>
+
+                        <div class="alignment-title">
+
+                            <span>
+                                Choose Alignment
+                            </span>
+
+                            <span>
+                                ADMIN ACCESS RESERVED
+                            </span>
+
+                        </div>
+
+
+                        <div class="role-grid">
+
+
+                            <!-- HERO -->
+
+                            <label class="role-option">
+
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="hero"
+                                    checked
+                                >
+
+                                <div class="role-card">
+
+                                    <span
+                                        class="role-indicator"
+                                    ></span>
+
+                                    <div class="role-name">
+                                        HERO
+                                    </div>
+
+                                    <div class="role-description">
+                                        Standard resource network access.
+                                    </div>
+
+                                </div>
+
+                            </label>
+
+
+                            <!-- VILLAIN -->
+
+                            <label class="role-option">
+
+                                <!--
+                                    IMPORTANT:
+
+                                    UI:
+                                    VILLAIN
+
+                                    Backend/database:
+                                    enemy
+
+                                    This is intentional.
+                                -->
+
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="enemy"
+                                >
+
+                                <div class="role-card">
+
+                                    <span
+                                        class="role-indicator"
+                                    ></span>
+
+                                    <div class="role-name">
+                                        VILLAIN
+                                    </div>
+
+                                    <div class="role-description">
+                                        Alternate alignment access.
+                                    </div>
+
+                                </div>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div
+                        id="statusMessage"
+                        class="status"
+                        role="alert"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <!-- SUBMIT -->
+
+                    <button
+                        type="submit"
+                        class="submit-btn"
+                        id="submitBtn"
+                    >
+                        INITIALIZE IDENTITY
+                    </button>
+
+
+                    <!-- LOGIN -->
+
+                    <div class="login-link">
+
+                        Already registered?
+
+                        <a href="login.html">
+                            Access Registry
+                        </a>
+
+                    </div>
+
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        "use strict";
+
+
+        /*
+         * ============================================================
+         * ÆTHERYX REGISTRATION SYSTEM
+         * ============================================================
+         */
+
+
+        /*
+         * IMPORTANT API PATH
+         *
+         * Current page:
+         *
+         * /aetheryx/frontend/public/register.html
+         *
+         * Backend:
+         *
+         * /aetheryx/backend/api/auth/register.php
+         */
+
+        const REGISTER_API =
+            "../../backend/api/auth/register.php";
+
+
+        /*
+         * Publicly selectable roles.
+         *
+         * IMPORTANT:
+         *
+         * Admin is intentionally NOT included.
+         *
+         * UI:
+         *
+         * hero
+         * villain
+         *
+         * Backend:
+         *
+         * hero
+         * enemy
+         */
+
+        const ALLOWED_ROLES = [
+            "hero",
+            "enemy"
+        ];
+
+
+        /*
+         * ============================================================
+         * ELEMENTS
+         * ============================================================
+         */
+
+        const registerForm =
+            document.getElementById(
+                "registerForm"
+            );
+
+        const submitBtn =
+            document.getElementById(
+                "submitBtn"
+            );
+
+        const statusMessage =
+            document.getElementById(
+                "statusMessage"
+            );
+
+        const fullNameInput =
+            document.getElementById(
+                "fullName"
+            );
+
+        const handleInput =
+            document.getElementById(
+                "handle"
+            );
+
+        const emailInput =
+            document.getElementById(
+                "email"
+            );
+
+        const passwordInput =
+            document.getElementById(
+                "password"
+            );
+
+        const confirmPasswordInput =
+            document.getElementById(
+                "confirmPassword"
+            );
+
+
+        /*
+         * ============================================================
+         * STATUS
+         * ============================================================
+         */
+
+        function showStatus(
+            message,
+            type = "error"
+        ) {
+
+            statusMessage.textContent =
+                message;
+
+            statusMessage.className =
+                "status show " + type;
+        }
+
+
+        function clearStatus() {
+
+            statusMessage.textContent =
+                "";
+
+            statusMessage.className =
+                "status";
+        }
+
+
+        /*
+         * ============================================================
+         * ROLE
+         * ============================================================
+         */
+
+        function getSelectedRole() {
+
+            const selectedRole =
+                document.querySelector(
+                    'input[name="role"]:checked'
+                );
+
+
+            if (!selectedRole) {
+
+                return null;
+            }
+
+
+            const role =
+                String(
+                    selectedRole.value
+                )
+                .trim()
+                .toLowerCase();
+
+
+            /*
+             * HERO
+             */
+
+            if (role === "hero") {
+
+                return "hero";
+            }
+
+
+            /*
+             * VILLAIN
+             *
+             * UI label:
+             * VILLAIN
+             *
+             * Database/API:
+             * enemy
+             */
+
+            if (
+                role === "enemy" ||
+                role === "villain" ||
+                role === "villian"
+            ) {
+
+                return "enemy";
+            }
+
+
+            return null;
+        }
+
+
+        /*
+         * ============================================================
+         * VALIDATION
+         * ============================================================
+         */
+
+        function validateForm() {
+
+            const fullName =
+                fullNameInput.value.trim();
+
+            const handle =
+                handleInput.value.trim();
+
+            const email =
+                emailInput.value
+                    .trim()
+                    .toLowerCase();
+
+            const password =
+                passwordInput.value;
+
+            const confirmPassword =
+                confirmPasswordInput.value;
+
+            const role =
+                getSelectedRole();
+
+
+            /*
+             * FULL NAME
+             */
+
+            if (!fullName) {
+
+                showStatus(
+                    "Full name is required."
+                );
+
+                fullNameInput.focus();
+
+                return false;
+            }
+
+
+            if (fullName.length < 2) {
+
+                showStatus(
+                    "Full name must contain at least 2 characters."
+                );
+
+                fullNameInput.focus();
+
+                return false;
+            }
+
+
+            /*
+             * HANDLE
+             */
+
+            const handlePattern =
+                /^[A-Za-z0-9_-]{3,30}$/;
+
+
+            if (
+                !handlePattern.test(handle)
+            ) {
+
+                showStatus(
+                    "Handle must be 3–30 characters and use only letters, numbers, _ or -."
+                );
+
+                handleInput.focus();
+
+                return false;
+            }
+
+
+            /*
+             * EMAIL
+             *
+             * FIXED REGEX
+             */
+
+            const emailPattern =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+            if (
+                !emailPattern.test(email)
+            ) {
+
+                showStatus(
+                    "Please enter a valid email address."
+                );
+
+                emailInput.focus();
+
+                return false;
+            }
+
+
+            /*
+             * PASSWORD
+             */
+
+            if (
+                password.length < 8
+            ) {
+
+                showStatus(
+                    "Password must contain at least 8 characters."
+                );
+
+                passwordInput.focus();
+
+                return false;
+            }
+
+
+            /*
+             * CONFIRM PASSWORD
+             */
+
+            if (
+                password !==
+                confirmPassword
+            ) {
+
+                showStatus(
+                    "Password confirmation does not match."
+                );
+
+                confirmPasswordInput.focus();
+
+                return false;
+            }
+
+
+            /*
+             * ROLE
+             */
+
+            if (!role) {
+
+                showStatus(
+                    "Please choose HERO or VILLAIN."
+                );
+
+                return false;
+            }
+
+
+            /*
+             * FINAL ROLE CHECK
+             */
+
+            if (
+                !ALLOWED_ROLES.includes(role)
+            ) {
+
+                showStatus(
+                    "Invalid role. Choose HERO or VILLAIN."
+                );
+
+                return false;
+            }
+
+
+            return true;
+        }
+
+
+        /*
+         * ============================================================
+         * REGISTRATION
+         * ============================================================
+         */
+
+        registerForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                clearStatus();
+
+
+                /*
+                 * Validate
+                 */
+
+                if (!validateForm()) {
+
+                    return;
+                }
+
+
+                /*
+                 * Get normalized role
+                 */
+
+                const role =
+                    getSelectedRole();
+
+
+                /*
+                 * Build payload
+                 *
+                 * VILLAIN sends:
+                 *
+                 * role: "enemy"
+                 */
+
+                const payload = {
+
+                    fullName:
+                        fullNameInput.value.trim(),
+
+                    handle:
+                        handleInput.value.trim(),
+
+                    email:
+                        emailInput.value
+                            .trim()
+                            .toLowerCase(),
+
+                    password:
+                        passwordInput.value,
+
+                    role:
+                        role
+                };
+
+
+                /*
+                 * DEBUG
+                 */
+
+                console.log(
+                    "================================"
+                );
+
+                console.log(
+                    "ÆTHERYX REGISTRATION"
+                );
+
+                console.log(
+                    "API:",
+                    REGISTER_API
+                );
+
+                console.log(
+                    "ROLE:",
+                    payload.role
+                );
+
+                console.log(
+                    "PAYLOAD:",
+                    {
+                        fullName:
+                            payload.fullName,
+
+                        handle:
+                            payload.handle,
+
+                        email:
+                            payload.email,
+
+                        role:
+                            payload.role
+                    }
+                );
+
+                console.log(
+                    "================================"
+                );
+
+
+                /*
+                 * Loading
+                 */
+
+                submitBtn.disabled =
+                    true;
+
+                submitBtn.textContent =
+                    "INITIALIZING...";
+
+
+                try {
+
+
+                    /*
+                     * Send request
+                     */
+
+                    const response =
+                        await fetch(
+                            REGISTER_API,
+                            {
+
+                                method:
+                                    "POST",
+
+                                headers: {
+
+                                    "Content-Type":
+                                        "application/json",
+
+                                    "Accept":
+                                        "application/json"
+                                },
+
+                                credentials:
+                                    "include",
+
+                                body:
+                                    JSON.stringify(
+                                        payload
+                                    )
+                            }
+                        );
+
+
+                    /*
+                     * Read response as text first.
+                     *
+                     * This lets us see PHP errors instead
+                     * of blindly failing JSON parsing.
+                     */
+
+                    const rawText =
+                        await response.text();
+
+
+                    console.log(
+                        "[ÆTHERYX] Server raw response:",
+                        rawText
+                    );
+
+
+                    let data;
+
+
+                    try {
+
+                        data =
+                            JSON.parse(
+                                rawText
+                            );
+
+                    } catch (error) {
+
+                        console.error(
+                            "[ÆTHERYX] Invalid JSON:",
+                            rawText
+                        );
+
+                        throw new Error(
+                            "The server returned an invalid response."
+                        );
+                    }
+
+
+                    console.log(
+                        "[ÆTHERYX] Server response:",
+                        data
+                    );
+
+
+                    /*
+                     * Server failure
+                     */
+
+                    if (
+                        !response.ok ||
+                        !data.success
+                    ) {
+
+                        throw new Error(
+                            data.message ||
+                            "Registration failed."
+                        );
+                    }
+
+
+                    /*
+                     * Determine returned role
+                     */
+
+                    const registeredRole =
+                        String(
+                            data.user?.role ||
+                            data.role ||
+                            payload.role ||
+                            ""
+                        )
+                        .trim()
+                        .toLowerCase();
+
+
+                    /*
+                     * UI display
+                     */
+
+                    const displayRole =
+                        registeredRole === "enemy"
+                            ? "VILLAIN"
+                            : "HERO";
+
+
+                    /*
+                     * Success
+                     */
+
+                    showStatus(
+
+                        "Identity initialized successfully as " +
+                        displayRole +
+                        ". Redirecting to login...",
+
+                        "success"
+                    );
+
+
+                    /*
+                     * Clear form
+                     */
+
+                    registerForm.reset();
+
+
+                    /*
+                     * Redirect
+                     */
+
+                    setTimeout(
+                        function () {
+
+                            window.location.href =
+                                "login.html";
+
+                        },
+                        1500
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "ÆTHERYX registration error:",
+                        error
+                    );
+
+
+                    showStatus(
+
+                        error.message ||
+                        "Could not connect to the ÆTHERYX Registry."
+
+                    );
+
+
+                } finally {
+
+                    submitBtn.disabled =
+                        false;
+
+                    submitBtn.textContent =
+                        "INITIALIZE IDENTITY";
+                }
+
+            }
+        );
+
+
+        /*
+         * ============================================================
+         * CLEAR STATUS ON INPUT
+         * ============================================================
+         */
+
+        [
+            fullNameInput,
+            handleInput,
+            emailInput,
+            passwordInput,
+            confirmPasswordInput
+        ].forEach(
+            function (input) {
+
+                input.addEventListener(
+                    "input",
+                    clearStatus
+                );
+            }
+        );
+
+
+        /*
+         * ============================================================
+         * ROLE CHANGE
+         * ============================================================
+         */
+
+        document
+            .querySelectorAll(
+                'input[name="role"]'
+            )
+            .forEach(
+                function (radio) {
+
+                    radio.addEventListener(
+                        "change",
+                        function () {
+
+                            clearStatus();
+
+                            console.log(
+                                "[ÆTHERYX] Selected role:",
+                                getSelectedRole()
+                            );
+                        }
+                    );
+                }
+            );
+
+
+        /*
+         * ============================================================
+         * STARTUP
+         * ============================================================
+         */
+
+        console.log(
+            "ÆTHERYX Registry loaded."
+        );
+
+        console.log(
+            "Registration API:",
+            REGISTER_API
+        );
+
+        console.log(
+            "Allowed roles:",
+            ALLOWED_ROLES
+        );
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compatibility — ÆTHERYX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+<script defer src="../assets/js/notification-drawer.js"></script>
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+<style>
+  body.ax-compatibility-page{background:var(--ax-bg)!important;color:var(--ax-text)!important;}
+  .compat-page{max-width:1200px;margin:0 auto;}
+  .compat-header{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:22px;}
+  .compat-kicker{font:600 12px/1.2 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--ax-accent);margin-bottom:8px;}
+  .compat-title{font:700 clamp(28px,4vw,42px)/1.05 "Space Grotesk",sans-serif;letter-spacing:-.025em;}
+  .compat-intro{max-width:720px;margin-top:10px;color:var(--ax-muted);line-height:1.65;}
+  .compat-status{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-surface);font:500 11px "IBM Plex Mono",monospace;color:var(--ax-muted);white-space:nowrap;}
+  .compat-status .dot{width:7px;height:7px;border-radius:50%;background:var(--ax-success);}
+  .compat-status.offline .dot{background:var(--ax-danger);}
+  .compat-help{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:18px;}
+  .help-panel{background:var(--ax-surface);border:1px solid var(--ax-border);border-radius:12px;padding:18px;}
+  .help-panel h2{font:600 15px "Space Grotesk",sans-serif;margin-bottom:10px;color:var(--ax-text);}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .step{padding:12px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);}
+  .step-num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ax-surface-2);color:var(--ax-accent);font:600 11px "IBM Plex Mono",monospace;margin-bottom:9px;}
+  .step strong{display:block;font-size:13px;margin-bottom:4px;}
+  .step span,.help-panel p{font-size:12px;line-height:1.55;color:var(--ax-muted);}
+  .status-list{display:grid;gap:8px;}
+  .status-item{display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);}
+  .status-badge{font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;padding:5px 7px;border-radius:6px;white-space:nowrap;}
+  .status-badge.compatible{color:var(--ax-success);border:1px solid rgba(95,211,154,.28);background:rgba(95,211,154,.07);}
+  .status-badge.incompatible{color:var(--ax-danger);border:1px solid rgba(230,107,123,.28);background:rgba(230,107,123,.07);}
+  .status-item span{font-size:12px;line-height:1.5;color:var(--ax-muted);}
+  .compat-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 220px auto auto;gap:10px;margin-bottom:16px;}
+  .compat-toolbar input,.compat-toolbar select{min-width:0;width:100%;height:44px;}
+  .compat-toolbar button{height:44px;white-space:nowrap;}
+  .compat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .summary-chip{padding:8px 10px;border:1px solid var(--ax-border);border-radius:8px;background:var(--ax-surface);color:var(--ax-muted);font:500 11px "IBM Plex Mono",monospace;}
+  .summary-chip strong{color:var(--ax-text);}
+  .compat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+  .compat-card{background:var(--ax-surface);border:1px solid var(--ax-border);border-radius:12px;padding:17px;transition:border-color var(--ax-motion),transform var(--ax-motion);}
+  .compat-card:hover{border-color:var(--ax-border-strong);transform:translateY(-2px);}
+  .compat-card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:13px;}
+  .compat-record{font:500 10px "IBM Plex Mono",monospace;color:var(--ax-muted);}
+  .compat-card h3{font:600 16px/1.3 "Space Grotesk",sans-serif;margin-bottom:5px;}
+  .pair{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0;}
+  .pair span{padding:6px 8px;border:1px solid var(--ax-border);border-radius:7px;background:var(--ax-bg);font-size:11px;color:var(--ax-text);}
+  .pair .plus{border:0;background:transparent;color:var(--ax-muted);padding-inline:0;}
+  .compat-note{font-size:12px;line-height:1.6;color:var(--ax-muted);min-height:38px;}
+  .compat-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--ax-border);}
+  .compat-action{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 11px;border:1px solid var(--ax-border);border-radius:8px;background:var(--ax-surface-2);color:var(--ax-text);font-size:11px;font-weight:600;text-decoration:none;}
+  .compat-action:hover{border-color:var(--ax-accent);color:var(--ax-accent);}
+  .compat-state{padding:36px 18px;text-align:center;background:var(--ax-surface);border:1px dashed var(--ax-border);border-radius:12px;color:var(--ax-muted);}
+  .compat-state strong{display:block;color:var(--ax-text);margin-bottom:6px;font:600 16px "Space Grotesk",sans-serif;}
+  .compat-state.error strong{color:var(--ax-danger);}
+  .hidden{display:none!important;}
+  @media(max-width:900px){.compat-header{align-items:flex-start;flex-direction:column}.compat-help{grid-template-columns:1fr}.steps{grid-template-columns:repeat(2,1fr)}.compat-toolbar{grid-template-columns:1fr 1fr}.compat-toolbar input{grid-column:1/-1}}
+  @media(max-width:560px){.steps{grid-template-columns:1fr}.compat-toolbar{grid-template-columns:1fr}.compat-toolbar input{grid-column:auto}.compat-header{margin-bottom:18px}.compat-page{width:100%}}
+</style>
+</head>
+<body class="ax-compatibility-page">
+<main class="page">
+  <div class="compat-page">
+    <header class="compat-header">
+      <div>
+        <div class="compat-kicker">ÆTHERYX / Equipment intelligence</div>
+        <h1 class="compat-title">Compatibility</h1>
+        <p class="compat-intro">Check the registered relationship between equipment and resources before you submit a request. Compatibility is an information tool: it shows what your system has recorded, including compatible and incompatible pairings.</p>
+      </div>
+      <div class="compat-status" id="statusPill"><span class="dot"></span><span id="statusText">Connecting...</span></div>
+    </header>
+
+    <section class="compat-help" aria-label="How to use Compatibility">
+      <div class="help-panel">
+        <h2>How to use Compatibility</h2>
+        <div class="steps">
+          <div class="step"><span class="step-num">1</span><strong>Search</strong><span>Type an equipment or resource name to find matching records.</span></div>
+          <div class="step"><span class="step-num">2</span><strong>Filter</strong><span>Use the relationship filter to show compatible or incompatible records.</span></div>
+          <div class="step"><span class="step-num">3</span><strong>Review</strong><span>Read the pair and notes before deciding what to request.</span></div>
+          <div class="step"><span class="step-num">4</span><strong>Continue</strong><span>Use View equipment to open the equipment record and continue your normal request flow.</span></div>
+        </div>
+      </div>
+      <div class="help-panel">
+        <h2>What the status means</h2>
+        <div class="status-list">
+          <div class="status-item"><span class="status-badge compatible">Compatible</span><span>The database records this equipment/resource pairing as compatible.</span></div>
+          <div class="status-item"><span class="status-badge incompatible">Incompatible</span><span>The database records this pairing as incompatible, so review it before requesting the equipment.</span></div>
+        </div>
+        <p style="margin-top:10px">Compatibility does not create a request or change inventory. It is a reference check that uses the records already stored in ÆTHERYX.</p>
+      </div>
+    </section>
+
+    <section class="compat-toolbar" aria-label="Compatibility controls">
+      <input id="search" type="search" autocomplete="off" placeholder="Search equipment or resource..." aria-label="Search compatibility records">
+      <select id="filter" aria-label="Filter compatibility status"><option value="">All relationships</option></select>
+      <button id="reset" type="button">Reset</button>
+      <button id="refresh" type="button">Refresh</button>
+    </section>
+
+    <section class="compat-summary" aria-label="Compatibility summary">
+      <div class="summary-chip">Records <strong id="countTotal">0</strong></div>
+      <div class="summary-chip">Compatible <strong id="countCompatible">0</strong></div>
+      <div class="summary-chip">Incompatible <strong id="countIncompatible">0</strong></div>
+      <div class="summary-chip">Showing <strong id="countShowing">0</strong></div>
+    </section>
+
+    <section id="matrix" class="compat-grid" aria-live="polite"></section>
+    <section id="loading" class="compat-state"><strong>Loading compatibility records</strong>Reading the current compatibility data from ÆTHERYX.</section>
+    <section id="empty" class="compat-state hidden"><strong>No matching records</strong>Try a different search term or reset the filter.</section>
+    <section id="error" class="compat-state error hidden"><strong>Compatibility service unavailable</strong><span id="errorText">Unable to retrieve compatibility records.</span></section>
+  </div>
+</main>
+
+<script>
+'use strict';
+
+const API_URL = '../../backend/api/compatibility/list.php';
+const matrix = document.getElementById('matrix');
+const loading = document.getElementById('loading');
+const empty = document.getElementById('empty');
+const error = document.getElementById('error');
+const errorText = document.getElementById('errorText');
+const search = document.getElementById('search');
+const filter = document.getElementById('filter');
+const reset = document.getElementById('reset');
+const refresh = document.getElementById('refresh');
+const statusText = document.getElementById('statusText');
+const statusPill = document.getElementById('statusPill');
+const countTotal = document.getElementById('countTotal');
+const countCompatible = document.getElementById('countCompatible');
+const countIncompatible = document.getElementById('countIncompatible');
+const countShowing = document.getElementById('countShowing');
+
+let records = [];
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function normalize(item) {
+  const type = String(item.type ?? item.compatibility_type ?? item.status ?? 'General').toLowerCase();
+  return {
+    id: item.id ?? item.compatibility_id ?? '',
+    equipment_id: item.equipment_id ?? null,
+    equipment_name: item.equipment_name ?? item.equipment ?? item.name ?? 'Equipment',
+    resource_id: item.resource_id ?? null,
+    resource_name: item.resource_name ?? item.resource ?? 'Resource',
+    description: item.description ?? item.notes ?? item.details ?? 'No additional notes recorded.',
+    type: type.charAt(0).toUpperCase() + type.slice(1)
+  };
+}
+
+function setState(active) {
+  [loading, empty, error].forEach(el => el.classList.add('hidden'));
+  if (active) active.classList.remove('hidden');
+}
+
+async function requestJSON() {
+  const response = await fetch(API_URL, {method:'GET', credentials:'include', cache:'no-store', headers:{Accept:'application/json'}});
+  const raw = await response.text();
+  let data;
+  try { data = raw ? JSON.parse(raw) : {}; } catch { throw new Error(`Invalid JSON response from compatibility API. HTTP ${response.status}.`); }
+  if (!response.ok || !data.success) throw new Error(data.message || `Compatibility API returned HTTP ${response.status}.`);
+  return data;
+}
+
+function populateFilter() {
+  const values = [...new Set(records.map(item => item.type).filter(Boolean))].sort();
+  filter.innerHTML = '<option value="">All relationships</option>';
+  values.forEach(value => {
+    const option = document.createElement('option');
+    option.value = value.toLowerCase();
+    option.textContent = value;
+    filter.appendChild(option);
+  });
+}
+
+function updateSummary(visible) {
+  countTotal.textContent = records.length;
+  countCompatible.textContent = records.filter(item => item.type.toLowerCase() === 'compatible').length;
+  countIncompatible.textContent = records.filter(item => item.type.toLowerCase() === 'incompatible').length;
+  countShowing.textContent = visible.length;
+}
+
+function render() {
+  const query = search.value.trim().toLowerCase();
+  const selected = filter.value.trim().toLowerCase();
+  const visible = records.filter(item => {
+    const text = [item.equipment_name, item.resource_name, item.description, item.type].join(' ').toLowerCase();
+    return (!query || text.includes(query)) && (!selected || item.type.toLowerCase() === selected);
+  });
+
+  updateSummary(visible);
+  matrix.innerHTML = '';
+
+  if (!visible.length) {
+    matrix.classList.add('hidden');
+    setState(empty);
+    return;
+  }
+
+  matrix.classList.remove('hidden');
+  [loading, empty, error].forEach(el => el.classList.add('hidden'));
+
+  visible.forEach((item, index) => {
+    const card = document.createElement('article');
+    card.className = 'compat-card';
+    card.style.animationDelay = `${Math.min(index * 30, 300)}ms`;
+    const isCompatible = item.type.toLowerCase() === 'compatible';
+    card.innerHTML = `
+      <div class="compat-card-top">
+        <span class="status-badge ${isCompatible ? 'compatible' : 'incompatible'}">${escapeHTML(item.type)}</span>
+        <span class="compat-record">RECORD #${escapeHTML(item.id || '—')}</span>
+      </div>
+      <h3>Equipment relationship</h3>
+      <div class="pair">
+        <span>${escapeHTML(item.equipment_name)}</span>
+        <span class="plus">↔</span>
+        <span>${escapeHTML(item.resource_name)}</span>
+      </div>
+      <p class="compat-note">${escapeHTML(item.description)}</p>
+      <div class="compat-card-footer">
+        <span class="compat-record">Reference only</span>
+        ${item.equipment_id ? `<a class="compat-action" href="equipment-details.html?id=${encodeURIComponent(item.equipment_id)}">View equipment</a>` : ''}
+      </div>`;
+    matrix.appendChild(card);
+  });
+}
+
+async function load() {
+  setState(loading);
+  matrix.innerHTML = '';
+  refresh.disabled = true;
+  refresh.textContent = 'Loading...';
+  try {
+    const data = await requestJSON();
+    const list = Array.isArray(data.compatibility) ? data.compatibility : [];
+    records = list.map(normalize);
+    populateFilter();
+    statusText.textContent = `${records.length} record${records.length === 1 ? '' : 's'} online`;
+    statusPill.classList.remove('offline');
+    render();
+    if (!records.length) setState(empty);
+  } catch (err) {
+    console.error('ÆTHERYX Compatibility:', err);
+    records = [];
+    updateSummary([]);
+    errorText.textContent = err.message || 'Unable to connect to compatibility service.';
+    statusText.textContent = 'Service unavailable';
+    statusPill.classList.add('offline');
+    matrix.innerHTML = '';
+    setState(error);
+  } finally {
+    refresh.disabled = false;
+    refresh.textContent = 'Refresh';
+  }
+}
+
+search.addEventListener('input', render);
+filter.addEventListener('change', render);
+reset.addEventListener('click', () => { search.value = ''; filter.value = ''; render(); });
+refresh.addEventListener('click', load);
+load();
+</script>
+</body>
+</html>

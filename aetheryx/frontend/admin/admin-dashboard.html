@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Core — ÆTHERYX</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        :root {
+            --base: #0D1321;
+            --surface: #161B2E;
+            --surface-light: #1D2438;
+
+            --cyan: #4FE0C9;
+            --violet: #8B6FEA;
+
+            --text: #EEF2FF;
+            --muted: #8E98B7;
+
+            --danger: #ff6b8a;
+            --warning: #ffc857;
+
+            --sidebar: 250px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--base);
+            color: var(--text);
+            font-family: "IBM Plex Sans", sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* GRID */
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+
+            background-image:
+                linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        /* AURORA */
+
+        .aurora {
+            position: fixed;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+
+            filter: blur(120px);
+            opacity: .10;
+
+            pointer-events: none;
+            z-index: -1;
+
+            animation: drift 12s ease-in-out infinite alternate;
+        }
+
+        .aurora.cyan {
+            background: var(--cyan);
+            top: -220px;
+            left: 180px;
+        }
+
+        .aurora.violet {
+            background: var(--violet);
+            right: -220px;
+            bottom: -220px;
+            animation-delay: -5s;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0);
+            }
+
+            to {
+                transform: translate(70px, 45px);
+            }
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            width: var(--sidebar);
+
+            padding: 25px 18px;
+
+            background: rgba(22,27,46,.90);
+            border-right: 1px solid rgba(79,224,201,.10);
+
+            backdrop-filter: blur(18px);
+
+            z-index: 20;
+        }
+
+        .brand {
+            padding: 8px 10px 28px;
+        }
+
+        .brand-name {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: 3px;
+
+            background: linear-gradient(
+                90deg,
+                var(--cyan),
+                #ffffff,
+                var(--violet)
+            );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: #E9EDF6;
+        }
+
+        .brand-label {
+            margin-top: 6px;
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: 2px;
+
+            color: var(--muted);
+        }
+
+        .nav-section {
+            margin: 15px 10px 8px;
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: 2px;
+
+            color: #59627e;
+            text-transform: uppercase;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 12px;
+
+            border: 1px solid transparent;
+            border-radius: 9px;
+
+            color: var(--muted);
+            text-decoration: none;
+
+            font-size: 13px;
+
+            transition: .2s ease;
+        }
+
+        .nav a:hover {
+            color: var(--text);
+            background: rgba(79,224,201,.05);
+            border-color: rgba(79,224,201,.10);
+        }
+
+        .nav a.active {
+            color: var(--cyan);
+            background: rgba(79,224,201,.07);
+            border-color: rgba(79,224,201,.16);
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+
+            font-family: "IBM Plex Mono", monospace;
+        }
+
+        .logout {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 22px;
+
+            color: var(--danger) !important;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: var(--sidebar);
+            min-height: 100vh;
+            padding: 28px 32px;
+        }
+
+        /* TOPBAR */
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 35px;
+        }
+
+        .page-title h1 {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 28px;
+            letter-spacing: -.5px;
+        }
+
+        .page-title p {
+            margin-top: 5px;
+
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .system {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 9px 13px;
+
+            border: 1px solid rgba(79,224,201,.13);
+            border-radius: 20px;
+
+            background: rgba(79,224,201,.04);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            color: var(--cyan);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+            background: var(--cyan);
+
+            box-shadow: 0 0 12px var(--cyan);
+
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .35;
+            }
+        }
+
+        /* STATS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .stat-card {
+            position: relative;
+
+            padding: 21px;
+
+            background: rgba(22,27,46,.78);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 15px;
+
+            overflow: hidden;
+
+            transition: .25s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(79,224,201,.18);
+
+            box-shadow:
+                0 15px 35px rgba(0,0,0,.22);
+        }
+
+        .stat-card::after {
+            content: "";
+
+            position: absolute;
+            width: 100px;
+            height: 100px;
+
+            right: -50px;
+            top: -50px;
+
+            border-radius: 50%;
+
+            background: var(--cyan);
+            filter: blur(45px);
+            opacity: .08;
+        }
+
+        .stat-label {
+            color: var(--muted);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            margin-top: 12px;
+
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .stat-sub {
+            margin-top: 5px;
+
+            color: #68718d;
+            font-size: 11px;
+        }
+
+        /* CONTENT GRID */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 18px;
+
+            margin-top: 20px;
+        }
+
+        .panel {
+            padding: 22px;
+
+            background: rgba(22,27,46,.78);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 15px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .panel-code {
+            color: var(--cyan);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+        }
+
+        /* ACTIVITY */
+
+        .activity {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+
+            padding: 13px 0;
+
+            border-bottom: 1px solid rgba(255,255,255,.045);
+        }
+
+        .activity-item:last-child {
+            border-bottom: 0;
+        }
+
+        .activity-dot {
+            flex-shrink: 0;
+
+            width: 8px;
+            height: 8px;
+
+            margin-top: 5px;
+
+            border-radius: 50%;
+            background: var(--cyan);
+
+            box-shadow: 0 0 10px rgba(79,224,201,.5);
+        }
+
+        .activity-text {
+            font-size: 12px;
+            color: var(--text);
+        }
+
+        .activity-time {
+            margin-top: 3px;
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            color: var(--muted);
+        }
+
+        /* QUICK ACTIONS */
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .action {
+            padding: 16px;
+
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 11px;
+
+            background: rgba(13,19,33,.45);
+
+            color: var(--text);
+            text-decoration: none;
+
+            transition: .2s ease;
+        }
+
+        .action:hover {
+            transform: translateY(-2px);
+
+            border-color: rgba(79,224,201,.20);
+            background: rgba(79,224,201,.05);
+        }
+
+        .action-icon {
+            font-family: "IBM Plex Mono", monospace;
+            color: var(--cyan);
+            font-size: 16px;
+        }
+
+        .action-title {
+            margin-top: 9px;
+
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .action-description {
+            margin-top: 4px;
+
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        /* LOADING */
+
+        .loading {
+            color: var(--muted);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+        }
+
+        .error-message {
+            color: var(--danger);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1050px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+
+            :root {
+                --sidebar: 0px;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+
+                border-right: 0;
+                border-bottom: 1px solid rgba(79,224,201,.10);
+            }
+
+            .logout {
+                position: relative;
+                left: auto;
+                right: auto;
+                bottom: auto;
+                margin-top: 10px;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 22px 17px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+
+<body>
+
+    <div class="aurora cyan"></div>
+    <div class="aurora violet"></div>
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-name">ÆTHERYX</div>
+
+            <div class="brand-label">
+                ADMINISTRATIVE CORE
+            </div>
+        </div>
+
+        <div class="nav-section">
+            System
+        </div>
+
+        <nav class="nav">
+
+            <a href="admin-dashboard.html" class="active">
+                <span class="nav-icon">01</span>
+                Dashboard
+            </a>
+
+            <a href="manage-users.html">
+                <span class="nav-icon">02</span>
+                Manage Users
+            </a>
+
+            
+
+            
+
+            
+
+            
+
+        </nav>
+
+        <div class="nav-section">
+            Account
+        </div>
+
+        <nav class="nav">
+
+            <a href="#" id="logoutButton" class="logout">
+                <span class="nav-icon">×</span>
+                Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div class="page-title">
+
+                <h1>Command Dashboard</h1>
+
+                <p>
+                    Administrative overview of the ÆTHERYX system.
+                </p>
+
+            </div>
+
+            <div class="system">
+                <span class="status-dot"></span>
+                SYSTEM ONLINE
+            </div>
+
+        </header>
+
+        <!-- STATISTICS -->
+
+        <section class="stats">
+
+            <article class="stat-card">
+                <div class="stat-label">
+                    Registered Users
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="userCount"
+                >
+                    —
+                </div>
+
+                <div class="stat-sub">
+                    All system accounts
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-label">
+                    Equipment
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="equipmentCount"
+                >
+                    —
+                </div>
+
+                <div class="stat-sub">
+                    Registered equipment
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-label">
+                    Categories
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="categoryCount"
+                >
+                    —
+                </div>
+
+                <div class="stat-sub">
+                    Equipment categories
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-label">
+                    Activity Logs
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="activityCount"
+                >
+                    —
+                </div>
+
+                <div class="stat-sub">
+                    Recorded system events
+                </div>
+            </article>
+
+        </section>
+
+        <!-- LOWER CONTENT -->
+
+        <section class="content-grid">
+
+            <!-- ACTIVITY -->
+
+            <article class="panel">
+
+                <div class="panel-header">
+
+                    <div class="panel-title">
+                        Recent Activity
+                    </div>
+
+                    <div class="panel-code">
+                        LIVE.LOG
+                    </div>
+
+                </div>
+
+                <div
+                    class="activity"
+                    id="activityList"
+                >
+                    <div class="loading">
+                        Loading system activity...
+                    </div>
+                </div>
+
+            </article>
+
+            <!-- QUICK ACTIONS -->
+
+            <article class="panel">
+
+                <div class="panel-header">
+
+                    <div class="panel-title">
+                        Command Actions
+                    </div>
+
+                    <div class="panel-code">
+                        CONTROL
+                    </div>
+
+                </div>
+
+                <div class="actions">
+
+                    <a
+                        href="manage-users.html"
+                        class="action"
+                    >
+                        <div class="action-icon">
+                            //
+                        </div>
+
+                        <div class="action-title">
+                            Manage Users
+                        </div>
+
+                        <div class="action-description">
+                            Review and control system accounts.
+                        </div>
+                    </a>
+
+                    
+
+                    
+
+                    
+
+                </div>
+
+            </article>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        /*
+         * ÆTHERYX ADMIN DASHBOARD
+         *
+         * The backend remains the security layer.
+         * This page only improves the frontend experience.
+         */
+
+        const API_BASE = "../../backend/api/";
+
+        async function verifyAdmin() {
+
+            try {
+
+                const response = await fetch(
+                    API_BASE + "admin/test-admin.php",
+                    {
+                        method: "GET",
+                        credentials: "include"
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+
+                    window.location.href =
+                        "../public/login.html";
+
+                    return false;
+                }
+
+                if (data.role !== "admin") {
+
+                    window.location.href =
+                        "../public/login.html";
+
+                    return false;
+                }
+
+                return true;
+
+            } catch (error) {
+
+                console.error(
+                    "Authorization check failed:",
+                    error
+                );
+
+                window.location.href =
+                    "../public/login.html";
+
+                return false;
+            }
+        }
+
+
+        async function loadDashboardStats() {
+
+            try {
+
+                const response = await fetch(
+                    API_BASE + "admin/dashboard-stats.php",
+                    {
+                        method: "GET",
+                        credentials: "include"
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(
+                        data.message ||
+                        "Unable to load dashboard statistics."
+                    );
+                }
+
+                /*
+                 * We will map the exact response fields
+                 * after checking your dashboard-stats.php.
+                 */
+
+                if (data.data) {
+
+                    const stats = data.data;
+
+                    document.getElementById("userCount").textContent =
+                        stats.users ?? stats.user_count ?? 0;
+
+                    document.getElementById("equipmentCount").textContent =
+                        stats.equipment ?? stats.equipment_count ?? 0;
+
+                    document.getElementById("categoryCount").textContent =
+                        stats.categories ?? stats.category_count ?? 0;
+
+                    document.getElementById("activityCount").textContent =
+                        stats.activity_logs ??
+                        stats.activity_count ??
+                        0;
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Dashboard statistics error:",
+                    error
+                );
+
+                document.getElementById("userCount").textContent = "!";
+                document.getElementById("equipmentCount").textContent = "!";
+                document.getElementById("categoryCount").textContent = "!";
+                document.getElementById("activityCount").textContent = "!";
+
+            }
+        }
+
+
+        async function loadActivity() {
+
+            const activityList =
+                document.getElementById("activityList");
+
+            try {
+
+                const response = await fetch(
+                    API_BASE + "admin/activity-logs.php?limit=5",
+                    {
+                        method: "GET",
+                        credentials: "include"
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(
+                        data.message ||
+                        "Unable to load activity."
+                    );
+                }
+
+                /*
+                 * Support common API response structures.
+                 */
+
+                const logs =
+                    data.data?.logs ||
+                    data.data ||
+                    data.logs ||
+                    [];
+
+                if (!Array.isArray(logs) || logs.length === 0) {
+
+                    activityList.innerHTML = `
+                        <div class="loading">
+                            No activity recorded yet.
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                activityList.innerHTML = logs
+                    .map(log => {
+
+                        const action =
+                            log.action ||
+                            "System event";
+
+                        const description =
+                            log.description ||
+                            "";
+
+                        const time =
+                            log.created_at ||
+                            "Unknown time";
+
+                        return `
+                            <div class="activity-item">
+
+                                <span class="activity-dot"></span>
+
+                                <div>
+
+                                    <div class="activity-text">
+                                        ${escapeHTML(action)}
+                                        ${description
+                                            ? " — " +
+                                              escapeHTML(description)
+                                            : ""}
+                                    </div>
+
+                                    <div class="activity-time">
+                                        ${escapeHTML(time)}
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        `;
+                    })
+                    .join("");
+
+            } catch (error) {
+
+                console.error(
+                    "Activity loading error:",
+                    error
+                );
+
+                activityList.innerHTML = `
+                    <div class="error-message">
+                        Activity stream unavailable.
+                    </div>
+                `;
+            }
+        }
+
+
+        function escapeHTML(value) {
+
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+
+        async function logout() {
+
+            try {
+
+                const response = await fetch(
+                    "../../backend/api/auth/logout.php",
+                    {
+                        method: "POST",
+                        credentials: "include"
+                    }
+                );
+
+                const data = await response.json();
+
+                if (data.success) {
+
+                    window.location.href =
+                        "../public/login.html";
+
+                    return;
+                }
+
+                alert(
+                    data.message ||
+                    "Logout failed."
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+                alert(
+                    "Could not contact the authentication server."
+                );
+            }
+        }
+
+
+        document
+            .getElementById("logoutButton")
+            .addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+                    logout();
+                }
+            );
+
+
+        async function initializeDashboard() {
+
+            const authorized =
+                await verifyAdmin();
+
+            if (!authorized) {
+                return;
+            }
+
+            await Promise.all([
+                loadDashboardStats(),
+                loadActivity()
+            ]);
+        }
+
+
+        initializeDashboard();
+
+    </script>
+
+</body>
+</html>

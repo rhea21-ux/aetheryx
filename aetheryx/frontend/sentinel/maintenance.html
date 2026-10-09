@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maintenance — ÆTHERYX SENTINEL</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --base: #0D1117; --surface: #151B26; --surface-2: #1B2330; --border: rgba(255,255,255,.08);
+    --cyan: #4FE0C9; --violet: #8B6FEA; --text: #EEF2FF; --muted: #8E98B7;
+    --danger: #F07F8B; --warning: #E8B45C; --good: #5FD98A;
+    --sidebar: 230px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; background: var(--base); color: var(--text); font-family: "IBM Plex Sans", sans-serif; }
+
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar); padding: 24px 16px; background: var(--surface); border-right: 1px solid var(--border); }
+.brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+.brand span { color: var(--cyan); }
+.tagline { font-size: .68rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 28px; }
+.nav a { display: block; padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .88rem; font-weight: 500; margin-bottom: 2px; }
+.nav a.active, .nav a:hover { background: var(--surface-2); color: var(--text); }
+
+main { margin-left: var(--sidebar); padding: 28px 32px 60px; max-width: 1100px; }
+.head-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+h1 { font-size: 1.5rem; font-weight: 700; }
+.subtitle { color: var(--muted); font-size: .9rem; margin-top: 4px; }
+
+button.primary {
+    background: var(--cyan); color: #06201C; border: none; border-radius: 8px;
+    padding: 10px 16px; font-weight: 600; font-size: .86rem; cursor: pointer; font-family: inherit;
+}
+button.primary:hover { opacity: .9; }
+
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.toolbar select { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 12px; font-size: .86rem; font-family: inherit; }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px 0; }
+.req-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.req-row:last-child { border-bottom: none; }
+.req-row:hover { background: var(--surface-2); }
+.req-main { font-weight: 600; font-size: .92rem; }
+.req-sub { color: var(--muted); font-size: .78rem; margin-top: 2px; }
+
+.badge { font-size: .68rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+.badge.open { background: rgba(142,152,183,.15); color: var(--muted); }
+.badge.assigned { background: rgba(79,224,201,.15); color: var(--cyan); }
+.badge.in_progress { background: rgba(139,111,234,.15); color: var(--violet); }
+.badge.resolved { background: rgba(95,217,138,.15); color: var(--good); }
+.badge.cancelled { background: rgba(240,127,139,.1); color: var(--danger); }
+.pbadge { font-size: .66rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+.pbadge.LOW { background: rgba(142,152,183,.15); color: var(--muted); }
+.pbadge.NORMAL { background: rgba(79,224,201,.1); color: var(--cyan); }
+.pbadge.HIGH { background: rgba(232,180,92,.15); color: var(--warning); }
+.pbadge.CRITICAL { background: rgba(240,127,139,.15); color: var(--danger); }
+
+.state-message { color: var(--muted); font-size: .9rem; padding: 40px 20px; text-align: center; }
+
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
+.modal-backdrop.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; width: 100%; max-width: 440px; }
+.modal h2 { font-size: 1.1rem; margin-bottom: 14px; }
+.modal label { display: block; font-size: .78rem; color: var(--muted); margin: 12px 0 5px; }
+.modal select, .modal textarea {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 9px 11px; font-size: .86rem; font-family: inherit;
+}
+.modal textarea { min-height: 90px; resize: vertical; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.modal-actions button.secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 9px 14px; font-size: .84rem; cursor: pointer; font-family: inherit; }
+.modal-msg { font-size: .8rem; margin-top: 10px; }
+.modal-msg.error { color: var(--danger); }
+.modal-msg.success { color: var(--good); }
+
+@media (max-width: 860px) { .sidebar { display: none; } main { margin-left: 0; padding: 20px; } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="brand">ÆTHERYX <span>SENTINEL</span></div>
+    <div class="tagline">Precision · Clarity · Intelligence</div>
+    <nav class="nav">
+        <a href="sentinel-dashboard.html">Command Center</a>
+        <a href="assets.html">Assets</a>
+        <a href="maintenance.html" class="active">Maintenance</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="activity-logs.html">Activity Logs</a>
+        <a href="reports.html">Reports</a>
+        <a href="profile.html">Profile</a>
+        <a href="../admin/admin-dashboard.html">← Back to ÆTHERYX</a>
+    </nav>
+</aside>
+
+<main>
+    <div class="head-row">
+        <div>
+            <h1>Maintenance</h1>
+            <div class="subtitle">Service requests and their status.</div>
+        </div>
+        <button class="primary" onclick="openCreateModal()">+ New Request</button>
+    </div>
+
+    <div class="toolbar">
+        <select id="statusFilter">
+            <option value="">All statuses</option>
+            <option value="open">Open</option>
+            <option value="assigned">Assigned</option>
+            <option value="in_progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="cancelled">Cancelled</option>
+        </select>
+    </div>
+
+    <div class="panel" id="listPanel">
+        <div class="state-message">Loading maintenance requests…</div>
+    </div>
+</main>
+
+<div class="modal-backdrop" id="createBackdrop">
+    <div class="modal">
+        <h2>New Maintenance Request</h2>
+        <label>Equipment</label>
+        <select id="createEquipmentId"></select>
+        <label>Severity</label>
+        <select id="createSeverity">
+            <option value="low">Low</option>
+            <option value="normal" selected>Normal</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+        </select>
+        <label>Describe the issue</label>
+        <textarea id="createDescription" placeholder="What's wrong with this equipment?"></textarea>
+        <div class="modal-msg" id="createMsg"></div>
+        <div class="modal-actions">
+            <button class="secondary" onclick="closeCreateModal()">Cancel</button>
+            <button class="primary" onclick="submitCreate()">Submit Request</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const LIST_API = "../../backend/api/sentinel/maintenance/list.php";
+const CREATE_API = "../../backend/api/sentinel/maintenance/create.php";
+const ASSET_LIST_API = "../../backend/api/sentinel/assets/list.php";
+
+let allRequests = [];
+
+function statusBadge(status) {
+    return `<span class="badge ${esc(status)}">${esc(status.replace('_', ' '))}</span>`;
+}
+
+function timeAgo(iso) {
+    const diffMs = Date.now() - new Date(iso.replace(' ', 'T')).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+}
+
+function render() {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const filtered = allRequests.filter(r => !statusFilter || r.status === statusFilter);
+    const panel = document.getElementById('listPanel');
+
+    if (filtered.length === 0) {
+        panel.innerHTML = '<div class="state-message">No maintenance requests match this filter.</div>';
+        return;
+    }
+
+    panel.innerHTML = filtered.map(r => `
+        <div class="req-row" onclick="location.href='maintenance-details.html?id=${r.id}'">
+            <div>
+                <div class="req-main">#${r.id} — ${esc(r.equipmentName)}</div>
+                <div class="req-sub">${esc(r.requesterName)} · ${timeAgo(r.createdAt)}${esc(r.assignedName ? ' · assigned to ' + r.assignedName : '')}</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+                ${r.priority ? `<span class="pbadge ${r.priority.priority}">${r.priority.priority}</span>` : ''}
+                ${statusBadge(r.status)}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadList() {
+    const panel = document.getElementById('listPanel');
+    try {
+        const res = await fetch(LIST_API, { credentials: 'include' });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) throw new Error(payload.message);
+
+        allRequests = payload.requests;
+
+        if (allRequests.length === 0) {
+            panel.innerHTML = '<div class="state-message">No maintenance requests yet. Submit one with "+ New Request".</div>';
+            return;
+        }
+
+        render();
+    } catch (err) {
+        panel.innerHTML = '<div class="state-message">Sentinel couldn\'t load maintenance requests. Make sure you\'re logged in.</div>';
+    }
+}
+
+async function openCreateModal() {
+    document.getElementById('createBackdrop').classList.add('open');
+    document.getElementById('createMsg').textContent = '';
+    const select = document.getElementById('createEquipmentId');
+    select.innerHTML = '<option>Loading equipment…</option>';
+    try {
+        const res = await fetch(ASSET_LIST_API, { credentials: 'include' });
+        const payload = await res.json();
+        if (payload.success) {
+            select.innerHTML = payload.assets.map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join('');
+        } else {
+            select.innerHTML = '<option value="">Unable to load equipment</option>';
+        }
+    } catch (err) {
+        select.innerHTML = '<option value="">Unable to load equipment</option>';
+    }
+}
+
+function closeCreateModal() {
+    document.getElementById('createBackdrop').classList.remove('open');
+}
+
+async function submitCreate() {
+    const msg = document.getElementById('createMsg');
+    const equipmentId = document.getElementById('createEquipmentId').value;
+    const severity = document.getElementById('createSeverity').value;
+    const description = document.getElementById('createDescription').value.trim();
+
+    if (!equipmentId || description.length < 10) {
+        msg.className = 'modal-msg error';
+        msg.textContent = 'Please choose equipment and describe the issue (10+ characters).';
+        return;
+    }
+
+    try {
+        const res = await fetch(CREATE_API, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ equipment_id: Number(equipmentId), reported_severity: severity, description })
+        });
+        const payload = await res.json();
+
+        if (!res.ok || !payload.success) {
+            msg.className = 'modal-msg error';
+            msg.textContent = payload.message || 'Unable to submit request.';
+            return;
+        }
+
+        msg.className = 'modal-msg success';
+        msg.textContent = 'Request submitted.';
+        setTimeout(() => { closeCreateModal(); loadList(); }, 700);
+
+    } catch (err) {
+        msg.className = 'modal-msg error';
+        msg.textContent = 'Network error — please try again.';
+    }
+}
+
+document.getElementById('statusFilter').addEventListener('change', render);
+loadList();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Access Registry — ÆTHERYX</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --base: #0D1321;
+            --surface: #161B2E;
+            --surface-light: #1D2438;
+            --cyan: #4FE0C9;
+            --violet: #8B6FEA;
+            --text: #EEF2FF;
+            --muted: #8E98B7;
+            --danger: #ff6b81;
+            --success: #4FE0C9;
+            --border: rgba(255,255,255,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            font-family: "IBM Plex Sans", sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 15% 20%,
+                    rgba(79, 224, 201, 0.10),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 85% 80%,
+                    rgba(139, 111, 234, 0.12),
+                    transparent 30%
+                ),
+                var(--base);
+
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+
+            position: fixed;
+            inset: 0;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                );
+
+            background-size: 40px 40px;
+
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    black,
+                    transparent 90%
+                );
+
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .aurora {
+            position: fixed;
+
+            width: 420px;
+            height: 420px;
+
+            border-radius: 50%;
+
+            filter: blur(90px);
+            opacity: 0.18;
+
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .aurora-one {
+            top: -180px;
+            left: -120px;
+
+            background: var(--cyan);
+        }
+
+        .aurora-two {
+            right: -150px;
+            bottom: -180px;
+
+            background: var(--violet);
+        }
+
+        .page {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 30px 20px;
+
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .brand-symbol {
+            width: 58px;
+            height: 58px;
+
+            margin: 0 auto 16px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid rgba(79,224,201,0.45);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(79,224,201,0.10),
+                    rgba(139,111,234,0.10)
+                );
+
+            clip-path: polygon(
+                50% 0%,
+                100% 25%,
+                100% 75%,
+                50% 100%,
+                0% 75%,
+                0% 25%
+            );
+
+            box-shadow:
+                0 0 30px rgba(79,224,201,0.15);
+        }
+
+        .brand-symbol span {
+            font-family: "IBM Plex Mono", monospace;
+
+            color: var(--cyan);
+
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .brand-name {
+            font-family: "Space Grotesk", sans-serif;
+
+            font-size: 30px;
+            font-weight: 700;
+
+            letter-spacing: 0.18em;
+        }
+
+        .brand-subtitle {
+            margin-top: 7px;
+
+            color: var(--muted);
+
+            font-family: "IBM Plex Mono", monospace;
+
+            font-size: 11px;
+            letter-spacing: 0.14em;
+
+            text-transform: uppercase;
+        }
+
+        .card {
+            position: relative;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(29,36,56,0.96),
+                    rgba(22,27,46,0.96)
+                );
+
+            border: 1px solid var(--border);
+
+            border-radius: 18px;
+
+            padding: 34px;
+
+            box-shadow:
+                0 25px 70px rgba(0,0,0,0.35),
+                inset 0 1px 0 rgba(255,255,255,0.04);
+
+            backdrop-filter: blur(18px);
+        }
+
+        .card::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 28px;
+            right: 28px;
+
+            height: 1px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    var(--cyan),
+                    var(--violet),
+                    transparent
+                );
+
+            opacity: 0.8;
+        }
+
+        .status-line {
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 25px;
+
+            font-family: "IBM Plex Mono", monospace;
+
+            font-size: 10px;
+            color: var(--muted);
+
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: var(--cyan);
+
+            box-shadow:
+                0 0 12px rgba(79,224,201,0.8);
+
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.45;
+                transform: scale(0.8);
+            }
+        }
+
+        h1 {
+            font-family: "Space Grotesk", sans-serif;
+
+            font-size: 27px;
+
+            margin-bottom: 8px;
+        }
+
+        .description {
+            color: var(--muted);
+
+            font-size: 14px;
+            line-height: 1.6;
+
+            margin-bottom: 28px;
+        }
+
+        .field {
+            margin-bottom: 19px;
+        }
+
+        label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-family: "IBM Plex Mono", monospace;
+
+            font-size: 11px;
+            color: #b9c1d8;
+
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 14px 15px;
+
+            border-radius: 10px;
+
+            border: 1px solid rgba(255,255,255,0.09);
+
+            background: rgba(13,19,33,0.75);
+
+            color: var(--text);
+
+            font-family: "IBM Plex Sans", sans-serif;
+
+            font-size: 14px;
+
+            outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        input::placeholder {
+            color: #626b87;
+        }
+
+        input:focus {
+            border-color: rgba(79,224,201,0.65);
+
+            background: rgba(13,19,33,0.95);
+
+            box-shadow:
+                0 0 0 3px rgba(79,224,201,0.08),
+                0 0 25px rgba(79,224,201,0.06);
+        }
+
+        .password-toggle {
+            position: absolute;
+
+            top: 50%;
+            right: 12px;
+
+            transform: translateY(-50%);
+
+            border: 0;
+
+            background: transparent;
+
+            color: var(--muted);
+
+            cursor: pointer;
+
+            font-family: "IBM Plex Mono", monospace;
+
+            font-size: 10px;
+
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: var(--cyan);
+        }
+
+        .submit-button {
+            width: 100%;
+
+            margin-top: 7px;
+
+            padding: 15px;
+
+            border:
+                1px solid rgba(79,224,201,0.45);
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(79,224,201,0.14),
+                    rgba(139,111,234,0.16)
+                );
+
+            color: var(--text);
+
+            font-family: "Space Grotesk", sans-serif;
+
+            font-weight: 600;
+
+            letter-spacing: 0.08em;
+
+            text-transform: uppercase;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-1px);
+
+            border-color: var(--cyan);
+
+            box-shadow:
+                0 10px 35px rgba(79,224,201,0.12);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.55;
+
+            cursor: not-allowed;
+
+            transform: none;
+        }
+
+        .message {
+            display: none;
+
+            margin-bottom: 18px;
+
+            padding: 12px 14px;
+
+            border-radius: 9px;
+
+            font-family: "IBM Plex Mono", monospace;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.error {
+            border:
+                1px solid rgba(255,107,129,0.30);
+
+            background:
+                rgba(255,107,129,0.07);
+
+            color: #ff9aaa;
+        }
+
+        .message.success {
+            border:
+                1px solid rgba(79,224,201,0.30);
+
+            background:
+                rgba(79,224,201,0.07);
+
+            color: var(--cyan);
+        }
+
+        .footer-links {
+            margin-top: 25px;
+
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 15px;
+
+            font-family: "IBM Plex Mono", monospace;
+
+            font-size: 10px;
+        }
+
+        .footer-links a {
+            color: var(--muted);
+
+            text-decoration: none;
+
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--cyan);
+        }
+
+        .register-link {
+            color: var(--cyan) !important;
+        }
+
+        .system-info {
+            margin-top: 20px;
+
+            text-align: center;
+
+            font-family: "IBM Plex Mono", monospace;
+
+            font-size: 9px;
+
+            color: #59627d;
+
+            letter-spacing: 0.08em;
+        }
+
+        .corner {
+            position: absolute;
+
+            width: 14px;
+            height: 14px;
+
+            opacity: 0.65;
+        }
+
+        .corner::before,
+        .corner::after {
+            content: "";
+
+            position: absolute;
+
+            background: var(--cyan);
+        }
+
+        .corner::before {
+            width: 100%;
+            height: 1px;
+        }
+
+        .corner::after {
+            width: 1px;
+            height: 100%;
+        }
+
+        .corner-tl {
+            top: 14px;
+            left: 14px;
+        }
+
+        .corner-tr {
+            top: 14px;
+            right: 14px;
+
+            transform: rotate(90deg);
+        }
+
+        .corner-bl {
+            bottom: 14px;
+            left: 14px;
+
+            transform: rotate(-90deg);
+        }
+
+        .corner-br {
+            bottom: 14px;
+            right: 14px;
+
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 520px) {
+            .page {
+                padding: 20px 14px;
+            }
+
+            .card {
+                padding: 25px 20px;
+            }
+
+            .brand-name {
+                font-size: 25px;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+</head>
+
+<body>
+
+    <div class="aurora aurora-one"></div>
+    <div class="aurora aurora-two"></div>
+
+    <main class="page">
+
+        <section class="login-wrapper">
+
+            <div class="brand">
+
+                <div class="brand-symbol">
+                    <span>Æ</span>
+                </div>
+
+                <div class="brand-name">
+                    ÆTHERYX
+                </div>
+
+                <div class="brand-subtitle">
+                    Equipment & Resource Network
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <span class="corner corner-tl"></span>
+                <span class="corner corner-tr"></span>
+                <span class="corner corner-bl"></span>
+                <span class="corner corner-br"></span>
+
+                <div class="status-line">
+
+                    <span class="status-dot"></span>
+
+                    Registry Gateway Online
+
+                </div>
+
+                <h1>
+                    Access Registry
+                </h1>
+
+                <p class="description">
+                    Authenticate your ÆTHERYX account to access
+                    the appropriate command environment.
+                </p>
+
+                <div
+                    id="message"
+                    class="message"
+                    role="alert"
+                    aria-live="polite"
+                ></div>
+
+                <form
+                    id="loginForm"
+                    autocomplete="on"
+                >
+
+                    <div class="field">
+
+                        <label for="identifier">
+                            Handle or Email
+                        </label>
+
+                        <input
+                            id="identifier"
+                            name="identifier"
+                            type="text"
+                            placeholder="Enter your handle or email"
+                            autocomplete="username"
+                            maxlength="150"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="field">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="passwordToggle"
+                                aria-label="Show password"
+                            >
+                                SHOW
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="submit-button"
+                        id="submitButton"
+                    >
+                        Authenticate
+                    </button>
+
+                </form>
+
+                <div class="footer-links">
+
+                    <a href="index.html">
+                        ← Return to Gateway
+                    </a>
+
+                    <a
+                        href="register.html"
+                        class="register-link"
+                    >
+                        Create Registry
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="system-info">
+                ÆTHERYX | AUTHENTICATION PROTOCOL | SECURE SESSION
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        "use strict";
+
+        /*
+         * ============================================================
+         * ÆTHERYX LOGIN SYSTEM
+         * ============================================================
+         */
+
+        const API_URL =
+            "../../backend/api/auth/login.php";
+
+        /*
+         * Dashboard destinations.
+         *
+         * Database roles:
+         *
+         * admin
+         * hero
+         * enemy
+         *
+         * UI:
+         *
+         * ADMIN
+         * HERO
+         * VILLAIN
+         */
+
+        const DASHBOARDS = {
+            admin: "../admin/admin-dashboard.html",
+            hero: "../hero/hero-dashboard.html",
+            enemy: "../enemy/villain-dashboard.html"
+        };
+
+        const loginForm =
+            document.getElementById("loginForm");
+
+        const identifierInput =
+            document.getElementById("identifier");
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const passwordToggle =
+            document.getElementById("passwordToggle");
+
+        const submitButton =
+            document.getElementById("submitButton");
+
+        const messageBox =
+            document.getElementById("message");
+
+
+        /*
+         * ============================================================
+         * MESSAGE
+         * ============================================================
+         */
+
+        function showMessage(
+            message,
+            type = "error"
+        ) {
+            messageBox.textContent = message;
+
+            messageBox.className =
+                "message show " + type;
+        }
+
+        function clearMessage() {
+            messageBox.textContent = "";
+
+            messageBox.className =
+                "message";
+        }
+
+
+        /*
+         * ============================================================
+         * PASSWORD VISIBILITY
+         * ============================================================
+         */
+
+        passwordToggle.addEventListener(
+            "click",
+            function () {
+
+                const isPassword =
+                    passwordInput.type === "password";
+
+                passwordInput.type =
+                    isPassword
+                        ? "text"
+                        : "password";
+
+                passwordToggle.textContent =
+                    isPassword
+                        ? "HIDE"
+                        : "SHOW";
+
+                passwordToggle.setAttribute(
+                    "aria-label",
+                    isPassword
+                        ? "Hide password"
+                        : "Show password"
+                );
+            }
+        );
+
+
+        /*
+         * ============================================================
+         * ROLE NORMALIZATION
+         * ============================================================
+         *
+         * Database:
+         *
+         * admin
+         * hero
+         * enemy
+         *
+         * The UI calls enemy "VILLAIN".
+         */
+
+        function normalizeRole(role) {
+
+            const normalized =
+                String(role || "")
+                    .trim()
+                    .toLowerCase();
+
+            if (normalized === "admin") {
+                return "admin";
+            }
+
+            if (normalized === "hero") {
+                return "hero";
+            }
+
+            if (
+                normalized === "enemy" ||
+                normalized === "villain" ||
+                normalized === "villian"
+            ) {
+                return "enemy";
+            }
+
+            return "";
+        }
+
+
+        /*
+         * ============================================================
+         * REDIRECT
+         * ============================================================
+         */
+
+        function redirectByRole(role) {
+
+            const normalizedRole =
+                normalizeRole(role);
+
+            console.log(
+                "[ÆTHERYX] Authenticated role:",
+                normalizedRole
+            );
+
+            if (!normalizedRole) {
+
+                showMessage(
+                    "Authentication succeeded, but the account role is invalid.",
+                    "error"
+                );
+
+                return;
+            }
+
+            const destination =
+                DASHBOARDS[normalizedRole];
+
+            if (!destination) {
+
+                showMessage(
+                    "No dashboard is configured for this account role.",
+                    "error"
+                );
+
+                return;
+            }
+
+            console.log(
+                "[ÆTHERYX] Redirecting to:",
+                destination
+            );
+
+            window.location.href =
+                destination;
+        }
+
+
+        /*
+         * ============================================================
+         * LOGIN
+         * ============================================================
+         */
+
+        loginForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                clearMessage();
+
+                const identifier =
+                    identifierInput.value.trim();
+
+                const password =
+                    passwordInput.value;
+
+
+                /*
+                 * Basic validation
+                 */
+
+                if (!identifier) {
+
+                    showMessage(
+                        "Please enter your handle or email."
+                    );
+
+                    identifierInput.focus();
+
+                    return;
+                }
+
+                if (!password) {
+
+                    showMessage(
+                        "Please enter your password."
+                    );
+
+                    passwordInput.focus();
+
+                    return;
+                }
+
+
+                /*
+                 * Loading state
+                 */
+
+                submitButton.disabled = true;
+
+                submitButton.textContent =
+                    "AUTHENTICATING...";
+
+
+                try {
+
+                    console.log(
+                        "[ÆTHERYX] Login request:",
+                        API_URL
+                    );
+
+
+                    const response =
+                        await fetch(
+                            API_URL,
+                            {
+                                method: "POST",
+
+                                credentials: "include",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json",
+
+                                    "Accept":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+                                        identifier:
+                                            identifier,
+
+                                        password:
+                                            password
+                                    })
+                            }
+                        );
+
+
+                    /*
+                     * Read JSON
+                     */
+
+                    let data = null;
+
+                    try {
+
+                        data =
+                            await response.json();
+
+                    } catch (jsonError) {
+
+                        console.error(
+                            "[ÆTHERYX] Invalid server response:",
+                            jsonError
+                        );
+
+                        throw new Error(
+                            "The server returned an invalid response."
+                        );
+                    }
+
+
+                    console.log(
+                        "[ÆTHERYX] Login response:",
+                        data
+                    );
+
+
+                    /*
+                     * HTTP error
+                     */
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data?.message ||
+                            `Login failed with HTTP ${response.status}.`
+                        );
+                    }
+
+
+                    /*
+                     * Application error
+                     */
+
+                    if (!data.success) {
+
+                        throw new Error(
+                            data.message ||
+                            "Login failed."
+                        );
+                    }
+
+
+                    /*
+                     * User object must exist
+                     */
+
+                    if (
+                        !data.user ||
+                        typeof data.user !== "object"
+                    ) {
+
+                        throw new Error(
+                            "Login succeeded but no user data was returned."
+                        );
+                    }
+
+
+                    /*
+                     * IMPORTANT:
+                     *
+                     * The server controls the actual role.
+                     *
+                     * We do NOT ask the user to select a role
+                     * during login.
+                     */
+
+                    const role =
+                        normalizeRole(
+                            data.user.role
+                        );
+
+
+                    console.log(
+                        "[ÆTHERYX] Server role:",
+                        data.user.role
+                    );
+
+                    console.log(
+                        "[ÆTHERYX] Normalized role:",
+                        role
+                    );
+
+
+                    if (!role) {
+
+                        throw new Error(
+                            "Your account has an invalid role."
+                        );
+                    }
+
+
+                    /*
+                     * Store display information only.
+                     *
+                     * Authentication is still controlled
+                     * by the PHP session.
+                     */
+
+                    sessionStorage.setItem(
+                        "aetheryx_role",
+                        role
+                    );
+
+                    sessionStorage.setItem(
+                        "aetheryx_handle",
+                        data.user.handle || ""
+                    );
+
+                    sessionStorage.setItem(
+                        "aetheryx_user_id",
+                        String(
+                            data.user.id || ""
+                        )
+                    );
+
+
+                    /*
+                     * Success
+                     */
+
+                    showMessage(
+                        `Authentication successful. Welcome, ${data.user.handle || "User"}.`,
+                        "success"
+                    );
+
+
+                    /*
+                     * Redirect
+                     */
+
+                    setTimeout(
+                        function () {
+
+                            redirectByRole(role);
+
+                        },
+                        250
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "[ÆTHERYX] Login error:",
+                        error
+                    );
+
+                    showMessage(
+                        error.message ||
+                        "Unable to connect to the authentication service."
+                    );
+
+                } finally {
+
+                    submitButton.disabled = false;
+
+                    submitButton.textContent =
+                        "AUTHENTICATE";
+                }
+
+            }
+        );
+
+
+        /*
+         * ============================================================
+         * STARTUP
+         * ============================================================
+         */
+
+        console.log(
+            "[ÆTHERYX] Login system initialized."
+        );
+
+        console.log(
+            "[ÆTHERYX] API:",
+            API_URL
+        );
+
+        console.log(
+            "[ÆTHERYX] Dashboard mapping:",
+            DASHBOARDS
+        );
+    </script>
+
+</body>
+</html>

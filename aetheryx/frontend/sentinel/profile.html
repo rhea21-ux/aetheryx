@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — ÆTHERYX SENTINEL</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --base: #0D1117; --surface: #151B26; --surface-2: #1B2330; --border: rgba(255,255,255,.08);
+    --cyan: #4FE0C9; --violet: #8B6FEA; --text: #EEF2FF; --muted: #8E98B7;
+    --danger: #F07F8B; --warning: #E8B45C; --good: #5FD98A;
+    --sidebar: 230px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; background: var(--base); color: var(--text); font-family: "IBM Plex Sans", sans-serif; }
+
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar); padding: 24px 16px; background: var(--surface); border-right: 1px solid var(--border); }
+.brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+.brand span { color: var(--cyan); }
+.tagline { font-size: .68rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 28px; }
+.nav a { display: block; padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .88rem; font-weight: 500; margin-bottom: 2px; }
+.nav a.active, .nav a:hover { background: var(--surface-2); color: var(--text); }
+
+main { margin-left: var(--sidebar); padding: 28px 32px 60px; max-width: 600px; }
+h1 { font-size: 1.5rem; font-weight: 700; }
+.subtitle { color: var(--muted); font-size: .9rem; margin-top: 4px; margin-bottom: 20px; }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+.avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.3rem; color: var(--cyan); margin-bottom: 16px; }
+
+.kv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 8px; }
+.kv-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.kv-value { font-size: .98rem; font-weight: 600; margin-top: 2px; }
+
+.badge { font-size: .7rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; text-transform: uppercase; letter-spacing: .03em; }
+.badge.admin { background: rgba(139,111,234,.15); color: var(--violet); }
+.badge.hero { background: rgba(79,224,201,.15); color: var(--cyan); }
+.badge.enemy { background: rgba(240,127,139,.15); color: var(--danger); }
+
+.note { color: var(--muted); font-size: .8rem; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+.state-message { color: var(--muted); font-size: .9rem; padding: 36px 20px; text-align: center; }
+
+@media (max-width: 860px) { .sidebar { display: none; } main { margin-left: 0; padding: 20px; } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="brand">ÆTHERYX <span>SENTINEL</span></div>
+    <div class="tagline">Precision · Clarity · Intelligence</div>
+    <nav class="nav">
+        <a href="sentinel-dashboard.html">Command Center</a>
+        <a href="assets.html">Assets</a>
+        <a href="maintenance.html">Maintenance</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="activity-logs.html">Activity Logs</a>
+        <a href="reports.html">Reports</a>
+        <a href="profile.html" class="active">Profile</a>
+        <a href="../admin/admin-dashboard.html">← Back to ÆTHERYX</a>
+    </nav>
+</aside>
+
+<main>
+    <h1>Profile</h1>
+    <div class="subtitle">Your ÆTHERYX account, as used across both systems.</div>
+
+    <div class="panel" id="panel">
+        <div class="state-message">Loading…</div>
+    </div>
+</main>
+
+<script>
+function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const API_URL = "../../backend/api/user/profile.php";
+
+function fmtDate(iso) {
+    return new Date(iso.replace(' ', 'T')).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+async function load() {
+    const panel = document.getElementById('panel');
+    try {
+        const res = await fetch(API_URL, { credentials: 'include' });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) throw new Error(payload.message);
+
+        const u = payload.user;
+        const initial = (u.fullName || '?').trim().charAt(0).toUpperCase();
+
+        panel.innerHTML = `
+            <div class="avatar">${esc(initial)}</div>
+            <div class="kv-grid">
+                <div><div class="kv-label">Full Name</div><div class="kv-value">${esc(u.fullName)}</div></div>
+                <div><div class="kv-label">Handle</div><div class="kv-value">@${esc(u.handle || '—')}</div></div>
+                <div><div class="kv-label">Email</div><div class="kv-value">${esc(u.email)}</div></div>
+                <div><div class="kv-label">Role</div><div class="kv-value"><span class="badge ${esc(u.role)}">${esc(u.role)}</span></div></div>
+                <div><div class="kv-label">Status</div><div class="kv-value" style="text-transform:capitalize">${esc(u.status)}</div></div>
+                <div><div class="kv-label">Member Since</div><div class="kv-value">${fmtDate(u.createdAt)}</div></div>
+            </div>
+            <div class="note">To change your name, email, or password, use your profile settings in the main ÆTHERYX marketplace — this account is shared between both systems.</div>
+        `;
+
+    } catch (err) {
+        panel.innerHTML = '<div class="state-message">Sentinel couldn\'t load your profile. Please make sure you\'re logged in.</div>';
+    }
+}
+
+load();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>User Registry — ÆTHERYX</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        :root {
+            --base: #0D1321;
+            --surface: #161B2E;
+            --surface-light: #1D2438;
+            --cyan: #4FE0C9;
+            --violet: #8B6FEA;
+            --text: #EEF2FF;
+            --muted: #8E98B7;
+            --danger: #ff5c7a;
+            --warning: #ffc857;
+            --success: #4FE0C9;
+            --border: rgba(255,255,255,.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 15% 10%, rgba(79,224,201,.10), transparent 28%),
+                radial-gradient(circle at 85% 85%, rgba(139,111,234,.12), transparent 30%),
+                var(--base);
+            color: var(--text);
+            font-family: "IBM Plex Sans", sans-serif;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .18;
+            background-image:
+                linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            padding: 28px 18px;
+            background: rgba(13,19,33,.88);
+            border-right: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+            z-index: 20;
+        }
+
+        .brand {
+            padding: 5px 14px 28px;
+        }
+
+        .brand-name {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: 4px;
+        }
+
+        .brand-sub {
+            margin-top: 6px;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 10px 25px;
+            padding: 10px 12px;
+            border: 1px solid rgba(79,224,201,.16);
+            background: rgba(79,224,201,.05);
+            border-radius: 8px;
+            color: var(--cyan);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--cyan);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            50% {
+                opacity: .35;
+                transform: scale(.75);
+            }
+        }
+
+        .nav-label {
+            margin: 18px 14px 8px;
+            color: #59637e;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: 2px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 5px;
+            padding: 12px 14px;
+            color: var(--muted);
+            text-decoration: none;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            transition: .2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            background: rgba(255,255,255,.035);
+            border-color: var(--border);
+            transform: translateX(3px);
+        }
+
+        .nav-link.active {
+            color: var(--cyan);
+            background: rgba(79,224,201,.07);
+            border-color: rgba(79,224,201,.16);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-family: "IBM Plex Mono", monospace;
+        }
+
+        .logout {
+            position: absolute;
+            bottom: 25px;
+            left: 18px;
+            right: 18px;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 260px;
+            min-height: 100vh;
+            padding: 35px 42px 60px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 35px;
+        }
+
+        .eyebrow {
+            color: var(--cyan);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 3px;
+            margin-bottom: 9px;
+        }
+
+        h1 {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: clamp(28px, 4vw, 44px);
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .admin-badge {
+            padding: 9px 13px;
+            border: 1px solid rgba(139,111,234,.25);
+            background: rgba(139,111,234,.08);
+            border-radius: 8px;
+            color: #b9a9ff;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* TOOLBAR */
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .search {
+            position: relative;
+            flex: 1;
+        }
+
+        .search input {
+            width: 100%;
+            height: 48px;
+            padding: 0 18px 0 45px;
+            border: 1px solid var(--border);
+            outline: none;
+            border-radius: 10px;
+            background: rgba(22,27,46,.85);
+            color: var(--text);
+            font-family: "IBM Plex Sans", sans-serif;
+            transition: .2s;
+        }
+
+        .search input:focus {
+            border-color: rgba(79,224,201,.45);
+            box-shadow: 0 0 0 3px rgba(79,224,201,.06);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 17px;
+            top: 14px;
+            color: var(--muted);
+        }
+
+        .refresh {
+            height: 48px;
+            padding: 0 20px;
+            border: 1px solid rgba(79,224,201,.18);
+            border-radius: 10px;
+            background: rgba(79,224,201,.07);
+            color: var(--cyan);
+            cursor: pointer;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 11px;
+            transition: .2s;
+        }
+
+        .refresh:hover {
+            background: rgba(79,224,201,.13);
+            transform: translateY(-1px);
+        }
+
+        /* STATS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat {
+            padding: 19px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(22,27,46,.70);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+        }
+
+        .stat-value {
+            margin-top: 9px;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        /* USER TABLE */
+
+        .panel {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: rgba(22,27,46,.76);
+            backdrop-filter: blur(14px);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 19px 22px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .record-count {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            padding: 14px 18px;
+            text-align: left;
+            color: #69738e;
+            background: rgba(255,255,255,.018);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 17px 18px;
+            border-top: 1px solid rgba(255,255,255,.045);
+            font-size: 13px;
+        }
+
+        tbody tr {
+            transition: .18s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255,255,255,.025);
+        }
+
+        .identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            display: grid;
+            place-items: center;
+            width: 37px;
+            height: 37px;
+            border: 1px solid rgba(79,224,201,.2);
+            border-radius: 9px;
+            background: rgba(79,224,201,.06);
+            color: var(--cyan);
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+        }
+
+        .name {
+            font-weight: 600;
+        }
+
+        .handle {
+            margin-top: 3px;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+        }
+
+        .email {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        select {
+            min-width: 105px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            outline: none;
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        select:focus {
+            border-color: rgba(79,224,201,.4);
+        }
+
+        .role-admin {
+            color: #b9a9ff;
+        }
+
+        .role-hero {
+            color: var(--cyan);
+        }
+
+        .role-villain {
+            color: #ff7d98;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .status.active {
+            color: var(--success);
+            background: rgba(79,224,201,.07);
+        }
+
+        .status.suspended {
+            color: var(--warning);
+            background: rgba(255,200,87,.07);
+        }
+
+        .status.inactive {
+            color: var(--danger);
+            background: rgba(255,92,122,.07);
+        }
+
+        .status-dot-small {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+        }
+
+        .btn {
+            padding: 8px 10px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,.025);
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 10px;
+            transition: .2s;
+        }
+
+        .btn:hover {
+            color: var(--text);
+            background: rgba(255,255,255,.06);
+        }
+
+        .btn.save {
+            border-color: rgba(79,224,201,.2);
+            color: var(--cyan);
+        }
+
+        .btn.delete {
+            border-color: rgba(255,92,122,.18);
+            color: var(--danger);
+        }
+
+        .btn.delete:hover {
+            background: rgba(255,92,122,.08);
+        }
+
+        .self-label {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+        }
+
+        /* EMPTY / LOADING */
+
+        .message {
+            padding: 55px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 11px;
+        }
+
+        .loader {
+            width: 25px;
+            height: 25px;
+            margin: 0 auto 13px;
+            border: 2px solid rgba(79,224,201,.15);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* TOAST */
+
+        .toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            z-index: 100;
+            max-width: 360px;
+            padding: 14px 17px;
+            border: 1px solid rgba(79,224,201,.2);
+            border-radius: 10px;
+            background: rgba(22,27,46,.96);
+            box-shadow: 0 15px 45px rgba(0,0,0,.35);
+            color: var(--text);
+            font-size: 12px;
+            opacity: 0;
+            transform: translateY(15px);
+            pointer-events: none;
+            transition: .25s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error {
+            border-color: rgba(255,92,122,.3);
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 950px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 18px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .brand {
+                padding-bottom: 15px;
+            }
+
+            .system-status {
+                display: none;
+            }
+
+            .nav-label,
+            .logout {
+                display: none;
+            }
+
+            .nav-link {
+                display: inline-flex;
+                margin: 3px;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 25px 18px 50px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .topbar {
+                align-items: flex-start;
+                gap: 15px;
+                flex-direction: column;
+            }
+
+            .admin-badge {
+                display: none;
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-name">ÆTHERYX</div>
+            <div class="brand-sub">ADMINISTRATIVE CORE</div>
+        </div>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            SYSTEM ONLINE
+        </div>
+
+        <div class="nav-label">CONTROL CENTER</div>
+
+        <a class="nav-link" href="admin-dashboard.html">
+            <span class="nav-icon">⌂</span>
+            Dashboard
+        </a>
+
+        <a class="nav-link active" href="manage-users.html">
+            <span class="nav-icon">◎</span>
+            Manage Users
+        </a>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="nav-label">ACCOUNT</div>
+
+        <a class="nav-link logout" href="#" id="logoutBtn">
+            <span class="nav-icon">↪</span>
+            Logout
+        </a>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+                <div class="eyebrow">IDENTITY CONTROL / USER REGISTRY</div>
+
+                <h1>Manage Users</h1>
+
+                <div class="subtitle">
+                    Monitor identities, assign system roles, and control account status.
+                </div>
+            </div>
+
+            <div class="admin-badge">
+                ADMINISTRATOR ACCESS
+            </div>
+
+        </div>
+
+
+        <!-- TOOLBAR -->
+
+        <div class="toolbar">
+
+            <div class="search">
+
+                <span class="search-icon">⌕</span>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search by name, handle, or email..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <button class="refresh" id="refreshBtn">
+                ↻ REFRESH
+            </button>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <section class="stats">
+
+            <div class="stat">
+                <div class="stat-label">TOTAL USERS</div>
+                <div class="stat-value" id="totalUsers">—</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">ACTIVE</div>
+                <div class="stat-value" id="activeUsers">—</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">HEROES</div>
+                <div class="stat-value" id="heroUsers">—</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">VILLAINS</div>
+                <div class="stat-value" id="villainUsers">—</div>
+            </div>
+
+        </section>
+
+
+        <!-- TABLE -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div class="panel-title">
+                    Identity Registry
+                </div>
+
+                <div class="record-count" id="recordCount">
+                    LOADING...
+                </div>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Identity</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Registered</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="userTable">
+
+                        <tr>
+                            <td colspan="6">
+                                <div class="message">
+                                    <div class="loader"></div>
+                                    CONNECTING TO REGISTRY...
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <div class="toast" id="toast"></div>
+
+
+<script>
+
+    const API_URL = "../../backend/api/admin/manage-users.php";
+
+    let users = [];
+    let authenticatedUserId = null;
+
+
+    /* ---------------------------------------------------------
+       TOAST
+    --------------------------------------------------------- */
+
+    function showToast(message, error = false) {
+
+        const toast = document.getElementById("toast");
+
+        toast.textContent = message;
+
+        toast.classList.toggle("error", error);
+        toast.classList.add("show");
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3000);
+    }
+
+
+    /* ---------------------------------------------------------
+       LOAD USERS
+    --------------------------------------------------------- */
+
+    async function loadUsers() {
+
+        const table = document.getElementById("userTable");
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    <div class="message">
+                        <div class="loader"></div>
+                        SYNCHRONIZING REGISTRY...
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        try {
+
+            const response = await fetch(API_URL, {
+                method: "GET",
+                credentials: "include"
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.message || "Unable to load users."
+                );
+            }
+
+            users = data.data || [];
+
+            renderUsers();
+
+            updateStats();
+
+        } catch (error) {
+
+            console.error(error);
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        <div class="message">
+                            Unable to connect to the user registry.
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            showToast(
+                error.message || "Connection failed.",
+                true
+            );
+        }
+    }
+
+
+    /* ---------------------------------------------------------
+       RENDER USERS
+    --------------------------------------------------------- */
+
+    function renderUsers() {
+
+        const table = document.getElementById("userTable");
+
+        const search = document
+            .getElementById("searchInput")
+            .value
+            .toLowerCase()
+            .trim();
+
+        const filtered = users.filter(user => {
+
+            return (
+                String(user.full_name).toLowerCase().includes(search) ||
+                String(user.handle).toLowerCase().includes(search) ||
+                String(user.email).toLowerCase().includes(search)
+            );
+
+        });
+
+
+        document.getElementById("recordCount").textContent =
+            `${filtered.length} RECORD${filtered.length === 1 ? "" : "S"}`;
+
+
+        if (filtered.length === 0) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        <div class="message">
+                            No matching identities found.
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        table.innerHTML = filtered.map(user => {
+
+            const initials = getInitials(user.full_name);
+
+            const isSelf =
+                Number(user.id) === Number(authenticatedUserId);
+
+
+            return `
+                <tr>
+
+                    <td>
+
+                        <div class="identity">
+
+                            <div class="avatar">
+                                ${escapeHtml(initials)}
+                            </div>
+
+                            <div>
+
+                                <div class="name">
+                                    ${escapeHtml(user.full_name)}
+                                </div>
+
+                                <div class="handle">
+                                    @${escapeHtml(user.handle)}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+                        <div class="email">
+                            ${escapeHtml(user.email)}
+                        </div>
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            isSelf
+
+                            ?
+
+                            `<span class="role-${escapeHtml(user.role)}">
+                                ${escapeHtml(user.role).toUpperCase()}
+                             </span>`
+
+                            :
+
+                            `<select
+                                id="role-${user.id}"
+                                class="role-${escapeHtml(user.role)}"
+                            >
+
+                        
+
+                                <option
+                                    value="hero"
+                                    ${user.role === "hero" ? "selected" : ""}
+                                >
+                                    HERO
+                                </option>
+
+                                <option
+                                    value="enemy"
+                                    ${user.role === "enemy" ? "selected" : ""}
+                                >
+                                    VILLAIN
+                                </option>
+
+                            </select>`
+                        }
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="status ${escapeHtml(user.status)}">
+
+                            <span class="status-dot-small"></span>
+
+                            ${escapeHtml(user.status)}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="email">
+                            ${formatDate(user.created_at)}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            isSelf
+
+                            ?
+
+                            `<span class="self-label">
+                                CURRENT SESSION
+                             </span>`
+
+                            :
+
+                            `<div class="actions">
+
+                                <button
+                                    class="btn save"
+                                    onclick="updateUser(${user.id})"
+                                >
+                                    SAVE
+                                </button>
+
+                                <button
+                                    class="btn"
+                                    onclick="toggleStatus(${user.id}, '${escapeHtml(user.status)}')"
+                                >
+                                    ${user.status === "active"
+                                        ? "SUSPEND"
+                                        : "ACTIVATE"}
+                                </button>
+
+                                <button
+                                    class="btn delete"
+                                    onclick="deleteUser(${user.id})"
+                                >
+                                    DELETE
+                                </button>
+
+                            </div>`
+                        }
+
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+    }
+
+
+    /* ---------------------------------------------------------
+       STATS
+    --------------------------------------------------------- */
+
+    function updateStats() {
+
+        document.getElementById("totalUsers").textContent =
+            users.length;
+
+        document.getElementById("activeUsers").textContent =
+            users.filter(user => user.status === "active").length;
+
+        document.getElementById("heroUsers").textContent =
+            users.filter(user => user.role === "hero").length;
+
+        document.getElementById("villainUsers").textContent =
+            users.filter(user => user.role === "enemy").length;
+    }
+
+
+    /* ---------------------------------------------------------
+       UPDATE ROLE
+    --------------------------------------------------------- */
+
+    async function updateUser(id) {
+
+        const select = document.getElementById(`role-${id}`);
+
+        if (!select) {
+            return;
+        }
+
+        const role = select.value;
+
+        const confirmed = confirm(
+            `Change user #${id} role to ${role.toUpperCase()}?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(API_URL, {
+
+                method: "PUT",
+
+                credentials: "include",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    id: id,
+                    role: role
+                })
+
+            });
+
+
+            const data = await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.message || "Unable to update user."
+                );
+            }
+
+
+            showToast("User role updated successfully.");
+
+            await loadUsers();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                error.message || "Update failed.",
+                true
+            );
+        }
+    }
+
+
+    /* ---------------------------------------------------------
+       TOGGLE STATUS
+    --------------------------------------------------------- */
+
+    async function toggleStatus(id, currentStatus) {
+
+        const newStatus =
+            currentStatus === "active"
+                ? "suspended"
+                : "active";
+
+
+        const confirmed = confirm(
+            `Set user #${id} status to ${newStatus.toUpperCase()}?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(API_URL, {
+
+                method: "PUT",
+
+                credentials: "include",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    id: id,
+                    status: newStatus
+                })
+
+            });
+
+
+            const data = await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.message || "Unable to update status."
+                );
+            }
+
+
+            showToast("User status updated successfully.");
+
+            await loadUsers();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                error.message || "Status update failed.",
+                true
+            );
+        }
+    }
+
+
+    /* ---------------------------------------------------------
+       DELETE USER
+    --------------------------------------------------------- */
+
+    async function deleteUser(id) {
+
+        const user = users.find(
+            item => Number(item.id) === Number(id)
+        );
+
+        if (!user) {
+            return;
+        }
+
+
+        const confirmed = confirm(
+            `Delete @${user.handle} permanently?\n\n` +
+            `This action cannot be undone.`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(API_URL, {
+
+                method: "DELETE",
+
+                credentials: "include",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    id: id
+                })
+
+            });
+
+
+            const data = await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.message || "Unable to delete user."
+                );
+            }
+
+
+            showToast("User deleted successfully.");
+
+            await loadUsers();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showToast(
+                error.message || "Delete failed.",
+                true
+            );
+        }
+    }
+
+
+    /* ---------------------------------------------------------
+       SESSION CHECK
+    --------------------------------------------------------- */
+
+    async function verifyAdmin() {
+
+        try {
+
+            const response = await fetch(
+                "../../backend/api/admin/test-admin.php",
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                window.location.href = "../public/login.html";
+
+                return;
+            }
+
+
+            authenticatedUserId = data.user_id;
+
+            await loadUsers();
+
+        } catch (error) {
+
+            console.error(error);
+
+            window.location.href = "../public/login.html";
+        }
+    }
+
+
+    /* ---------------------------------------------------------
+       LOGOUT
+    --------------------------------------------------------- */
+
+    async function logout() {
+
+        try {
+
+            await fetch(
+                "../../backend/api/auth/logout.php",
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+        } finally {
+
+            window.location.href = "../public/login.html";
+
+        }
+    }
+
+
+    /* ---------------------------------------------------------
+       HELPERS
+    --------------------------------------------------------- */
+
+    function getInitials(name) {
+
+        return String(name)
+            .trim()
+            .split(/\s+/)
+            .slice(0, 2)
+            .map(part => part.charAt(0))
+            .join("")
+            .toUpperCase();
+    }
+
+
+    function formatDate(dateString) {
+
+        if (!dateString) {
+            return "—";
+        }
+
+        const date = new Date(
+            dateString.replace(" ", "T")
+        );
+
+        if (Number.isNaN(date.getTime())) {
+            return dateString;
+        }
+
+        return date.toLocaleDateString(
+            undefined,
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        );
+    }
+
+
+    function escapeHtml(value) {
+
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    /* ---------------------------------------------------------
+       EVENTS
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("refreshBtn")
+        .addEventListener("click", loadUsers);
+
+
+    document
+        .getElementById("searchInput")
+        .addEventListener("input", renderUsers);
+
+
+    document
+        .getElementById("logoutBtn")
+        .addEventListener("click", function(event) {
+
+            event.preventDefault();
+
+            logout();
+
+        });
+
+
+    /* ---------------------------------------------------------
+       START
+    --------------------------------------------------------- */
+
+    verifyAdmin();
+
+</script>
+
+</body>
+</html>

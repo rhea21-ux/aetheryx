@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Equipment Details — ÆTHERYX</title>
+<style>
+        /* =========================================
+           ÆTHERYX EQUIPMENT DETAILS
+           Professional / Futuristic Interface
+        ========================================= */
+
+        :root {
+            --bg: #0b101c;
+            --surface: #121a2a;
+            --surface-2: #172235;
+            --border: rgba(155, 180, 210, .14);
+            --border-active: rgba(79, 224, 201, .45);
+            --text: #edf4ff;
+            --muted: #8c9bb4;
+            --cyan: #4fe0c9;
+            --violet: #9a86ff;
+            --danger: #ff8797;
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-width: 0;
+            background:
+                radial-gradient(
+                    circle at 85% 10%,
+                    rgba(79, 224, 201, .07),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 10% 85%,
+                    rgba(154, 134, 255, .07),
+                    transparent 28%
+                ),
+                var(--bg);
+            color: var(--text);
+            font-family: "IBM Plex Sans", Arial, sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 4px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        /* =========================================
+           APPLICATION SHELL
+        ========================================= */
+
+        .app-shell {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            width: 250px;
+            min-width: 250px;
+            min-height: 100vh;
+            padding: 28px 18px;
+            background: rgba(12, 18, 31, .96);
+            border-right: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 4px 10px 30px;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(79, 224, 201, .4);
+            border-radius: 12px;
+            color: var(--cyan);
+            background: rgba(79, 224, 201, .06);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .brand strong {
+            display: block;
+            color: var(--text);
+            font-family: "Space Grotesk", Arial, sans-serif;
+            font-size: 15px;
+            letter-spacing: .12em;
+        }
+
+        .brand small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 8px;
+            letter-spacing: .12em;
+        }
+
+        .sidebar nav {
+            display: grid;
+            gap: 5px;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            min-height: 43px;
+            padding: 0 13px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: var(--muted);
+            font-size: 13px;
+            text-decoration: none;
+            transition:
+                background .2s ease,
+                color .2s ease,
+                border-color .2s ease;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a:focus-visible {
+            color: var(--text);
+            background: rgba(79, 224, 201, .06);
+            border-color: var(--border);
+        }
+
+        .logout-btn {
+            width: 100%;
+            min-height: 43px;
+            margin-top: auto;
+            border: 1px solid rgba(255, 135, 151, .22);
+            border-radius: 10px;
+            color: #ffacb8;
+            background: rgba(255, 135, 151, .04);
+            cursor: pointer;
+            transition: background .2s ease, border-color .2s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 135, 151, .1);
+            border-color: rgba(255, 135, 151, .45);
+        }
+
+        /* =========================================
+           MAIN CONTENT
+        ========================================= */
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            padding: clamp(22px, 4vw, 52px);
+        }
+
+        .page-container {
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .breadcrumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        .breadcrumb:hover {
+            color: var(--cyan);
+        }
+
+        .system-label {
+            color: rgba(237, 244, 255, .45);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            letter-spacing: .08em;
+        }
+
+        /* =========================================
+           LOADING AND EMPTY STATES
+        ========================================= */
+
+        .state-panel {
+            display: grid;
+            place-items: center;
+            min-height: 420px;
+            padding: 35px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: rgba(18, 26, 42, .7);
+            text-align: center;
+        }
+
+        .state-inner {
+            max-width: 430px;
+        }
+
+        .loading-ring {
+            width: 42px;
+            height: 42px;
+            margin: 0 auto 18px;
+            border: 2px solid rgba(79, 224, 201, .15);
+            border-top-color: var(--cyan);
+            border-right-color: var(--violet);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        .state-panel h2 {
+            margin: 0 0 10px;
+            color: var(--text);
+            font-family: "Space Grotesk", Arial, sans-serif;
+            font-size: 22px;
+        }
+
+        .state-panel p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .state-panel a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            margin-top: 22px;
+            padding: 0 18px;
+            border: 1px solid var(--border-active);
+            border-radius: 10px;
+            color: var(--cyan);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        /* =========================================
+           EQUIPMENT HEADER
+        ========================================= */
+
+        .equipment-layout {
+            display: grid;
+            grid-template-columns: minmax(240px, .78fr) minmax(0, 1.4fr);
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .visual-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 440px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(23, 34, 53, .96),
+                    rgba(12, 18, 31, .98)
+                );
+        }
+
+        .visual-card::before {
+            content: "";
+            position: absolute;
+            inset: 24px;
+            border: 1px solid rgba(79, 224, 201, .13);
+            border-radius: 50%;
+        }
+
+        .visual-card::after {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border: 1px dashed rgba(154, 134, 255, .3);
+            border-radius: 50%;
+            animation: rotate 28s linear infinite;
+        }
+
+        .visual-grid {
+            position: absolute;
+            inset: 0;
+            opacity: .25;
+            background-image:
+                linear-gradient(
+                    rgba(79, 224, 201, .08) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(79, 224, 201, .08) 1px,
+                    transparent 1px
+                );
+            background-size: 34px 34px;
+            mask-image: linear-gradient(
+                to bottom,
+                transparent,
+                black,
+                transparent
+            );
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            place-items: center;
+            gap: 22px;
+        }
+
+        .equipment-symbol {
+            display: grid;
+            place-items: center;
+            width: 138px;
+            height: 138px;
+            border: 1px solid rgba(79, 224, 201, .42);
+            border-radius: 28px;
+            background: rgba(79, 224, 201, .055);
+            box-shadow:
+                0 0 45px rgba(79, 224, 201, .07),
+                inset 0 0 28px rgba(79, 224, 201, .04);
+            color: var(--cyan);
+            font-family: "Space Grotesk", Arial, sans-serif;
+            font-size: 65px;
+            font-weight: 700;
+        }
+
+        .visual-caption {
+            color: rgba(237, 244, 255, .5);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        .details-card {
+            min-width: 0;
+            padding: clamp(24px, 4vw, 38px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: rgba(18, 26, 42, .8);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            min-height: 25px;
+            padding: 0 9px;
+            border: 1px solid rgba(79, 224, 201, .25);
+            border-radius: 6px;
+            color: var(--cyan);
+            background: rgba(79, 224, 201, .055);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            letter-spacing: .08em;
+        }
+
+        .details-card h1 {
+            margin: 20px 0 14px;
+            color: var(--text);
+            font-family: "Space Grotesk", Arial, sans-serif;
+            font-size: clamp(2rem, 4vw, 3.35rem);
+            font-weight: 650;
+            letter-spacing: -.045em;
+            line-height: 1.06;
+            overflow-wrap: anywhere;
+        }
+
+        .description {
+            max-width: 650px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.85;
+        }
+
+        .meta-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .meta-chip {
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: #c4d0e3;
+            background: rgba(255, 255, 255, .025);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+        }
+
+        /* =========================================
+           INFORMATION GRID
+        ========================================= */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 26px;
+        }
+
+        .info-item {
+            min-width: 0;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(8, 13, 24, .45);
+        }
+
+        .info-item span {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .info-item strong {
+            display: block;
+            color: var(--text);
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        /* =========================================
+           REQUEST PANEL
+        ========================================= */
+
+        .request-panel {
+            margin-top: 26px;
+            padding: 22px;
+            border: 1px solid rgba(154, 134, 255, .22);
+            border-radius: 14px;
+            background:
+                linear-gradient(
+                    120deg,
+                    rgba(154, 134, 255, .065),
+                    rgba(79, 224, 201, .025)
+                );
+        }
+
+        .request-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .request-heading h2 {
+            margin: 0;
+            color: var(--text);
+            font-family: "Space Grotesk", Arial, sans-serif;
+            font-size: 18px;
+        }
+
+        .request-heading p {
+            margin: 7px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .request-form {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .quantity-field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .quantity-field label {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .quantity-field input {
+            width: 100px;
+            min-height: 45px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            outline: none;
+            color: var(--text);
+            background: #0b101c;
+        }
+
+        .quantity-field input:focus {
+            border-color: var(--cyan);
+        }
+
+        .request-btn {
+            min-height: 45px;
+            padding: 0 19px;
+            border: 1px solid rgba(79, 224, 201, .45);
+            border-radius: 9px;
+            color: #08131b;
+            background: var(--cyan);
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition:
+                transform .2s ease,
+                background .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .request-btn:hover {
+            background: #72f0dc;
+            box-shadow: 0 8px 24px rgba(79, 224, 201, .12);
+            transform: translateY(-1px);
+        }
+
+        .request-btn:disabled {
+            opacity: .5;
+            cursor: wait;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            margin-top: 14px;
+            padding: 12px 13px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .message.success {
+            border: 1px solid rgba(79, 224, 201, .25);
+            color: var(--cyan);
+            background: rgba(79, 224, 201, .06);
+        }
+
+        .message.error {
+            border: 1px solid rgba(255, 135, 151, .25);
+            color: var(--danger);
+            background: rgba(255, 135, 151, .06);
+        }
+
+        /* =========================================
+           RESPONSIVE DESIGN
+        ========================================= */
+
+        @media (max-width: 1050px) {
+            .sidebar {
+                width: 220px;
+                min-width: 220px;
+            }
+
+            .equipment-layout {
+                grid-template-columns: minmax(210px, .7fr) minmax(0, 1.3fr);
+            }
+
+            .visual-card {
+                min-height: 380px;
+            }
+        }
+
+        @media (max-width: 820px) {
+            .app-shell {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-width: 0;
+                min-height: auto;
+                padding: 18px;
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .brand {
+                padding: 0 0 18px;
+            }
+
+            .sidebar nav {
+                display: flex;
+                gap: 6px;
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+
+            .sidebar nav a {
+                flex: 0 0 auto;
+                min-height: 38px;
+                padding: 0 12px;
+                white-space: nowrap;
+                font-size: 12px;
+            }
+
+            .logout-btn {
+                width: 100%;
+                margin-top: 14px;
+            }
+
+            .main-content {
+                padding: 24px 18px;
+            }
+
+            .equipment-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .visual-card {
+                min-height: 280px;
+            }
+
+            .visual-card::before {
+                inset: 30px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .main-content {
+                padding: 18px 12px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .details-card {
+                padding: 22px 18px;
+            }
+
+            .details-card h1 {
+                font-size: 2.2rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .request-panel {
+                padding: 18px;
+            }
+
+            .request-heading {
+                flex-direction: column;
+            }
+
+            .request-form {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .quantity-field input,
+            .request-btn {
+                width: 100%;
+            }
+
+            .state-panel {
+                min-height: 330px;
+                padding: 25px 18px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes rotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+<script defer src="../assets/js/notification-drawer.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar">
+<div class="brand">
+<div class="brand-mark">Æ</div>
+<div>
+<strong>ÆTHERYX</strong>
+<small>RESOURCE NETWORK</small>
+</div>
+</div>
+<nav aria-label="Primary navigation">
+            <a href="../hero/hero-dashboard.html">Dashboard</a>
+            <a href="marketplace.html">Marketplace</a>
+            <a href="cart.html">Cart</a>
+            <a href="my-requests.html">My Requests</a>
+            <a href="inventory.html">Inventory</a>
+            <a href="notifications.html">Notifications</a>
+            <a href="compatibility.html">Compatibility</a>
+            <a href="profile.html">Profile</a>
+        </nav>
+<button class="logout-btn" id="logoutBtn" type="button">
+            Logout
+        </button>
+</aside>
+<main class="main-content">
+<div class="page-container">
+<header class="topbar">
+<a class="breadcrumb" href="marketplace.html">
+<span aria-hidden="true">←</span>
+                    Back to Marketplace
+                </a>
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+<span class="system-label">
+                    EQUIPMENT REGISTRY / DETAILS
+                </span>
+<a class="ax-compatibility-link" href="compatibility.html">Check compatibility</a>
+</div>
+</header>
+<div aria-live="polite" class="state-panel" id="loadingState">
+<div class="state-inner">
+<div aria-hidden="true" class="loading-ring"></div>
+<p>
+                        Synchronizing equipment information...
+                    </p>
+</div>
+</div>
+<div class="state-panel" hidden="" id="notFoundState">
+<div class="state-inner">
+<h2>Equipment Unavailable</h2>
+<p id="notFoundMessage">
+                        The requested equipment could not be found
+                        in the ÆTHERYX registry.
+                    </p>
+<a href="marketplace.html">
+                        Return to Marketplace
+                    </a>
+</div>
+</div>
+<section aria-live="polite" hidden="" id="equipmentContent">
+<div class="equipment-layout">
+<section aria-label="Equipment visual identifier" class="visual-card">
+<div class="visual-grid"></div>
+<div class="visual-content">
+<div aria-hidden="true" class="equipment-symbol" id="equipmentSymbol">
+                                Æ
+                            </div>
+<span class="visual-caption">
+                                Registry Asset
+                            </span>
+</div>
+</section>
+<section class="details-card">
+<span class="eyebrow" id="equipmentCategory">
+                            EQUIPMENT
+                        </span>
+<h1 id="equipmentName">
+                            Equipment
+                        </h1>
+<p class="description" id="equipmentDescription">
+                            Loading equipment description...
+                        </p>
+<div aria-label="Equipment metadata" class="meta-list" id="equipmentMeta"></div>
+<div class="info-grid">
+<div class="info-item">
+<span>Equipment ID</span>
+<strong id="equipmentId">—</strong>
+</div>
+<div class="info-item">
+<span>Category</span>
+<strong id="detailCategory">—</strong>
+</div>
+<div class="info-item">
+<span>Access Role</span>
+<strong id="accessRole">—</strong>
+</div>
+<div class="info-item">
+<span>Availability</span>
+<strong id="availability">—</strong>
+</div>
+</div>
+<section class="request-panel">
+<div class="request-heading">
+<div>
+<h2>Request Equipment</h2>
+<p>
+                                        Submit a request for administrator
+                                        review and approval.
+                                    </p>
+</div>
+</div>
+<form class="request-form" id="requestForm">
+<div class="quantity-field">
+<label for="quantity">
+                                        Quantity
+                                    </label>
+<input id="quantity" max="999" min="1" name="quantity" required="" type="number" value="1"/>
+</div>
+<button class="request-btn" id="requestBtn" type="submit">
+                                    Request Equipment
+                                </button>
+</form>
+<div aria-live="polite" class="message" hidden="" id="requestMessage" role="status"></div>
+</section>
+</section>
+</div>
+</section>
+</div>
+</main>
+</div>
+<script>
+    "use strict";
+
+    const EQUIPMENT_API =
+        "../../backend/api/equipment/list.php";
+
+    const REQUEST_API =
+        "../../backend/api/requests/create.php";
+
+    const LOGOUT_API =
+        "../../backend/api/auth/logout.php";
+
+    let equipment = null;
+
+    /* =========================================
+       HELPERS
+    ========================================= */
+
+    function getEquipmentName(item) {
+        return (
+            item.name ||
+            item.equipment_name ||
+            item.title ||
+            "Unnamed Equipment"
+        );
+    }
+
+    function getEquipmentDescription(item) {
+        return (
+            item.description ||
+            item.details ||
+            item.specification ||
+            "No equipment description is available."
+        );
+    }
+
+    function getEquipmentCategory(item) {
+        return (
+            item.category_name ||
+            item.category ||
+            "Uncategorized"
+        );
+    }
+
+    function getAccessRole(item) {
+        return (
+            item.access_role ||
+            item.required_role ||
+            item.role ||
+            "common"
+        );
+    }
+
+    function formatRole(role) {
+        const normalized = String(role || "common").toLowerCase();
+
+        if (normalized === "enemy") {
+            return "VILLAIN";
+        }
+
+        return normalized.toUpperCase();
+    }
+
+    function getAvailability(item) {
+        if (
+            item.available_quantity !== undefined &&
+            item.available_quantity !== null
+        ) {
+            return `${item.available_quantity} available`;
+        }
+
+        if (
+            item.quantity !== undefined &&
+            item.quantity !== null
+        ) {
+            return `${item.quantity} available`;
+        }
+
+        return item.status || "Available";
+    }
+
+    function getEquipmentId(item) {
+        return item.id || item.equipment_id || null;
+    }
+
+    function setVisible(element, visible) {
+        element.hidden = !visible;
+    }
+
+    function showMessage(type, text) {
+        const message = document.getElementById("requestMessage");
+
+        message.className = `message ${type}`;
+        message.textContent = text;
+        message.hidden = false;
+    }
+
+    /* =========================================
+       LOAD EQUIPMENT
+    ========================================= */
+
+    async function loadEquipment() {
+        const loading = document.getElementById("loadingState");
+        const notFound = document.getElementById("notFoundState");
+        const content = document.getElementById("equipmentContent");
+
+        const params = new URLSearchParams(
+            window.location.search
+        );
+
+        const requestedId = params.get("id");
+
+        if (!requestedId) {
+            setVisible(loading, false);
+            setVisible(notFound, true);
+
+            document.getElementById("notFoundMessage").textContent =
+                "No equipment ID was supplied in the page URL.";
+
+            return;
+        }
+
+        try {
+            const response = await fetch(EQUIPMENT_API, {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    `Equipment API returned HTTP ${response.status}.`
+                );
+            }
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(
+                    data.message ||
+                    "Unable to retrieve equipment."
+                );
+            }
+
+            const list = Array.isArray(data.equipment)
+                ? data.equipment
+                : Array.isArray(data.items)
+                    ? data.items
+                    : [];
+
+            equipment = list.find(item => {
+                const itemId = getEquipmentId(item);
+
+                return String(itemId) === String(requestedId);
+            });
+
+            setVisible(loading, false);
+
+            if (!equipment) {
+                setVisible(notFound, true);
+
+                document.getElementById("notFoundMessage").textContent =
+                    "The selected equipment is not available or could not be located.";
+
+                return;
+            }
+
+            renderEquipment();
+            setVisible(content, true);
+
+        } catch (error) {
+            console.error("Equipment loading error:", error);
+
+            setVisible(loading, false);
+            setVisible(notFound, true);
+
+            document.getElementById("notFoundMessage").textContent =
+                error.message ||
+                "Unable to load equipment information.";
+        }
+    }
+
+    /* =========================================
+       RENDER EQUIPMENT
+    ========================================= */
+
+    function renderEquipment() {
+        const name = getEquipmentName(equipment);
+        const description = getEquipmentDescription(equipment);
+        const category = getEquipmentCategory(equipment);
+        const role = getAccessRole(equipment);
+        const availability = getAvailability(equipment);
+        const id = getEquipmentId(equipment) || "—";
+
+        document.title = `${name} — ÆTHERYX`;
+
+        document.getElementById("equipmentName").textContent = name;
+
+        document.getElementById("equipmentDescription").textContent =
+            description;
+
+        document.getElementById("equipmentCategory").textContent =
+            category.toUpperCase();
+
+        document.getElementById("equipmentId").textContent = id;
+
+        document.getElementById("detailCategory").textContent =
+            category;
+
+        document.getElementById("accessRole").textContent =
+            formatRole(role);
+
+        document.getElementById("availability").textContent =
+            availability;
+
+        document.getElementById("equipmentSymbol").textContent =
+            name.charAt(0).toUpperCase();
+
+        renderMeta();
+    }
+
+    function renderMeta() {
+        const container = document.getElementById("equipmentMeta");
+
+        const metadata = [];
+
+        if (equipment.status) {
+            metadata.push(["Status", equipment.status]);
+        }
+
+        if (equipment.type) {
+            metadata.push(["Type", equipment.type]);
+        }
+
+        if (equipment.condition) {
+            metadata.push(["Condition", equipment.condition]);
+        }
+
+        if (equipment.location) {
+            metadata.push(["Location", equipment.location]);
+        }
+
+        if (equipment.access_role) {
+            metadata.push([
+                "Access",
+                formatRole(equipment.access_role)
+            ]);
+        }
+
+        container.replaceChildren();
+
+        metadata.forEach(([label, value]) => {
+            const chip = document.createElement("span");
+
+            chip.className = "meta-chip";
+            chip.textContent = `${label}: ${value}`;
+
+            container.appendChild(chip);
+        });
+    }
+
+    /* =========================================
+       REQUEST EQUIPMENT
+    ========================================= */
+
+    async function requestEquipment(event) {
+        event.preventDefault();
+
+        if (!equipment) {
+            return;
+        }
+
+        const quantityInput = document.getElementById("quantity");
+        const button = document.getElementById("requestBtn");
+
+        const quantity = Number(quantityInput.value);
+        const equipmentId = getEquipmentId(equipment);
+
+        const message = document.getElementById("requestMessage");
+
+        message.hidden = true;
+        message.className = "message";
+        message.textContent = "";
+
+        if (!Number.isInteger(quantity) || quantity < 1) {
+            showMessage(
+                "error",
+                "Quantity must be a whole number greater than zero."
+            );
+
+            return;
+        }
+
+        if (quantity > 999) {
+            showMessage(
+                "error",
+                "Quantity cannot exceed 999."
+            );
+
+            return;
+        }
+
+        if (!equipmentId) {
+            showMessage(
+                "error",
+                "Equipment ID is missing."
+            );
+
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Submitting...";
+
+        try {
+            const response = await fetch(REQUEST_API, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    equipment_id: Number(equipmentId),
+                    quantity: quantity
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.message ||
+                    "Unable to submit equipment request."
+                );
+            }
+
+            showMessage(
+                "success",
+                data.message ||
+                "Equipment request submitted successfully."
+            );
+
+            quantityInput.value = "1";
+
+        } catch (error) {
+            console.error("Request submission error:", error);
+
+            showMessage(
+                "error",
+                error.message ||
+                "Unable to submit equipment request."
+            );
+
+        } finally {
+            button.disabled = false;
+            button.textContent = "Request Equipment";
+        }
+    }
+
+    /* =========================================
+       LOGOUT
+    ========================================= */
+
+    async function logout() {
+        const button = document.getElementById("logoutBtn");
+
+        button.disabled = true;
+        button.textContent = "Logging out...";
+
+        try {
+            await fetch(LOGOUT_API, {
+                method: "POST",
+                credentials: "include"
+            });
+
+        } catch (error) {
+            console.error("Logout error:", error);
+
+        } finally {
+            window.location.href = "../public/login.html";
+        }
+    }
+
+    /* =========================================
+       EVENT LISTENERS
+    ========================================= */
+
+    document
+        .getElementById("requestForm")
+        .addEventListener("submit", requestEquipment);
+
+    document
+        .getElementById("logoutBtn")
+        .addEventListener("click", logout);
+
+    /* =========================================
+       INITIALIZATION
+    ========================================= */
+
+    loadEquipment();
+</script>
+</body>
+</html>

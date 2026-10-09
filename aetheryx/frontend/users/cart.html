@@ -1,0 +1,2020 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cart — ÆTHERYX</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --base: #0d1321;
+            --surface: #161b2e;
+            --surface-light: #1d2438;
+            --cyan: #4fe0c9;
+            --violet: #8b6fea;
+            --text: #eef2ff;
+            --muted: #8e98b7;
+            --border: rgba(255, 255, 255, .09);
+            --danger: #ff637d;
+            --warning: #f5bd5c;
+            --success: #4fe0c9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text);
+            font-family: "IBM Plex Sans", sans-serif;
+
+            background:
+                radial-gradient(
+                    700px 500px at 90% -10%,
+                    rgba(139, 111, 234, .18),
+                    transparent 65%
+                ),
+                radial-gradient(
+                    600px 450px at -10% 30%,
+                    rgba(79, 224, 201, .12),
+                    transparent 65%
+                ),
+                var(--base);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .25;
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.025) 1px,
+                    transparent 1px
+                );
+            background-size: 45px 45px;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: .45;
+        }
+
+        .app {
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 100;
+            width: 250px;
+            padding: 25px 17px;
+
+            display: flex;
+            flex-direction: column;
+
+            background: rgba(13, 19, 33, .94);
+            backdrop-filter: blur(22px);
+            border-right: 1px solid var(--border);
+
+            transition: transform .25s ease;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 9px 30px;
+        }
+
+        .brand-symbol {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+
+            border: 1px solid rgba(79,224,201,.3);
+            border-radius: 13px;
+
+            color: var(--cyan);
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(79,224,201,.18),
+                    rgba(139,111,234,.2)
+                );
+
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+
+            box-shadow: 0 0 25px rgba(79,224,201,.06);
+        }
+
+        .brand-name {
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+            letter-spacing: .08em;
+        }
+
+        .brand-sub {
+            margin-top: 3px;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: .12em;
+        }
+
+        .nav-label {
+            margin: 5px 10px 10px;
+            color: #626b85;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: .16em;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 12px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 13px;
+
+            transition: .2s ease;
+        }
+
+        .nav a:hover {
+            color: var(--text);
+            background: rgba(255,255,255,.035);
+            border-color: var(--border);
+            transform: translateX(2px);
+        }
+
+        .nav a.active {
+            color: var(--cyan);
+            background: rgba(79,224,201,.08);
+            border-color: rgba(79,224,201,.18);
+        }
+
+        .nav-icon {
+            width: 18px;
+            text-align: center;
+            font-family: "IBM Plex Mono", monospace;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .session-box {
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: rgba(255,255,255,.02);
+        }
+
+        .session-label {
+            color: #626b85;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 8px;
+            letter-spacing: .14em;
+        }
+
+        .session-user {
+            margin-top: 7px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            color: var(--text);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 11px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+
+            border: 1px solid rgba(255,99,125,.25);
+            border-radius: 8px;
+
+            color: var(--danger);
+            background: rgba(255,99,125,.05);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            transition: .2s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,99,125,.12);
+        }
+
+        /* MOBILE BUTTON */
+
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 200;
+
+            width: 43px;
+            height: 43px;
+
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            color: var(--cyan);
+            background: var(--surface);
+            font-size: 20px;
+        }
+
+        /* MAIN */
+
+        .main {
+            min-height: 100vh;
+            margin-left: 250px;
+            padding: 42px 42px 70px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .eyebrow {
+            color: var(--cyan);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            letter-spacing: .17em;
+        }
+
+        h1 {
+            margin-top: 9px;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: clamp(2.1rem, 4vw, 3.4rem);
+            letter-spacing: -.05em;
+            line-height: 1;
+        }
+
+        h1 span {
+            color: var(--cyan);
+        }
+
+        .intro {
+            max-width: 600px;
+            margin-top: 13px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            color: var(--muted);
+            background: rgba(255,255,255,.025);
+            text-decoration: none;
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            white-space: nowrap;
+
+            transition: .2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--cyan);
+            border-color: rgba(79,224,201,.3);
+            transform: translateY(-2px);
+        }
+
+        /* SUMMARY STRIP */
+
+        .summary-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(22,27,46,.95),
+                    rgba(22,27,46,.6)
+                );
+        }
+
+        .summary-label {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: .09em;
+        }
+
+        .summary-value {
+            margin-top: 8px;
+            color: var(--text);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 25px;
+            font-weight: 700;
+        }
+
+        .summary-value.cyan {
+            color: var(--cyan);
+        }
+
+        /* CART LAYOUT */
+
+        .cart-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .panel {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(22,27,46,.94),
+                    rgba(22,27,46,.68)
+                );
+            box-shadow: 0 18px 55px rgba(0,0,0,.12);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+
+            padding: 19px 21px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .panel-code {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+        }
+
+        .cart-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 105px minmax(0, 1fr);
+            gap: 17px;
+
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+
+            animation: itemIn .35s ease both;
+        }
+
+        @keyframes itemIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .item-image {
+            width: 105px;
+            height: 105px;
+
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+
+            border: 1px solid rgba(79,224,201,.12);
+            border-radius: 12px;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(79,224,201,.13),
+                    transparent 70%
+                ),
+                var(--surface-light);
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-symbol {
+            color: rgba(79,224,201,.55);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 35px;
+            font-weight: 700;
+        }
+
+        .item-main {
+            min-width: 0;
+        }
+
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .item-category {
+            color: var(--violet);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .item-name {
+            margin-top: 5px;
+            color: var(--text);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .item-description {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .item-status {
+            padding: 5px 7px;
+            border: 1px solid rgba(79,224,201,.2);
+            border-radius: 5px;
+
+            color: var(--cyan);
+            background: rgba(79,224,201,.05);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 8px;
+            white-space: nowrap;
+        }
+
+        .item-status.unavailable {
+            color: var(--danger);
+            border-color: rgba(255,99,125,.2);
+            background: rgba(255,99,125,.05);
+        }
+
+        .item-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+
+            margin-top: 17px;
+        }
+
+        .quantity-control {
+            display: inline-flex;
+            align-items: center;
+
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            overflow: hidden;
+            background: rgba(13,19,33,.45);
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+
+            border: 0;
+            color: var(--cyan);
+            background: transparent;
+            font-size: 17px;
+            transition: .2s ease;
+        }
+
+        .quantity-btn:hover:not(:disabled) {
+            background: rgba(79,224,201,.12);
+        }
+
+        .quantity-value {
+            min-width: 34px;
+            color: var(--text);
+            text-align: center;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 11px;
+        }
+
+        .remove-btn {
+            margin-left: 10px;
+            border: 0;
+            color: var(--danger);
+            background: transparent;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+        }
+
+        .remove-btn:hover {
+            text-decoration: underline;
+        }
+
+        .item-quantity-label {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 9px;
+        }
+
+        /* EMPTY STATE */
+
+        .empty-state {
+            display: grid;
+            place-items: center;
+            padding: 70px 25px;
+            text-align: center;
+        }
+
+        .empty-symbol {
+            color: rgba(79,224,201,.45);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 58px;
+        }
+
+        .empty-title {
+            margin-top: 15px;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 21px;
+        }
+
+        .empty-text {
+            max-width: 350px;
+            margin-top: 9px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .primary-btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+
+            margin-top: 22px;
+            padding: 12px 17px;
+
+            border: 1px solid rgba(79,224,201,.3);
+            border-radius: 9px;
+
+            color: var(--base);
+            background: var(--cyan);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            font-weight: 700;
+            text-decoration: none;
+
+            transition: .2s ease;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79,224,201,.16);
+        }
+
+        /* ORDER SUMMARY */
+
+        .summary-panel {
+            position: sticky;
+            top: 25px;
+        }
+
+        .summary-body {
+            padding: 21px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 16px;
+
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .summary-row strong {
+            color: var(--text);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 11px;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .summary-divider {
+            height: 1px;
+            margin: 20px 0;
+            background: var(--border);
+        }
+
+        .total-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .total-label {
+            color: var(--text);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .total-value {
+            color: var(--cyan);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 25px;
+            font-weight: 700;
+        }
+
+        .notice {
+            margin-top: 20px;
+            padding: 13px;
+
+            border: 1px solid rgba(139,111,234,.2);
+            border-radius: 9px;
+
+            color: var(--muted);
+            background: rgba(139,111,234,.06);
+
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+
+            border: 1px solid rgba(79,224,201,.3);
+            border-radius: 9px;
+
+            color: var(--base);
+            background: var(--cyan);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+            font-weight: 700;
+
+            transition: .2s ease;
+        }
+
+        .checkout-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79,224,201,.15);
+        }
+
+        .continue-btn {
+            display: block;
+            margin-top: 17px;
+            color: var(--muted);
+            text-align: center;
+            text-decoration: none;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+        }
+
+        .continue-btn:hover {
+            color: var(--cyan);
+        }
+
+        /* LOADING AND ERRORS */
+
+        .state {
+            padding: 65px 20px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 17px;
+
+            border: 2px solid rgba(79,224,201,.15);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .state-title {
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 18px;
+        }
+
+        .state-text {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .retry-btn {
+            margin-top: 20px;
+            padding: 10px 15px;
+
+            border: 1px solid rgba(79,224,201,.25);
+            border-radius: 8px;
+
+            color: var(--cyan);
+            background: rgba(79,224,201,.07);
+
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10px;
+        }
+
+        /* TOAST */
+
+        .toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            z-index: 500;
+
+            max-width: 350px;
+            padding: 14px 17px;
+
+            border: 1px solid rgba(79,224,201,.25);
+            border-radius: 10px;
+
+            color: var(--text);
+            background: #12192a;
+            box-shadow: 0 15px 45px rgba(0,0,0,.35);
+
+            font-size: 12px;
+
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+
+            transition: .25s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error {
+            border-color: rgba(255,99,125,.35);
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1100px) {
+            .main {
+                padding: 35px 25px 60px;
+            }
+
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 85px 20px 55px;
+            }
+
+            .topbar {
+                flex-direction: column;
+            }
+
+            .back-btn {
+                align-self: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .summary-strip {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item {
+                grid-template-columns: 75px minmax(0, 1fr);
+                gap: 12px;
+                padding: 15px;
+            }
+
+            .item-image {
+                width: 75px;
+                height: 75px;
+            }
+
+            .item-name {
+                font-size: 15px;
+            }
+
+            .item-description {
+                font-size: 11px;
+            }
+
+            .item-top {
+                flex-direction: column;
+                gap: 7px;
+            }
+
+            .item-bottom {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .item-status {
+                align-self: flex-start;
+            }
+
+            .total-value {
+                font-size: 21px;
+            }
+        }
+    </style>
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+<script defer src="../assets/js/notification-drawer.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+<body>
+<button aria-label="Open navigation" class="mobile-toggle" id="mobileToggle">
+        ☰
+    </button>
+<div class="app">
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+<div class="brand">
+<div class="brand-symbol">Æ</div>
+<div>
+<div class="brand-name">ÆTHERYX</div>
+<div class="brand-sub">EQUIPMENT NETWORK</div>
+</div>
+</div>
+<div class="nav-label">Command</div>
+<nav class="nav">
+            <a href="#" id="dashboardLink"><span class="nav-icon">⌂</span> Dashboard</a>
+            <a href="marketplace.html"><span class="nav-icon">◈</span> Marketplace</a>
+            <a class="active" href="cart.html"><span class="nav-icon">◇</span> Cart</a>
+            <a href="my-requests.html"><span class="nav-icon">◎</span> My Requests</a>
+            <a href="inventory.html"><span class="nav-icon">▣</span> Inventory</a>
+            <a href="notifications.html"><span class="nav-icon">●</span> Notifications</a>
+            <a href="compatibility.html"><span class="nav-icon">⌁</span> Compatibility</a>
+            <a href="profile.html"><span class="nav-icon">○</span> Profile</a>
+        </nav>
+<script>
+    const dashboardLink =
+        document.getElementById("dashboardLink");
+
+    async function setupDashboardLink() {
+        try {
+            const response = await fetch(
+                "../../backend/api/auth/session.php",
+                {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+            const result = await response.json();
+
+            if (!result.success) {
+                dashboardLink.href = "../public/login.html";
+                return;
+            }
+
+            const session =
+                result.data || result.user || result;
+
+            const role = String(
+                session.role || ""
+            ).toLowerCase();
+
+            const dashboardPaths = {
+                admin: "../admin/admin-dashboard.html",
+                hero: "../hero/hero-dashboard.html",
+                enemy: "../enemy/villain-dashboard.html"
+            };
+
+            dashboardLink.href =
+                dashboardPaths[role] ||
+                "../public/login.html";
+
+        } catch (error) {
+            console.error(
+                "Dashboard link error:",
+                error
+            );
+
+            dashboardLink.href =
+                "../public/login.html";
+        }
+    }
+
+    setupDashboardLink();
+</script>
+<div class="sidebar-bottom">
+<div class="session-box">
+<div class="session-label">SESSION</div>
+<div class="session-user" id="sessionUser">
+                        INITIALIZING...
+                    </div>
+<button class="logout-btn" id="logoutBtn">
+                        TERMINATE SESSION
+                    </button>
+</div>
+</div>
+</aside>
+<!-- MAIN CONTENT -->
+<main class="main">
+<header class="topbar">
+<div>
+<div class="eyebrow">
+                        SECURE EQUIPMENT CHECKOUT
+                    </div>
+<h1>
+                        YOUR <span>CART.</span>
+</h1>
+<p class="intro">
+                        Review your selected equipment, adjust quantities,
+                        and prepare your request for authorization.
+                    </p>
+</div>
+<a class="back-btn" href="marketplace.html">
+                    ← CONTINUE SHOPPING
+                </a>
+</header>
+<!-- STATISTICS -->
+<section class="summary-strip">
+<div class="summary-card">
+<div class="summary-label">CART ITEMS</div>
+<div class="summary-value cyan" id="cartItemCount">
+                        0
+                    </div>
+</div>
+<div class="summary-card">
+<div class="summary-label">TOTAL UNITS</div>
+<div class="summary-value" id="cartUnitCount">
+                        0
+                    </div>
+</div>
+<div class="summary-card">
+<div class="summary-label">SYSTEM STATUS</div>
+<div class="summary-value" id="cartStatus">
+                        READY
+                    </div>
+</div>
+</section>
+<!-- CART -->
+<section class="cart-layout">
+<div class="panel">
+<div class="panel-header">
+<div class="panel-title">
+                            Selected Equipment
+                        </div>
+<div class="panel-code">
+                            CART / 001
+                        </div>
+</div>
+<div class="cart-list" id="cartList">
+<div class="state">
+<div class="spinner"></div>
+<div class="state-title">
+                                Loading cart...
+                            </div>
+<div class="state-text">
+                                Establishing secure inventory connection.
+                            </div>
+</div>
+</div>
+</div>
+<!-- ORDER SUMMARY -->
+<aside class="panel summary-panel">
+<div class="panel-header">
+<div class="panel-title">
+                            Request Summary
+                        </div>
+<div class="panel-code">
+                            SECURE
+                        </div>
+</div>
+<div class="summary-body">
+<div class="summary-row">
+<span>Equipment types</span>
+<strong id="summaryTypes">
+                                0
+                            </strong>
+</div>
+<div class="summary-row">
+<span>Total units</span>
+<strong id="summaryUnits">
+                                0
+                            </strong>
+</div>
+<div class="summary-row">
+<span>Request status</span>
+<strong id="summaryStatus">
+                                DRAFT
+                            </strong>
+</div>
+<div class="summary-divider"></div>
+<div class="total-row">
+<div class="total-label">
+                                Total Items
+                            </div>
+<div class="total-value" id="summaryTotal">
+                                0
+                            </div>
+</div>
+<div class="notice">
+<strong>Notice:</strong>
+                            This cart represents an equipment request.
+                            Final approval and assignment are handled
+                            by the authorized system administrator.
+                        </div>
+<button class="checkout-btn" disabled="" id="checkoutBtn">
+                            REQUEST EQUIPMENT
+                        </button>
+<a class="continue-btn" href="marketplace.html">
+                            ← Browse more equipment
+                        </a>
+</div>
+</aside>
+</section>
+</main>
+</div>
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+<script>
+        "use strict";
+
+        /*
+         * CONFIGURATION
+         *
+         * Change this path if your backend folder is different.
+         */
+
+        const API_BASE_URL =
+            "../../backend/api";
+
+        const state = {
+            items: [],
+            loading: false,
+            updating: false
+        };
+
+        const elements = {
+            sidebar: document.getElementById("sidebar"),
+            mobileToggle: document.getElementById("mobileToggle"),
+            cartList: document.getElementById("cartList"),
+            cartItemCount: document.getElementById("cartItemCount"),
+            cartUnitCount: document.getElementById("cartUnitCount"),
+            cartStatus: document.getElementById("cartStatus"),
+            summaryTypes: document.getElementById("summaryTypes"),
+            summaryUnits: document.getElementById("summaryUnits"),
+            summaryStatus: document.getElementById("summaryStatus"),
+            summaryTotal: document.getElementById("summaryTotal"),
+            checkoutBtn: document.getElementById("checkoutBtn"),
+            sessionUser: document.getElementById("sessionUser"),
+            logoutBtn: document.getElementById("logoutBtn"),
+            toast: document.getElementById("toast")
+        };
+
+        let toastTimer = null;
+
+        /*
+         * SECURITY HELPERS
+         */
+
+        function escapeHTML(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function getNumber(value, fallback = 0) {
+            const number = Number(value);
+
+            return Number.isFinite(number)
+                ? number
+                : fallback;
+        }
+
+        function showToast(message, type = "success") {
+            clearTimeout(toastTimer);
+
+            elements.toast.textContent = message;
+            elements.toast.className = "toast show";
+
+            if (type === "error") {
+                elements.toast.classList.add("error");
+            }
+
+            toastTimer = setTimeout(() => {
+                elements.toast.className = "toast";
+            }, 3500);
+        }
+
+        function setCartLoading(value) {
+            state.updating = value;
+
+            document
+                .querySelectorAll("[data-action]")
+                .forEach((button) => {
+                    button.disabled = value;
+                });
+
+            elements.checkoutBtn.disabled =
+                value || state.items.length === 0;
+        }
+
+        /*
+         * CART DATA NORMALIZATION
+         */
+
+        function getCartItemId(item) {
+            return getNumber(
+                item.cart_id ??
+                item.cartId ??
+                item.cart_item_id ??
+                item.cartItemId ??
+                item.id ??
+                0
+            );
+        }
+
+        function getEquipmentId(item) {
+            return getNumber(
+                item.equipment_id ??
+                item.equipmentId ??
+                item.equipment?.id ??
+                item.equipment?.equipment_id ??
+                0
+            );
+        }
+
+        function getCartQuantity(item) {
+            return Math.max(
+                1,
+                getNumber(item.quantity, 1)
+            );
+        }
+
+        function extractCartItems(data) {
+            if (Array.isArray(data)) {
+                return data;
+            }
+
+            if (Array.isArray(data?.items)) {
+                return data.items;
+            }
+
+            if (Array.isArray(data?.cart)) {
+                return data.cart;
+            }
+
+            if (Array.isArray(data?.data)) {
+                return data.data;
+            }
+
+            if (Array.isArray(data?.data?.items)) {
+                return data.data.items;
+            }
+
+            if (Array.isArray(data?.data?.cart)) {
+                return data.data.cart;
+            }
+
+            return [];
+        }
+
+        function normalizeCartItem(item) {
+            const equipment = item.equipment ?? item;
+
+            const equipmentId = getEquipmentId(item);
+
+            return {
+                raw: item,
+
+                cartId: getCartItemId(item),
+
+                id: equipmentId,
+
+                equipmentId: equipmentId,
+
+                quantity: getCartQuantity(item),
+
+                name:
+                    item.name ??
+                    equipment.name ??
+                    "Unknown Equipment",
+
+                description:
+                    item.description ??
+                    equipment.description ??
+                    "No description available.",
+
+                category:
+                    item.category_name ??
+                    item.category ??
+                    equipment.category_name ??
+                    equipment.category ??
+                    "Uncategorized",
+
+                status:
+                    item.status ??
+                    equipment.status ??
+                    "available",
+
+                imageUrl:
+                    item.image_url ??
+                    item.imageUrl ??
+                    equipment.image_url ??
+                    equipment.imageUrl ??
+                    "",
+
+                availableQuantity: getNumber(
+                    item.available_quantity ??
+                    item.availableQuantity ??
+                    equipment.available_quantity ??
+                    equipment.availableQuantity ??
+                    0
+                )
+            };
+        }
+
+        /*
+         * API REQUEST HELPER
+         */
+
+        async function apiRequest(url, options = {}) {
+            const response = await fetch(url, {
+                credentials: "include",
+
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    ...(options.headers || {})
+                },
+
+                ...options
+            });
+
+            const text = await response.text();
+
+            let data = {};
+
+            if (text.trim()) {
+                try {
+                    data = JSON.parse(text);
+                } catch {
+                    throw new Error(
+                        `Invalid server response. HTTP ${response.status}`
+                    );
+                }
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    `Request failed with HTTP ${response.status}`
+                );
+            }
+
+            return data;
+        }
+
+        /*
+         * LOAD CART
+         */
+
+        async function loadCart() {
+            if (state.loading) {
+                return;
+            }
+
+            state.loading = true;
+
+            renderLoadingState();
+
+            try {
+                const data = await apiRequest(
+                    `${API_BASE_URL}/cart/list.php`,
+                    {
+                        method: "GET"
+                    }
+                );
+
+                const rawItems = extractCartItems(data);
+
+                state.items = rawItems
+                    .map(normalizeCartItem)
+                    .filter((item) => item.cartId > 0);
+
+                renderCart();
+
+            } catch (error) {
+                console.error("Cart loading error:", error);
+
+                renderErrorState(
+                    error.message ||
+                    "Unable to load your cart."
+                );
+
+            } finally {
+                state.loading = false;
+            }
+        }
+
+        /*
+         * UPDATE QUANTITY
+         *
+         * Backend endpoint expects:
+         * PUT
+         * {
+         *     cart_id: number,
+         *     quantity: number
+         * }
+         */
+
+        async function updateQuantity(cartId, quantity) {
+            const numericCartId = getNumber(cartId);
+            const numericQuantity = getNumber(quantity);
+
+            if (numericCartId <= 0) {
+                throw new Error("Invalid cart item ID.");
+            }
+
+            if (
+                numericQuantity < 1 ||
+                !Number.isInteger(numericQuantity)
+            ) {
+                throw new Error("Invalid quantity.");
+            }
+
+            await apiRequest(
+                `${API_BASE_URL}/cart/update.php`,
+                {
+                    method: "PUT",
+
+                    body: JSON.stringify({
+                        cart_id: numericCartId,
+                        quantity: numericQuantity
+                    })
+                }
+            );
+        }
+
+        /*
+         * REMOVE CART ITEM
+         *
+         * Backend endpoint expects:
+         * DELETE
+         * {
+         *     cart_id: number
+         * }
+         */
+
+        async function removeItem(cartId) {
+            const numericCartId = getNumber(cartId);
+
+            if (numericCartId <= 0) {
+                throw new Error("Invalid cart item ID.");
+            }
+
+            const confirmed = window.confirm(
+                "Remove this equipment from your cart?"
+            );
+
+            if (!confirmed) {
+                return false;
+            }
+
+            await apiRequest(
+                `${API_BASE_URL}/cart/remove.php`,
+                {
+                    method: "DELETE",
+
+                    body: JSON.stringify({
+                        cart_id: numericCartId
+                    })
+                }
+            );
+
+            return true;
+        }
+
+        /*
+         * CART ACTIONS
+         */
+
+        async function handleCartAction(button) {
+            if (
+                !button ||
+                button.disabled ||
+                state.updating
+            ) {
+                return;
+            }
+
+            const action = button.dataset.action;
+
+            const cartId = getNumber(
+                button.dataset.cartId
+            );
+
+            const item = state.items.find(
+                (cartItem) =>
+                    Number(cartItem.cartId) === cartId
+            );
+
+            if (!item) {
+                showToast(
+                    "Cart item was not found.",
+                    "error"
+                );
+
+                return;
+            }
+
+            const currentQuantity = getCartQuantity(item);
+
+            button.disabled = true;
+            state.updating = true;
+
+            try {
+                if (action === "increase") {
+                    await updateQuantity(
+                        cartId,
+                        currentQuantity + 1
+                    );
+
+                    showToast(
+                        "Quantity increased.",
+                        "success"
+                    );
+                }
+
+                if (action === "decrease") {
+                    if (currentQuantity <= 1) {
+                        const removed = await removeItem(cartId);
+
+                        if (!removed) {
+                            return;
+                        }
+
+                        showToast(
+                            "Equipment removed.",
+                            "success"
+                        );
+                    } else {
+                        await updateQuantity(
+                            cartId,
+                            currentQuantity - 1
+                        );
+
+                        showToast(
+                            "Quantity decreased.",
+                            "success"
+                        );
+                    }
+                }
+
+                if (action === "remove") {
+                    const removed = await removeItem(cartId);
+
+                    if (!removed) {
+                        return;
+                    }
+
+                    showToast(
+                        "Equipment removed from cart.",
+                        "success"
+                    );
+                }
+
+                await loadCart();
+
+            } catch (error) {
+                console.error("Cart action error:", error);
+
+                showToast(
+                    error.message ||
+                    "Unable to update cart.",
+                    "error"
+                );
+
+            } finally {
+                state.updating = false;
+                button.disabled = false;
+            }
+        }
+
+        /*
+         * RENDER CART
+         */
+
+        function renderCart() {
+            const itemCount = state.items.length;
+
+            const unitCount = state.items.reduce(
+                (total, item) =>
+                    total + getCartQuantity(item),
+                0
+            );
+
+            elements.cartItemCount.textContent =
+                itemCount;
+
+            elements.cartUnitCount.textContent =
+                unitCount;
+
+            elements.cartStatus.textContent =
+                itemCount > 0
+                    ? "ACTIVE"
+                    : "EMPTY";
+
+            elements.summaryTypes.textContent =
+                itemCount;
+
+            elements.summaryUnits.textContent =
+                unitCount;
+
+            elements.summaryStatus.textContent =
+                itemCount > 0
+                    ? "DRAFT"
+                    : "EMPTY";
+
+            elements.summaryTotal.textContent =
+                unitCount;
+
+            elements.checkoutBtn.disabled =
+                itemCount === 0 ||
+                state.updating;
+
+            if (itemCount === 0) {
+                renderEmptyState();
+                return;
+            }
+
+            elements.cartList.innerHTML =
+                state.items
+                    .map(renderCartItem)
+                    .join("");
+
+            bindCartEvents();
+        }
+
+        function renderCartItem(item) {
+            const isUnavailable =
+                String(item.status).toLowerCase() ===
+                "unavailable";
+
+            const statusText =
+                isUnavailable
+                    ? "UNAVAILABLE"
+                    : "AVAILABLE";
+
+            const imageMarkup = item.imageUrl
+                ? `
+                    <img
+                        src="${escapeHTML(item.imageUrl)}"
+                        alt="${escapeHTML(item.name)}"
+                        loading="lazy"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    >
+                    <div
+                        class="item-symbol"
+                        style="display:none"
+                    >
+                        Æ
+                    </div>
+                `
+                : `
+                    <div class="item-symbol">Æ</div>
+                `;
+
+            return `
+                <article
+                    class="cart-item"
+                    data-cart-id="${item.cartId}"
+                >
+
+                    <div class="item-image">
+                        ${imageMarkup}
+                    </div>
+
+                    <div class="item-main">
+
+                        <div class="item-top">
+
+                            <div>
+                                <div class="item-category">
+                                    ${escapeHTML(item.category)}
+                                </div>
+
+                                <div class="item-name">
+                                    ${escapeHTML(item.name)}
+                                </div>
+
+                                <p class="item-description">
+                                    ${escapeHTML(item.description)}
+                                </p>
+                            </div>
+
+                            <span
+                                class="item-status ${isUnavailable ? "unavailable" : ""}"
+                            >
+                                ${statusText}
+                            </span>
+
+                        </div>
+
+                        <div class="item-bottom">
+
+                            <div>
+
+                                <div class="quantity-control">
+
+                                    <button
+                                        type="button"
+                                        class="quantity-btn"
+                                        data-action="decrease"
+                                        data-cart-id="${item.cartId}"
+                                        aria-label="Decrease quantity"
+                                    >
+                                        −
+                                    </button>
+
+                                    <span class="quantity-value">
+                                        ${item.quantity}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        class="quantity-btn"
+                                        data-action="increase"
+                                        data-cart-id="${item.cartId}"
+                                        aria-label="Increase quantity"
+                                    >
+                                        +
+                                    </button>
+
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="remove-btn"
+                                    data-action="remove"
+                                    data-cart-id="${item.cartId}"
+                                >
+                                    Remove
+                                </button>
+
+                            </div>
+
+                            <div class="item-quantity-label">
+                                UNIT COUNT: ${item.quantity}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </article>
+            `;
+        }
+
+        function renderLoadingState() {
+            elements.cartList.innerHTML = `
+                <div class="state">
+
+                    <div class="spinner"></div>
+
+                    <div class="state-title">
+                        Loading cart...
+                    </div>
+
+                    <div class="state-text">
+                        Establishing secure inventory connection.
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function renderEmptyState() {
+            elements.cartList.innerHTML = `
+                <div class="empty-state">
+
+                    <div class="empty-symbol">□</div>
+
+                    <div class="empty-title">
+                        Your cart is empty
+                    </div>
+
+                    <p class="empty-text">
+                        No equipment has been selected yet.
+                        Visit the marketplace to explore available assets.
+                    </p>
+
+                    <a
+                        href="marketplace.html"
+                        class="primary-btn"
+                    >
+                        EXPLORE MARKETPLACE
+                    </a>
+
+                </div>
+            `;
+        }
+
+        function renderErrorState(message) {
+            elements.cartList.innerHTML = `
+                <div class="state">
+
+                    <div class="state-title">
+                        Connection failed
+                    </div>
+
+                    <div class="state-text">
+                        ${escapeHTML(message)}
+                    </div>
+
+                    <button
+                        type="button"
+                        class="retry-btn"
+                        id="retryBtn"
+                    >
+                        TRY AGAIN
+                    </button>
+
+                </div>
+            `;
+
+            document
+                .getElementById("retryBtn")
+                ?.addEventListener("click", loadCart);
+        }
+
+        function bindCartEvents() {
+            document
+                .querySelectorAll("[data-action]")
+                .forEach((button) => {
+                    button.addEventListener("click", () => {
+                        handleCartAction(button);
+                    });
+                });
+        }
+
+        /*
+         * SESSION
+         */
+
+        async function loadSession() {
+            try {
+                const data = await apiRequest(
+                    `${API_BASE_URL}/auth/session.php`,
+                    {
+                        method: "GET"
+                    }
+                );
+
+                const user =
+                    data.user ??
+                    data.data?.user ??
+                    data;
+
+                elements.sessionUser.textContent =
+                    user.handle ??
+                    user.username ??
+                    user.email ??
+                    "AUTHENTICATED USER";
+
+            } catch (error) {
+                console.warn(
+                    "Session information unavailable:",
+                    error
+                );
+
+                elements.sessionUser.textContent =
+                    "AUTHENTICATED SESSION";
+            }
+        }
+
+        /*
+         * LOGOUT
+         */
+
+        async function logout() {
+            const confirmed = window.confirm(
+                "Terminate your current session?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                await apiRequest(
+                    `${API_BASE_URL}/auth/logout.php`,
+                    {
+                        method: "POST"
+                    }
+                );
+
+                window.location.href =
+                    "../public/login.html";
+
+            } catch (error) {
+                console.error("Logout error:", error);
+
+                showToast(
+                    error.message ||
+                    "Unable to terminate session.",
+                    "error"
+                );
+            }
+        }
+
+        /*
+         * CHECKOUT PLACEHOLDER
+         *
+         * Connect this button to your equipment request
+         * endpoint when your request workflow is ready.
+         */
+
+        function requestEquipment() {
+            if (state.items.length === 0) {
+                showToast(
+                    "Your cart is empty.",
+                    "error"
+                );
+
+                return;
+            }
+
+            showToast(
+                "Equipment request workflow is not connected yet.",
+                "error"
+            );
+        }
+
+        /*
+         * MOBILE NAVIGATION
+         */
+
+        elements.mobileToggle.addEventListener(
+            "click",
+            () => {
+                elements.sidebar.classList.toggle("open");
+            }
+        );
+
+        document
+            .querySelectorAll(".nav a")
+            .forEach((link) => {
+                link.addEventListener("click", () => {
+                    elements.sidebar.classList.remove("open");
+                });
+            });
+
+        elements.logoutBtn.addEventListener(
+            "click",
+            logout
+        );
+
+        elements.checkoutBtn.addEventListener(
+            "click",
+            requestEquipment
+        );
+
+        /*
+         * INITIALIZE
+         */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+                loadSession();
+                loadCart();
+            }
+        );
+    </script>
+</body>
+</html>

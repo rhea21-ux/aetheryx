@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications — ÆTHERYX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/aetheryx-ui.css">
+<script defer src="../assets/js/common.js"></script>
+<script defer src="../assets/js/notification-drawer.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+<body>
+
+    <header class="mobile-header">
+        <div class="mobile-brand">ÆTHERYX</div>
+        <button class="menu-btn" id="menuButton" type="button" aria-label="Open navigation">☰</button>
+    </header>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-symbol">Æ</div>
+            <div>
+                <div class="brand-name">ÆTHERYX</div>
+                <div class="brand-subtitle">HERO NETWORK</div>
+            </div>
+        </div>
+
+        <div class="section-label">Command</div>
+
+        <nav class="nav" aria-label="Primary navigation">
+            <a class="nav-item" href="../hero/hero-dashboard.html"><span class="nav-icon">⌂</span><span class="nav-text">Dashboard</span></a>
+            <a class="nav-item" href="marketplace.html"><span class="nav-icon">◈</span><span class="nav-text">Marketplace</span></a>
+            <a class="nav-item" href="cart.html"><span class="nav-icon">◇</span><span class="nav-text">Cart</span></a>
+            <a class="nav-item" href="my-requests.html"><span class="nav-icon">◎</span><span class="nav-text">My Requests</span></a>
+            <a class="nav-item" href="inventory.html"><span class="nav-icon">▣</span><span class="nav-text">Inventory</span></a>
+            <a class="nav-item active" href="notifications.html" aria-current="page"><span class="nav-icon">●</span><span class="nav-text">Notifications</span></a>
+            <a class="nav-item" href="compatibility.html"><span class="nav-icon">⌁</span><span class="nav-text">Compatibility</span></a>
+            <a class="nav-item" href="profile.html"><span class="nav-icon">○</span><span class="nav-text">Profile</span></a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="user-mini">
+                <div class="avatar">H</div>
+                <div class="user-name">
+                    <strong>Authenticated</strong>
+                    <span>Hero</span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutButton" type="button">Sign out</button>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <header class="page-header">
+            <div class="eyebrow">Activity</div>
+            <h1>Notifications</h1>
+            <p class="intro">Updates about your requests, approvals and returned equipment.</p>
+        </header>
+
+        <div class="nf-bar">
+            <div class="nf-tabs" role="tablist" aria-label="Filter notifications">
+                <button class="nf-tab active" role="tab" data-filter="all" type="button">All <span id="countAll">0</span></button>
+                <button class="nf-tab" role="tab" data-filter="unread" type="button">Unread <span id="countUnread">0</span></button>
+            </div>
+            <div class="nf-actions">
+                <button class="btn btn-secondary btn-sm" id="markAll" type="button">Mark all as read</button>
+                <button class="btn btn-secondary btn-sm" id="clearRead" type="button">Clear read</button>
+            </div>
+        </div>
+
+        <section class="nf-list" id="list" aria-live="polite"></section>
+
+        <section class="state hidden" id="loading"><div><strong>Loading</strong>Fetching your notifications...</div></section>
+
+        <section class="empty-state hidden" id="empty">
+            <div class="empty-icon" aria-hidden="true">●</div>
+            <div>
+                <strong id="emptyTitle">You're all caught up</strong>
+                <p id="emptyText">New updates about your requests will show up here.</p>
+                <a class="btn empty-action" href="marketplace.html">Browse marketplace</a>
+            </div>
+        </section>
+
+        <section class="state error hidden" id="error"><div><strong>Couldn't load notifications</strong><span id="errorText"></span> <button class="btn btn-secondary btn-sm" id="retry" type="button">Try again</button></div></section>
+
+    </main>
+
+<script>
+"use strict";
+
+const API = "../../backend/api/notifications/";
+const $ = id => document.getElementById(id);
+const list = $("list"), loading = $("loading"), empty = $("empty"), errorBox = $("error");
+
+let items = [];
+let filter = "all";
+
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
+function timeAgo(value){
+    const d = new Date(String(value || "").replace(" ", "T"));
+    if(Number.isNaN(d.getTime())) return "";
+    const s = Math.max(0, (Date.now() - d.getTime()) / 1000);
+    if(s < 60) return "just now";
+    if(s < 3600) return Math.floor(s / 60) + "m ago";
+    if(s < 86400) return Math.floor(s / 3600) + "h ago";
+    if(s < 604800) return Math.floor(s / 86400) + "d ago";
+    return d.toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
+}
+
+async function call(endpoint, options = {}){
+    const res = await fetch(API + endpoint, {
+        credentials: "include",
+        cache: "no-store",
+        headers: {"Accept": "application/json", "Content-Type": "application/json"},
+        ...options
+    });
+    let data;
+    try{ data = await res.json(); }catch{ throw new Error("Unexpected server response."); }
+    if(res.status === 401){ location.replace("../public/login.html"); throw new Error("Session expired."); }
+    if(!res.ok || !data.success) throw new Error(data.message || "Request failed.");
+    return data;
+}
+
+function show(el){
+    [loading, empty, errorBox].forEach(e => e.classList.add("hidden"));
+    list.classList.toggle("hidden", !!el);
+    if(el) el.classList.remove("hidden");
+}
+
+function render(){
+    const unread = items.filter(n => !n.is_read).length;
+    $("countAll").textContent = items.length;
+    $("countUnread").textContent = unread;
+    $("markAll").disabled = unread === 0;
+    $("clearRead").disabled = items.length === unread;
+
+    const visible = filter === "unread" ? items.filter(n => !n.is_read) : items;
+
+    if(!visible.length){
+        $("emptyTitle").textContent = filter === "unread" ? "No unread notifications" : "You're all caught up";
+        $("emptyText").textContent = filter === "unread"
+            ? "Everything has been read."
+            : "New updates about your requests will show up here.";
+        show(empty);
+        return;
+    }
+
+    show(null);
+    list.innerHTML = visible.map(n => `
+        <article class="nf-item ${n.is_read ? "" : "unread"}" data-id="${esc(n.id)}">
+            <span class="nf-dot ${esc(n.type)}" aria-hidden="true"></span>
+            <div class="nf-body">
+                <div class="nf-title">${esc(n.title)}</div>
+                <div class="nf-message">${esc(n.message)}</div>
+            </div>
+            <div class="nf-side">
+                <time class="nf-time">${esc(timeAgo(n.created_at))}</time>
+                <div class="nf-row-actions">
+                    ${n.is_read ? "" : `<button class="nf-link" data-act="read" type="button">Mark read</button>`}
+                    <button class="nf-link danger" data-act="delete" type="button">Delete</button>
+                </div>
+            </div>
+        </article>`).join("");
+}
+
+async function load(){
+    show(loading);
+    try{
+        const data = await call("list.php", {method: "GET"});
+        items = (data.notifications || []).map(n => ({...n, is_read: !!n.is_read}));
+        render();
+    }catch(err){
+        $("errorText").textContent = err.message;
+        show(errorBox);
+    }
+}
+
+async function act(fn){
+    try{ await fn(); }catch(err){ alert(err.message); await load(); }
+}
+
+list.addEventListener("click", event => {
+    const button = event.target.closest("[data-act]");
+    if(!button) return;
+    const row = button.closest(".nf-item");
+    const id = Number(row.dataset.id);
+    const item = items.find(n => n.id === id);
+    if(!item) return;
+
+    act(async () => {
+        if(button.dataset.act === "read"){
+            await call("mark-read.php", {method: "POST", body: JSON.stringify({id})});
+            item.is_read = true;
+        }else{
+            await call("delete.php", {method: "POST", body: JSON.stringify({id})});
+            items = items.filter(n => n.id !== id);
+        }
+        render();
+    });
+});
+
+document.querySelectorAll(".nf-tab").forEach(tab => tab.addEventListener("click", () => {
+    filter = tab.dataset.filter;
+    document.querySelectorAll(".nf-tab").forEach(t => t.classList.toggle("active", t === tab));
+    render();
+}));
+
+$("markAll").addEventListener("click", () => act(async () => {
+    await call("mark-read.php", {method: "POST", body: JSON.stringify({all: true})});
+    items.forEach(n => n.is_read = true);
+    render();
+}));
+
+$("clearRead").addEventListener("click", () => {
+    if(!confirm("Delete all read notifications?")) return;
+    act(async () => {
+        await call("delete.php", {method: "POST", body: JSON.stringify({all_read: true})});
+        items = items.filter(n => !n.is_read);
+        render();
+    });
+});
+
+$("retry").addEventListener("click", load);
+
+const sidebar = $("sidebar");
+$("menuButton").addEventListener("click", () => sidebar.classList.toggle("open"));
+$("logoutButton").addEventListener("click", async () => {
+    try{ await fetch("../../backend/api/auth/logout.php", {method: "POST", credentials: "include"}); }catch{}
+    location.replace("../public/login.html");
+});
+
+load();
+</script>
+</body>
+</html>

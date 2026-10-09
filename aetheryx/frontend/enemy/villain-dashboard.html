@@ -1,0 +1,2919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Villain Command — ÆTHERYX</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --base: #0D1321;
+            --surface: #161B2E;
+            --surface-light: #1D2438;
+            --surface-hover: #232B43;
+
+            --cyan: #4FE0C9;
+            --violet: #8B6FEA;
+
+            --text: #EEF2FF;
+            --muted: #8E98B7;
+
+            --success: #54E38E;
+            --danger: #FF647C;
+            --warning: #FFC857;
+
+            --border: rgba(255,255,255,0.08);
+
+            --sidebar-width: 270px;
+
+            --shadow:
+                0 20px 60px rgba(0,0,0,0.35);
+
+            --transition: 180ms ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at 20% 10%,
+                    rgba(139,111,234,0.10),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 80% 80%,
+                    rgba(79,224,201,0.07),
+                    transparent 35%
+                ),
+                var(--base);
+
+            color: var(--text);
+
+            font-family:
+                "IBM Plex Sans",
+                sans-serif;
+
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+
+            position: fixed;
+            inset: 0;
+
+            pointer-events: none;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.018) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.018) 1px,
+                    transparent 1px
+                );
+
+            background-size: 40px 40px;
+
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    black,
+                    transparent 90%
+                );
+
+            z-index: -1;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* =========================
+           LOADING
+        ========================= */
+
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: var(--base);
+
+            z-index: 9999;
+
+            transition:
+                opacity 300ms ease,
+                visibility 300ms ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 55px;
+            height: 55px;
+
+            border: 2px solid
+                rgba(139,111,234,0.15);
+
+            border-top-color:
+                var(--violet);
+
+            border-radius: 50%;
+
+            animation:
+                spin 800ms linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            width: var(--sidebar-width);
+
+            padding: 24px 16px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(22,27,46,0.98),
+                    rgba(13,19,33,0.98)
+                );
+
+            border-right:
+                1px solid var(--border);
+
+            display: flex;
+            flex-direction: column;
+
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+
+            gap: 13px;
+
+            padding:
+                6px 10px 25px;
+        }
+
+        .brand-symbol {
+            width: 42px;
+            height: 42px;
+
+            display: grid;
+            place-items: center;
+
+            border:
+                1px solid
+                rgba(139,111,234,0.45);
+
+            color: var(--violet);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(139,111,234,0.16),
+                    rgba(79,224,201,0.08)
+                );
+
+            box-shadow:
+                0 0 30px
+                rgba(139,111,234,0.08);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-weight: 600;
+
+            clip-path: polygon(
+                0 8px,
+                8px 0,
+                calc(100% - 8px) 0,
+                100% 8px,
+                100% calc(100% - 8px),
+                calc(100% - 8px) 100%,
+                8px 100%,
+                0 calc(100% - 8px)
+            );
+        }
+
+        .brand-name {
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-weight: 700;
+
+            letter-spacing: 0.08em;
+
+            font-size: 17px;
+        }
+
+        .brand-subtitle {
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            letter-spacing: 0.14em;
+
+            margin-top: 3px;
+        }
+
+        .section-label {
+            color: #5E6885;
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            letter-spacing: 0.14em;
+
+            text-transform: uppercase;
+
+            padding:
+                0 12px 9px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+
+            gap: 5px;
+        }
+
+        .nav-item {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 12px 13px;
+
+            border:
+                1px solid transparent;
+
+            border-radius: 10px;
+
+            color: var(--muted);
+
+            transition:
+                background var(--transition),
+                color var(--transition),
+                border-color var(--transition),
+                transform var(--transition);
+        }
+
+        .nav-item:hover {
+            color: var(--text);
+
+            background:
+                rgba(255,255,255,0.035);
+
+            border-color:
+                var(--border);
+
+            transform:
+                translateX(2px);
+        }
+
+        .nav-item.active {
+            color: var(--violet);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(139,111,234,0.10),
+                    rgba(139,111,234,0.025)
+                );
+
+            border-color:
+                rgba(139,111,234,0.17);
+        }
+
+        .nav-item.active::before {
+            content: "";
+
+            position: absolute;
+
+            left: -17px;
+
+            width: 3px;
+            height: 22px;
+
+            background: var(--violet);
+
+            border-radius:
+                0 3px 3px 0;
+
+            box-shadow:
+                0 0 15px
+                rgba(139,111,234,0.7);
+        }
+
+        .nav-icon {
+            width: 21px;
+
+            text-align: center;
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 13px;
+        }
+
+        .nav-text {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .user-mini {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 12px;
+
+            margin-bottom: 8px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,0.025);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+
+            display: grid;
+            place-items: center;
+
+            flex-shrink: 0;
+
+            border-radius: 10px;
+
+            color: var(--base);
+
+            background: var(--violet);
+
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-weight: 700;
+        }
+
+        .user-name {
+            min-width: 0;
+        }
+
+        .user-name strong {
+            display: block;
+
+            font-size: 12px;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+        .user-name span {
+            display: block;
+
+            margin-top: 2px;
+
+            color: var(--violet);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.1em;
+        }
+
+        .logout-btn {
+            width: 100%;
+
+            padding: 11px;
+
+            border:
+                1px solid
+                rgba(255,100,124,0.15);
+
+            border-radius: 10px;
+
+            color: #FF8C9D;
+
+            background:
+                rgba(255,100,124,0.04);
+
+            cursor: pointer;
+
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background:
+                rgba(255,100,124,0.09);
+
+            border-color:
+                rgba(255,100,124,0.28);
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            min-height: 100vh;
+
+            margin-left:
+                var(--sidebar-width);
+
+            padding:
+                30px 34px 50px;
+        }
+
+        .mobile-header {
+            display: none;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 34px;
+        }
+
+        .eyebrow {
+            color: var(--violet);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            letter-spacing: 0.18em;
+
+            text-transform: uppercase;
+
+            margin-bottom: 7px;
+        }
+
+        h1 {
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size:
+                clamp(28px, 4vw, 43px);
+
+            line-height: 1.05;
+
+            letter-spacing:
+                -0.035em;
+        }
+
+        .intro {
+            color: var(--muted);
+
+            margin-top: 9px;
+
+            font-size: 14px;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+
+            gap: 9px;
+
+            padding:
+                9px 13px;
+
+            border:
+                1px solid
+                rgba(84,227,142,0.14);
+
+            border-radius: 999px;
+
+            color: #9BE9B7;
+
+            background:
+                rgba(84,227,142,0.035);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            letter-spacing: 0.08em;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background:
+                var(--success);
+
+            box-shadow:
+                0 0 10px
+                rgba(84,227,142,0.8);
+
+            animation:
+                pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.45;
+            }
+        }
+
+        /* =========================
+           COMMAND PANEL
+        ========================= */
+
+        .villain-panel {
+            position: relative;
+
+            overflow: hidden;
+
+            padding: 27px;
+
+            margin-bottom: 28px;
+
+            border:
+                1px solid
+                rgba(139,111,234,0.15);
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(139,111,234,0.07),
+                    rgba(79,224,201,0.025)
+                );
+
+            box-shadow:
+                var(--shadow);
+        }
+
+        .villain-panel::before {
+            content: "";
+
+            position: absolute;
+
+            width: 230px;
+            height: 230px;
+
+            right: -80px;
+            top: -100px;
+
+            border:
+                1px solid
+                rgba(139,111,234,0.13);
+
+            border-radius: 50%;
+        }
+
+        .villain-panel::after {
+            content: "";
+
+            position: absolute;
+
+            right: 25px;
+            top: 30px;
+
+            width: 130px;
+            height: 130px;
+
+            border:
+                1px dashed
+                rgba(79,224,201,0.13);
+
+            border-radius: 50%;
+        }
+
+        .panel-label {
+            position: relative;
+
+            z-index: 2;
+
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            letter-spacing: 0.14em;
+
+            text-transform: uppercase;
+        }
+
+        .panel-title {
+            position: relative;
+
+            z-index: 2;
+
+            margin-top: 8px;
+
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size: 24px;
+        }
+
+        .panel-text {
+            position: relative;
+
+            z-index: 2;
+
+            max-width: 650px;
+
+            margin-top: 8px;
+
+            color: var(--muted);
+
+            line-height: 1.65;
+
+            font-size: 13px;
+        }
+
+        .role-chip {
+            position: relative;
+
+            z-index: 2;
+
+            display: inline-flex;
+            align-items: center;
+
+            margin-top: 17px;
+
+            padding: 6px 10px;
+
+            border:
+                1px solid
+                rgba(139,111,234,0.25);
+
+            border-radius: 7px;
+
+            color: var(--violet);
+
+            background:
+                rgba(139,111,234,0.06);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            font-weight: 600;
+
+            letter-spacing: 0.1em;
+
+            text-transform: uppercase;
+        }
+
+        /* =========================
+           SECTION
+        ========================= */
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 14px;
+        }
+
+        .section-heading h2 {
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size: 17px;
+        }
+
+        .section-heading span {
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            letter-spacing: 0.1em;
+
+            text-transform: uppercase;
+        }
+
+        /* =========================
+           ACTION GRID
+        ========================= */
+
+        .action-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, minmax(0,1fr));
+
+            gap: 13px;
+        }
+
+        .action-card {
+            position: relative;
+
+            min-height: 160px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            padding: 20px;
+
+            overflow: hidden;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.035),
+                    rgba(255,255,255,0.012)
+                );
+
+            transition:
+                transform var(--transition),
+                border-color var(--transition),
+                background var(--transition),
+                box-shadow var(--transition);
+        }
+
+        .action-card::after {
+            content: "";
+
+            position: absolute;
+
+            right: -30px;
+            bottom: -30px;
+
+            width: 100px;
+            height: 100px;
+
+            border:
+                1px solid
+                rgba(139,111,234,0.09);
+
+            border-radius: 50%;
+
+            transition:
+                transform 300ms ease;
+        }
+
+        .action-card:hover {
+            transform:
+                translateY(-4px);
+
+            border-color:
+                rgba(139,111,234,0.23);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(139,111,234,0.065),
+                    rgba(79,224,201,0.025)
+                );
+
+            box-shadow:
+                0 15px 35px
+                rgba(0,0,0,0.2);
+        }
+
+        .action-card:hover::after {
+            transform:
+                scale(1.3);
+        }
+
+        .card-icon {
+            width: 39px;
+            height: 39px;
+
+            display: grid;
+            place-items: center;
+
+            border:
+                1px solid
+                rgba(139,111,234,0.18);
+
+            border-radius: 10px;
+
+            color: var(--violet);
+
+            background:
+                rgba(139,111,234,0.055);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 13px;
+        }
+
+        .card-title {
+            margin-top: 18px;
+
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-weight: 600;
+
+            font-size: 15px;
+        }
+
+        .card-description {
+            margin-top: 5px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+            line-height: 1.5;
+        }
+
+        .card-arrow {
+            align-self: flex-end;
+
+            color: var(--violet);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 15px;
+        }
+
+        /* =========================
+           MY REQUESTS
+        ========================= */
+
+        .requests-panel {
+            margin-top: 28px;
+
+            padding: 20px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 15px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.035),
+                    rgba(255,255,255,0.012)
+                );
+
+            box-shadow:
+                0 15px 40px
+                rgba(0,0,0,0.18);
+        }
+
+        .requests-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 15px;
+        }
+
+        .requests-title {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .requests-title-icon {
+            width: 34px;
+            height: 34px;
+
+            display: grid;
+            place-items: center;
+
+            color: var(--violet);
+
+            background:
+                rgba(139,111,234,0.06);
+
+            border:
+                1px solid
+                rgba(139,111,234,0.16);
+
+            border-radius: 9px;
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+        }
+
+        .requests-title h2 {
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size: 17px;
+        }
+
+        .requests-title p {
+            margin-top: 2px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+        }
+
+        .view-requests {
+            padding:
+                8px 11px;
+
+            color: var(--violet);
+
+            background:
+                rgba(139,111,234,0.045);
+
+            border:
+                1px solid
+                rgba(139,111,234,0.16);
+
+            border-radius: 7px;
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 8px;
+
+            letter-spacing: 0.07em;
+
+            text-transform: uppercase;
+
+            transition:
+                var(--transition);
+        }
+
+        .view-requests:hover {
+            background:
+                rgba(139,111,234,0.09);
+
+            border-color:
+                rgba(139,111,234,0.28);
+        }
+
+        .request-summary {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,minmax(0,1fr));
+
+            gap: 9px;
+
+            margin-bottom: 12px;
+        }
+
+        .request-stat {
+            padding: 11px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 9px;
+
+            background:
+                rgba(255,255,255,0.018);
+        }
+
+        .request-stat-label {
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 8px;
+
+            letter-spacing: 0.08em;
+
+            text-transform: uppercase;
+        }
+
+        .request-stat-value {
+            margin-top: 5px;
+
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size: 20px;
+
+            font-weight: 700;
+        }
+
+        .request-stat.pending .request-stat-value {
+            color: var(--warning);
+        }
+
+        .request-stat.approved .request-stat-value {
+            color: var(--success);
+        }
+
+        .request-stat.rejected .request-stat-value {
+            color: var(--danger);
+        }
+
+        .recent-requests {
+            display: flex;
+            flex-direction: column;
+
+            gap: 7px;
+        }
+
+        .request-row {
+            display: grid;
+
+            grid-template-columns:
+                minmax(0,1fr)
+                auto;
+
+            gap: 12px;
+
+            padding: 12px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 9px;
+
+            background:
+                rgba(255,255,255,0.018);
+
+            transition:
+                border-color var(--transition),
+                background var(--transition);
+        }
+
+        .request-row:hover {
+            border-color:
+                rgba(139,111,234,0.17);
+
+            background:
+                rgba(139,111,234,0.025);
+        }
+
+        .request-equipment {
+            min-width: 0;
+        }
+
+        .request-equipment-name {
+            font-family:
+                "Space Grotesk",
+                sans-serif;
+
+            font-size: 12px;
+
+            font-weight: 600;
+        }
+
+        .request-equipment-meta {
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 8px;
+        }
+
+        .request-status {
+            align-self: center;
+
+            padding:
+                5px 8px;
+
+            border-radius: 6px;
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 8px;
+
+            font-weight: 600;
+
+            letter-spacing: 0.06em;
+
+            text-transform: uppercase;
+        }
+
+        .request-status.pending {
+            color: var(--warning);
+
+            background:
+                rgba(255,200,87,0.07);
+
+            border:
+                1px solid
+                rgba(255,200,87,0.15);
+        }
+
+        .request-status.approved {
+            color: var(--success);
+
+            background:
+                rgba(84,227,142,0.06);
+
+            border:
+                1px solid
+                rgba(84,227,142,0.15);
+        }
+
+        .request-status.rejected {
+            color: var(--danger);
+
+            background:
+                rgba(255,100,124,0.06);
+
+            border:
+                1px solid
+                rgba(255,100,124,0.15);
+        }
+
+        .request-status.cancelled {
+            color: var(--muted);
+
+            background:
+                rgba(142,152,183,0.05);
+
+            border:
+                1px solid
+                rgba(142,152,183,0.12);
+        }
+
+        .requests-loading {
+            padding: 25px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            letter-spacing: 0.1em;
+
+            text-transform: uppercase;
+        }
+
+        .requests-empty {
+            padding: 25px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            border:
+                1px dashed
+                rgba(255,255,255,0.08);
+
+            border-radius: 9px;
+
+            font-size: 11px;
+        }
+
+        .requests-error {
+            padding: 12px;
+
+            color: #FF9BAB;
+
+            background:
+                rgba(255,100,124,0.05);
+
+            border:
+                1px solid
+                rgba(255,100,124,0.18);
+
+            border-radius: 8px;
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer-panel {
+            margin-top: 25px;
+
+            padding:
+                15px 17px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,0.018);
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+
+            color: var(--muted);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 9px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.08em;
+        }
+
+        .footer-value {
+            color: var(--text);
+        }
+
+        .error-box {
+            display: none;
+
+            padding: 15px;
+
+            margin-bottom: 20px;
+
+            border:
+                1px solid
+                rgba(255,100,124,0.25);
+
+            border-radius: 10px;
+
+            color: #FF9BAB;
+
+            background:
+                rgba(255,100,124,0.05);
+
+            font-family:
+                "IBM Plex Mono",
+                monospace;
+
+            font-size: 11px;
+        }
+
+        .error-box.show {
+            display: block;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1050px) {
+
+            .action-grid {
+                grid-template-columns:
+                    repeat(2,minmax(0,1fr));
+            }
+
+        }
+
+        @media (max-width: 800px) {
+
+            :root {
+                --sidebar-width: 0px;
+            }
+
+            .sidebar {
+                width: 270px;
+
+                transform:
+                    translateX(-100%);
+
+                transition:
+                    transform 250ms ease;
+
+                box-shadow:
+                    20px 0 50px
+                    rgba(0,0,0,0.4);
+            }
+
+            .sidebar.open {
+                transform:
+                    translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+
+                padding:
+                    85px 18px 35px;
+            }
+
+            .mobile-header {
+                position: fixed;
+
+                top: 0;
+                left: 0;
+                right: 0;
+
+                height: 62px;
+
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                padding:
+                    0 16px;
+
+                background:
+                    rgba(13,19,33,0.92);
+
+                backdrop-filter:
+                    blur(18px);
+
+                border-bottom:
+                    1px solid var(--border);
+
+                z-index: 90;
+            }
+
+            .mobile-brand {
+                font-family:
+                    "Space Grotesk",
+                    sans-serif;
+
+                font-weight: 700;
+
+                letter-spacing: 0.08em;
+
+                font-size: 14px;
+            }
+
+            .menu-btn {
+                width: 39px;
+                height: 39px;
+
+                border:
+                    1px solid var(--border);
+
+                border-radius: 9px;
+
+                color: var(--violet);
+
+                background:
+                    rgba(255,255,255,0.025);
+
+                cursor: pointer;
+            }
+
+            .topbar {
+                align-items:
+                    flex-start;
+            }
+
+            .system-status {
+                display: none;
+            }
+
+        }
+
+        @media (max-width: 560px) {
+
+            .main {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .villain-panel {
+                padding: 20px;
+            }
+
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-card {
+                min-height: 145px;
+            }
+
+            .footer-panel {
+                flex-direction: column;
+            }
+
+            .requests-header {
+                align-items: flex-start;
+            }
+
+            .request-summary {
+                grid-template-columns:
+                    repeat(3,1fr);
+            }
+
+            .request-row {
+                grid-template-columns: 1fr;
+            }
+
+            .request-status {
+                justify-self: start;
+            }
+
+            h1 {
+                font-size: 31px;
+            }
+
+        }
+    </style>
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+
+<body>
+
+    <!-- =========================
+         LOADING
+    ========================== -->
+
+    <div
+        class="loading-screen"
+        id="loadingScreen"
+    >
+        <div class="loader"></div>
+    </div>
+
+
+    <!-- =========================
+         MOBILE HEADER
+    ========================== -->
+
+    <header class="mobile-header">
+
+        <div class="mobile-brand">
+            ÆTHERYX
+        </div>
+
+        <button
+            class="menu-btn"
+            id="menuButton"
+            type="button"
+            aria-label="Open navigation"
+        >
+            ☰
+        </button>
+
+    </header>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+        <div class="brand">
+
+            <div class="brand-symbol">
+                Æ
+            </div>
+
+            <div>
+
+                <div class="brand-name">
+                    ÆTHERYX
+                </div>
+
+                <div class="brand-subtitle">
+                    VILLAIN NETWORK
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="section-label">
+            Command
+        </div>
+
+
+        <nav class="nav">
+
+            <a
+                class="nav-item active"
+                href="villain-dashboard.html"
+            >
+                <span class="nav-icon">⌂</span>
+
+                <span class="nav-text">
+                    Dashboard
+                </span>
+            </a>
+
+
+            <a
+                class="nav-item"
+                href="../users/marketplace.html"
+            >
+                <span class="nav-icon">◈</span>
+
+                <span class="nav-text">
+                    Marketplace
+                </span>
+            </a>
+
+
+            <a
+                class="nav-item"
+                href="../users/cart.html"
+            >
+                <span class="nav-icon">◇</span>
+
+                <span class="nav-text">
+                    Cart
+                </span>
+            </a>
+
+
+            <a
+                class="nav-item"
+                href="../users/my-requests.html"
+            >
+                <span class="nav-icon">◎</span>
+
+                <span class="nav-text">
+                    My Requests
+                </span>
+            </a>
+
+
+            <a
+                class="nav-item"
+                href="../users/inventory.html"
+            >
+                <span class="nav-icon">▣</span>
+
+                <span class="nav-text">
+                    Inventory
+                </span>
+            </a>
+
+
+
+
+            <a
+                class="nav-item"
+                href="../users/compatibility.html"
+            >
+                <span class="nav-icon">⌁</span>
+
+                <span class="nav-text">
+                    Compatibility
+                </span>
+            </a>
+
+
+            <a
+                class="nav-item"
+                href="../users/profile.html"
+            >
+                <span class="nav-icon">○</span>
+
+                <span class="nav-text">
+                    Profile
+                </span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="user-mini">
+
+                <div
+                    class="avatar"
+                    id="avatar"
+                >
+                    V
+                </div>
+
+                <div class="user-name">
+
+                    <strong id="sideUsername">
+                        Loading...
+                    </strong>
+
+                    <span>
+                        Villain
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="logout-btn"
+                id="logoutButton"
+                type="button"
+            >
+                Sign out
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="main">
+
+        <div
+            class="error-box"
+            id="errorBox"
+        ></div>
+
+
+        <!-- TOPBAR -->
+
+        <div class="topbar">
+
+            <div>
+
+                <div class="eyebrow">
+                    Villain Command Interface
+                </div>
+
+                <h1>
+                    Welcome,
+                    <span id="welcomeName">
+                        Villain
+                    </span>.
+                </h1>
+
+                <p class="intro">
+                    Access equipment, resources,
+                    requests, and operational tools.
+                </p>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                SESSION VERIFIED
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             COMMAND PANEL
+        ========================== -->
+
+        <section class="villain-panel">
+
+            <div class="panel-label">
+                ÆTHERYX | ACCESS PROFILE
+            </div>
+
+            <div class="panel-title">
+                Villain Operations Network
+            </div>
+
+            <p class="panel-text">
+                Your account is authenticated as a villain.
+                Use the command modules below to browse
+                available equipment, manage requests,
+                inspect assigned resources, and access
+                compatibility tools.
+            </p>
+
+            <div class="role-chip">
+                ROLE | VILLAIN
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             QUICK ACCESS
+        ========================== -->
+
+        <div class="section-heading">
+
+            <h2>
+                Quick Access
+            </h2>
+
+            <span>
+                Operational Modules
+            </span>
+
+        </div>
+
+
+        <section class="action-grid">
+
+            <!-- MARKETPLACE -->
+
+            <a
+                class="action-card"
+                href="../users/marketplace.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ◈
+                    </div>
+
+                    <div class="card-title">
+                        Marketplace
+                    </div>
+
+                    <div class="card-description">
+                        Browse equipment available
+                        to your villain clearance.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- CART -->
+
+            <a
+                class="action-card"
+                href="../users/cart.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ◇
+                    </div>
+
+                    <div class="card-title">
+                        Cart
+                    </div>
+
+                    <div class="card-description">
+                        Review equipment selected
+                        before submitting requests.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- MY REQUESTS -->
+
+            <a
+                class="action-card"
+                href="../users/my-requests.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ◎
+                    </div>
+
+                    <div class="card-title">
+                        My Requests
+                    </div>
+
+                    <div class="card-description">
+                        Track pending, approved,
+                        rejected, and cancelled requests.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- INVENTORY -->
+
+            <a
+                class="action-card"
+                href="../users/inventory.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ▣
+                    </div>
+
+                    <div class="card-title">
+                        Inventory
+                    </div>
+
+                    <div class="card-description">
+                        View equipment currently
+                        assigned to your account.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- RESOURCES -->
+
+
+
+            <!-- COMPATIBILITY -->
+
+            <a
+                class="action-card"
+                href="../users/compatibility.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ⌁
+                    </div>
+
+                    <div class="card-title">
+                        Compatibility
+                    </div>
+
+                    <div class="card-description">
+                        Analyze equipment compatibility
+                        and resource relationships.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- PROFILE -->
+
+            <a
+                class="action-card"
+                href="../users/profile.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ○
+                    </div>
+
+                    <div class="card-title">
+                        Profile
+                    </div>
+
+                    <div class="card-description">
+                        Review your account information
+                        and profile settings.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+        </section>
+
+
+        <!-- =========================
+             LIVE MY REQUESTS
+        ========================== -->
+
+        <section class="requests-panel">
+
+            <div class="requests-header">
+
+                <div class="requests-title">
+
+                    <div class="requests-title-icon">
+                        ◎
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            My Requests
+                        </h2>
+
+                        <p>
+                            Live equipment request status
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="../users/my-requests.html"
+                    class="view-requests"
+                >
+                    View All
+                </a>
+
+            </div>
+
+
+            <!-- REQUEST COUNTERS -->
+
+            <div class="request-summary">
+
+                <div class="request-stat pending">
+
+                    <div class="request-stat-label">
+                        Pending
+                    </div>
+
+                    <div
+                        class="request-stat-value"
+                        id="villainPendingRequests"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="request-stat approved">
+
+                    <div class="request-stat-label">
+                        Approved
+                    </div>
+
+                    <div
+                        class="request-stat-value"
+                        id="villainApprovedRequests"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="request-stat rejected">
+
+                    <div class="request-stat-label">
+                        Rejected
+                    </div>
+
+                    <div
+                        class="request-stat-value"
+                        id="villainRejectedRequests"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- REQUEST LIST -->
+
+            <div
+                class="recent-requests"
+                id="villainRequestsList"
+            >
+
+                <div class="requests-loading">
+                    Loading request records...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             FOOTER
+        ========================== -->
+
+        <div class="footer-panel">
+
+            <div class="footer-item">
+
+                ACCOUNT
+
+                <span
+                    class="footer-value"
+                    id="footerHandle"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="footer-item">
+
+                ROLE
+
+                <span class="footer-value">
+                    VILLAIN
+                </span>
+
+            </div>
+
+
+            <div class="footer-item">
+
+                AUTH
+
+                <span class="footer-value">
+                    ACTIVE
+                </span>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        /* =========================
+           API
+        ========================= */
+
+        const SESSION_API =
+            "../../backend/api/auth/session.php";
+
+        const REQUESTS_API =
+            "../../backend/api/requests/list.php";
+
+        const LOGOUT_API =
+            "../../backend/api/auth/logout.php";
+
+
+        /* =========================
+           ELEMENTS
+        ========================= */
+
+        const loadingScreen =
+            document.getElementById(
+                "loadingScreen"
+            );
+
+        const errorBox =
+            document.getElementById(
+                "errorBox"
+            );
+
+        const sidebar =
+            document.getElementById(
+                "sidebar"
+            );
+
+        const menuButton =
+            document.getElementById(
+                "menuButton"
+            );
+
+
+        /* =========================
+           HELPERS
+        ========================= */
+
+        function showError(message) {
+
+            errorBox.textContent =
+                message ||
+                "Unable to verify your session.";
+
+            errorBox.classList.add(
+                "show"
+            );
+
+        }
+
+
+        function hideLoading() {
+
+            loadingScreen.classList.add(
+                "hidden"
+            );
+
+        }
+
+
+        function redirectToLogin() {
+
+            window.location.replace(
+                "../public/login.html"
+            );
+
+        }
+
+
+        function escapeHTML(value) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return "";
+            }
+
+            return String(value)
+                .replaceAll(
+                    "&",
+                    "&amp;"
+                )
+                .replaceAll(
+                    "<",
+                    "&lt;"
+                )
+                .replaceAll(
+                    ">",
+                    "&gt;"
+                )
+                .replaceAll(
+                    '"',
+                    "&quot;"
+                )
+                .replaceAll(
+                    "'",
+                    "&#039;"
+                );
+
+        }
+
+
+        function normalizeStatus(
+            status
+        ) {
+
+            return String(
+                status || ""
+            ).toLowerCase();
+
+        }
+
+
+        function getEquipmentName(
+            request
+        ) {
+
+            return (
+                request.equipmentName ??
+                request.equipment?.name ??
+                request.name ??
+                "Unknown Equipment"
+            );
+
+        }
+
+
+        function getCategory(
+            request
+        ) {
+
+            return (
+                request.category ??
+                request.equipment?.category ??
+                request.categoryName ??
+                "Uncategorized"
+            );
+
+        }
+
+
+        function getQuantity(
+            request
+        ) {
+
+            return (
+                request.quantity ??
+                1
+            );
+
+        }
+
+
+        /* =========================
+           REQUEST SUMMARY
+        ========================= */
+
+        function updateRequestSummary(
+            requests
+        ) {
+
+            const pending =
+                requests.filter(
+                    request =>
+                        normalizeStatus(
+                            request.status
+                        ) === "pending"
+                ).length;
+
+
+            const approved =
+                requests.filter(
+                    request =>
+                        normalizeStatus(
+                            request.status
+                        ) === "approved"
+                ).length;
+
+
+            const rejected =
+                requests.filter(
+                    request =>
+                        normalizeStatus(
+                            request.status
+                        ) === "rejected"
+                ).length;
+
+
+            document.getElementById(
+                "villainPendingRequests"
+            ).textContent =
+                pending;
+
+
+            document.getElementById(
+                "villainApprovedRequests"
+            ).textContent =
+                approved;
+
+
+            document.getElementById(
+                "villainRejectedRequests"
+            ).textContent =
+                rejected;
+
+        }
+
+
+        /* =========================
+           RENDER REQUESTS
+        ========================= */
+
+        function renderVillainRequests(
+            requests
+        ) {
+
+            const container =
+                document.getElementById(
+                    "villainRequestsList"
+                );
+
+
+            container.innerHTML = "";
+
+
+            if (
+                !requests.length
+            ) {
+
+                container.innerHTML = `
+                    <div class="requests-empty">
+                        No equipment requests have been submitted yet.
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            const recent =
+                [...requests].slice(
+                    0,
+                    5
+                );
+
+
+            recent.forEach(
+                request => {
+
+                    const status =
+                        normalizeStatus(
+                            request.status
+                        );
+
+
+                    const name =
+                        getEquipmentName(
+                            request
+                        );
+
+
+                    const category =
+                        getCategory(
+                            request
+                        );
+
+
+                    const quantity =
+                        getQuantity(
+                            request
+                        );
+
+
+                    const row =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    row.className =
+                        "request-row";
+
+
+                    row.innerHTML = `
+
+                        <div class="request-equipment">
+
+                            <div class="request-equipment-name">
+                                ${escapeHTML(name)}
+                            </div>
+
+                            <div class="request-equipment-meta">
+                                ${escapeHTML(category)}
+                                ·
+                                Quantity
+                                ${escapeHTML(quantity)}
+                            </div>
+
+                        </div>
+
+                        <div class="request-status ${escapeHTML(status)}">
+                            ${escapeHTML(
+                                status ||
+                                "unknown"
+                            )}
+                        </div>
+
+                    `;
+
+
+                    container.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =========================
+           LOAD REQUESTS
+        ========================= */
+
+        async function loadVillainRequests() {
+
+            const container =
+                document.getElementById(
+                    "villainRequestsList"
+                );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        REQUESTS_API,
+                        {
+                            method: "GET",
+
+                            credentials:
+                                "include",
+
+                            cache:
+                                "no-store",
+
+                            headers: {
+                                "Accept":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to load requests."
+                    );
+
+                }
+
+
+                const requests =
+                    Array.isArray(
+                        data.requests
+                    )
+                    ? data.requests
+                    : [];
+
+
+                updateRequestSummary(
+                    requests
+                );
+
+
+                renderVillainRequests(
+                    requests
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Request loading failed:",
+                    error
+                );
+
+
+                container.innerHTML = `
+                    <div class="requests-error">
+                        Unable to load request records.
+                        Please refresh the dashboard.
+                    </div>
+                `;
+
+            }
+
+        }
+
+
+        /* =========================
+           VERIFY VILLAIN SESSION
+        ========================= */
+
+        async function verifyVillainSession() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        SESSION_API,
+                        {
+                            method: "GET",
+
+                            credentials:
+                                "include",
+
+                            cache:
+                                "no-store",
+
+                            headers: {
+                                "Accept":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    redirectToLogin();
+
+                    return;
+
+                }
+
+
+                const user =
+                    data.user || {};
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * The database/backend role
+                 * is "enemy".
+                 *
+                 * The UI calls it
+                 * "Villain".
+                 */
+
+                const rawRole =
+                    String(data.role ?? user.role ?? "").trim().toLowerCase();
+                const role = rawRole === "villain" ? "enemy" : rawRole;
+
+
+                const handle =
+                    data.handle ??
+                    user.handle ??
+                    "";
+
+
+                const userId =
+                    data.user_id ??
+                    user.id ??
+                    "";
+
+
+                /*
+                 * ADMIN
+                 */
+
+                if (
+                    role === "admin"
+                ) {
+
+                    window.location.replace(
+                        "../admin/admin-dashboard.html"
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                 * HERO
+                 */
+
+                if (
+                    role === "hero"
+                ) {
+
+                    window.location.replace(
+                        "../hero/hero-dashboard.html"
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                 * ONLY ENEMY/VILLAIN
+                 * CAN REMAIN HERE.
+                 */
+
+                if (
+                    role !== "enemy"
+                ) {
+
+                    redirectToLogin();
+
+                    return;
+
+                }
+
+
+                const displayName =
+                    handle || "Villain";
+
+
+                document.getElementById(
+                    "welcomeName"
+                ).textContent =
+                    displayName;
+
+
+                document.getElementById(
+                    "sideUsername"
+                ).textContent =
+                    displayName;
+
+                const roleLabel = document.querySelector(".user-name span");
+                if (roleLabel) roleLabel.textContent = "Villain";
+
+
+                document.getElementById(
+                    "footerHandle"
+                ).textContent =
+                    handle ||
+                    `USER-${userId}`;
+
+
+                document.getElementById(
+                    "avatar"
+                ).textContent =
+                    displayName
+                        .charAt(0)
+                        .toUpperCase();
+
+
+                /*
+                 * Session is valid.
+                 */
+
+                hideLoading();
+
+
+                /*
+                 * Immediately load
+                 * this villain's own
+                 * request records.
+                 */
+
+                await loadVillainRequests();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Villain session verification failed:",
+                    error
+                );
+
+
+                showError(
+                    "Could not connect to the ÆTHERYX authentication service."
+                );
+
+
+                hideLoading();
+
+            }
+
+        }
+
+
+        /* =========================
+           LOGOUT
+        ========================= */
+
+        async function logout() {
+
+            try {
+
+                await fetch(
+                    LOGOUT_API,
+                    {
+                        method: "POST",
+
+                        credentials:
+                            "include",
+
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+            } catch (error) {
+
+                console.warn(
+                    "Logout request failed:",
+                    error
+                );
+
+            } finally {
+
+                window.location.replace(
+                    "../public/login.html"
+                );
+
+            }
+
+        }
+
+
+        /* =========================
+           EVENTS
+        ========================= */
+
+        document
+            .getElementById(
+                "logoutButton"
+            )
+            .addEventListener(
+                "click",
+                logout
+            );
+
+
+        menuButton.addEventListener(
+            "click",
+            () => {
+
+                sidebar.classList.toggle(
+                    "open"
+                );
+
+            }
+        );
+
+
+        document
+            .querySelectorAll(
+                ".nav-item"
+            )
+            .forEach(
+                link => {
+
+                    link.addEventListener(
+                        "click",
+                        () => {
+
+                            if (
+                                window.innerWidth <= 800
+                            ) {
+
+                                sidebar.classList.remove(
+                                    "open"
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =========================
+           START
+        ========================= */
+
+        verifyVillainSession();
+
+    </script>
+
+</body>
+</html>

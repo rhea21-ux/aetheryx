@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hero Command — ÆTHERYX</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    
+    <link rel="stylesheet" href="../assets/css/aetheryx-ui.css">
+<script defer src="../assets/js/common.js"></script>
+<script defer src="../assets/js/notification-drawer.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+
+<body>
+
+    <!-- =========================
+         LOADING SCREEN
+    ========================== -->
+
+    <div
+        class="loading-screen"
+        id="loadingScreen"
+    >
+        <div class="loader"></div>
+    </div>
+
+
+    <!-- =========================
+         MOBILE HEADER
+    ========================== -->
+
+    <header class="mobile-header">
+
+        <div class="mobile-brand">
+            ÆTHERYX
+        </div>
+
+        <button
+            class="menu-btn"
+            id="menuButton"
+            type="button"
+            aria-label="Open navigation"
+        >
+            ☰
+        </button>
+
+    </header>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+        <div class="brand">
+
+            <div class="brand-symbol">
+                Æ
+            </div>
+
+            <div>
+
+                <div class="brand-name">
+                    ÆTHERYX
+                </div>
+
+                <div class="brand-subtitle">
+                    HERO NETWORK
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="section-label">
+            Command
+        </div>
+
+
+        <nav class="nav">
+            <a class="nav-item active" href="hero-dashboard.html" aria-current="page"><span class="nav-icon">⌂</span><span class="nav-text">Dashboard</span></a>
+            <a class="nav-item" href="../users/marketplace.html"><span class="nav-icon">◈</span><span class="nav-text">Marketplace</span></a>
+            <a class="nav-item" href="../users/cart.html"><span class="nav-icon">◇</span><span class="nav-text">Cart</span></a>
+            <a class="nav-item" href="../users/my-requests.html"><span class="nav-icon">◎</span><span class="nav-text">My Requests</span></a>
+            <a class="nav-item" href="../users/inventory.html"><span class="nav-icon">▣</span><span class="nav-text">Inventory</span></a>
+            <a class="nav-item" href="../users/notifications.html"><span class="nav-icon">●</span><span class="nav-text">Notifications</span></a>
+            <a class="nav-item" href="../users/compatibility.html"><span class="nav-icon">⌁</span><span class="nav-text">Compatibility</span></a>
+            <a class="nav-item" href="../users/profile.html"><span class="nav-icon">○</span><span class="nav-text">Profile</span></a>
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="user-mini">
+
+                <div
+                    class="avatar"
+                    id="avatar"
+                >
+                    H
+                </div>
+
+                <div class="user-name">
+
+                    <strong id="sideUsername">
+                        Loading...
+                    </strong>
+
+                    <span>
+                        Hero
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="logout-btn"
+                id="logoutButton"
+                type="button"
+            >
+                Sign out
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="main">
+
+        <div
+            class="error-box"
+            id="errorBox"
+        ></div>
+
+
+        <!-- TOPBAR / WELCOME -->
+
+        <div class="topbar">
+
+            <div class="welcome">
+
+                <div class="eyebrow" id="greetingEyebrow">Hero Command Interface</div>
+
+                <h1>
+                    <span id="greeting">Welcome back</span>,
+                    <span class="name" id="welcomeName">Hero</span>.
+                </h1>
+
+                <p class="intro" id="tagline">
+                    Your gear is ready when you are.
+                </p>
+
+                <div class="welcome-date" id="welcomeDate"></div>
+
+            </div>
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+                SESSION VERIFIED
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             COMMAND PANEL
+        ========================== -->
+
+        
+
+
+        <!-- =========================
+             QUICK ACCESS
+        ========================== -->
+
+        <div class="section-heading">
+
+            <h2>
+                Quick Access
+            </h2>
+
+            <span>
+                Operational Modules
+            </span>
+
+        </div>
+
+
+        <section class="action-grid">
+
+            <!-- MARKETPLACE -->
+
+            <a
+                class="action-card"
+                href="../users/marketplace.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ◈
+                    </div>
+
+                    <div class="card-title">
+                        Marketplace
+                    </div>
+
+                    <div class="card-description">
+                        Browse equipment available
+                        to your hero clearance.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- CART -->
+
+            <a
+                class="action-card"
+                href="../users/cart.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ◇
+                    </div>
+
+                    <div class="card-title">
+                        Cart
+                    </div>
+
+                    <div class="card-description">
+                        Review equipment selected
+                        before submitting requests.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- MY REQUESTS -->
+
+            <a
+                class="action-card"
+                href="../users/my-requests.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ◎
+                    </div>
+
+                    <div class="card-title">
+                        My Requests
+                    </div>
+
+                    <div class="card-description">
+                        Track pending, approved,
+                        rejected, and cancelled requests.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- INVENTORY -->
+
+            <a
+                class="action-card"
+                href="../users/inventory.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ▣
+                    </div>
+
+                    <div class="card-title">
+                        Inventory
+                    </div>
+
+                    <div class="card-description">
+                        View equipment currently
+                        assigned to your account.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            
+
+
+            <!-- COMPATIBILITY -->
+
+            <a
+                class="action-card"
+                href="../users/compatibility.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ⌁
+                    </div>
+
+                    <div class="card-title">
+                        Compatibility
+                    </div>
+
+                    <div class="card-description">
+                        Analyze equipment compatibility
+                        and resource relationships.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- PROFILE -->
+
+            <a
+                class="action-card"
+                href="../users/profile.html"
+            >
+
+                <div>
+
+                    <div class="card-icon">
+                        ○
+                    </div>
+
+                    <div class="card-title">
+                        Profile
+                    </div>
+
+                    <div class="card-description">
+                        Review your account information
+                        and profile settings.
+                    </div>
+
+                </div>
+
+                <div class="card-arrow">
+                    →
+                </div>
+
+            </a>
+
+        </section>
+
+
+        <!-- =========================
+             LIVE MY REQUESTS
+        ========================== -->
+
+        <section class="requests-panel">
+
+            <div class="requests-header">
+
+                <div class="requests-title">
+
+                    <div class="requests-title-icon">
+                        ◎
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            My Requests
+                        </h2>
+
+                        <p>
+                            Live equipment request status
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="../users/my-requests.html"
+                    class="view-requests"
+                >
+                    View All
+                </a>
+
+            </div>
+
+
+            <!-- REQUEST COUNTERS -->
+
+            <div class="request-summary">
+
+                <div class="request-stat pending">
+
+                    <div class="request-stat-label">
+                        Pending
+                    </div>
+
+                    <div
+                        class="request-stat-value"
+                        id="heroPendingRequests"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="request-stat approved">
+
+                    <div class="request-stat-label">
+                        Approved
+                    </div>
+
+                    <div
+                        class="request-stat-value"
+                        id="heroApprovedRequests"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="request-stat rejected">
+
+                    <div class="request-stat-label">
+                        Rejected
+                    </div>
+
+                    <div
+                        class="request-stat-value"
+                        id="heroRejectedRequests"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- REQUEST LIST -->
+
+            <div
+                class="recent-requests"
+                id="heroRequestsList"
+            >
+
+                <div class="requests-loading">
+                    Loading request records...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             FOOTER
+        ========================== -->
+
+        <div class="footer-panel">
+
+            <div class="footer-item">
+
+                ACCOUNT
+
+                <span
+                    class="footer-value"
+                    id="footerHandle"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="footer-item">
+
+                ROLE
+
+                <span class="footer-value">
+                    HERO
+                </span>
+
+            </div>
+
+
+            <div class="footer-item">
+
+                AUTH
+
+                <span class="footer-value">
+                    ACTIVE
+                </span>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        /* =========================
+           API
+        ========================= */
+
+        const SESSION_API =
+            "../../backend/api/auth/session.php";
+
+        const REQUESTS_API =
+            "../../backend/api/requests/list.php";
+
+        const LOGOUT_API =
+            "../../backend/api/auth/logout.php";
+
+
+        /* =========================
+           ELEMENTS
+        ========================= */
+
+        const loadingScreen =
+            document.getElementById(
+                "loadingScreen"
+            );
+
+        const errorBox =
+            document.getElementById(
+                "errorBox"
+            );
+
+        const sidebar =
+            document.getElementById(
+                "sidebar"
+            );
+
+        const menuButton =
+            document.getElementById(
+                "menuButton"
+            );
+
+
+        /* =========================
+           HELPERS
+        ========================= */
+
+        function showError(message) {
+
+            errorBox.textContent =
+                message ||
+                "Unable to verify your session.";
+
+            errorBox.classList.add(
+                "show"
+            );
+
+        }
+
+
+        function hideLoading() {
+
+            loadingScreen.classList.add(
+                "hidden"
+            );
+
+        }
+
+
+        function redirectToLogin() {
+
+            window.location.replace(
+                "../public/login.html"
+            );
+
+        }
+
+
+        function escapeHTML(value) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return "";
+            }
+
+            return String(value)
+                .replaceAll(
+                    "&",
+                    "&amp;"
+                )
+                .replaceAll(
+                    "<",
+                    "&lt;"
+                )
+                .replaceAll(
+                    ">",
+                    "&gt;"
+                )
+                .replaceAll(
+                    '"',
+                    "&quot;"
+                )
+                .replaceAll(
+                    "'",
+                    "&#039;"
+                );
+
+        }
+
+
+        function normalizeStatus(
+            status
+        ) {
+
+            return String(
+                status || ""
+            ).toLowerCase();
+
+        }
+
+
+        function getEquipmentName(
+            request
+        ) {
+
+            return (
+                request.equipmentName ??
+                request.equipment?.name ??
+                request.name ??
+                "Unknown Equipment"
+            );
+
+        }
+
+
+        function getCategory(
+            request
+        ) {
+
+            return (
+                request.category ??
+                request.equipment?.category ??
+                request.categoryName ??
+                "Uncategorized"
+            );
+
+        }
+
+
+        function getQuantity(
+            request
+        ) {
+
+            return (
+                request.quantity ??
+                1
+            );
+
+        }
+
+
+        /* =========================
+           REQUEST SUMMARY
+        ========================= */
+
+        function updateRequestSummary(
+            requests
+        ) {
+
+            const pending =
+                requests.filter(
+                    request =>
+                        normalizeStatus(
+                            request.status
+                        ) === "pending"
+                ).length;
+
+
+            const approved =
+                requests.filter(
+                    request =>
+                        normalizeStatus(
+                            request.status
+                        ) === "approved"
+                ).length;
+
+
+            const rejected =
+                requests.filter(
+                    request =>
+                        normalizeStatus(
+                            request.status
+                        ) === "rejected"
+                ).length;
+
+
+            document.getElementById(
+                "heroPendingRequests"
+            ).textContent =
+                pending;
+
+
+            document.getElementById(
+                "heroApprovedRequests"
+            ).textContent =
+                approved;
+
+
+            document.getElementById(
+                "heroRejectedRequests"
+            ).textContent =
+                rejected;
+
+        }
+
+
+        /* =========================
+           RENDER REQUESTS
+        ========================= */
+
+        function renderHeroRequests(
+            requests
+        ) {
+
+            const container =
+                document.getElementById(
+                    "heroRequestsList"
+                );
+
+
+            container.innerHTML = "";
+
+
+            if (
+                !requests.length
+            ) {
+
+                container.innerHTML = `
+                    <div class="empty-state requests-empty">
+                        <div class="empty-icon" aria-hidden="true">◎</div>
+                        <div>
+                            <strong>No orders yet</strong>
+                            <p>You haven't placed any equipment requests. Browse the marketplace to get started.</p>
+                            <a class="primary-btn empty-action" href="../users/marketplace.html">Shop Now</a>
+                        </div>
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            /*
+             * Show up to five recent
+             * request records.
+             */
+
+            const recent =
+                [...requests].slice(
+                    0,
+                    5
+                );
+
+
+            recent.forEach(
+                request => {
+
+                    const status =
+                        normalizeStatus(
+                            request.status
+                        );
+
+
+                    const name =
+                        getEquipmentName(
+                            request
+                        );
+
+
+                    const category =
+                        getCategory(
+                            request
+                        );
+
+
+                    const quantity =
+                        getQuantity(
+                            request
+                        );
+
+
+                    const row =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    row.className =
+                        "request-row";
+
+
+                    row.innerHTML = `
+
+                        <div class="request-equipment">
+
+                            <div class="request-equipment-name">
+                                ${escapeHTML(name)}
+                            </div>
+
+                            <div class="request-equipment-meta">
+                                ${escapeHTML(category)}
+                                ·
+                                Quantity
+                                ${escapeHTML(quantity)}
+                            </div>
+
+                        </div>
+
+                        <div class="request-status ${escapeHTML(status)}">
+                            ${escapeHTML(
+                                status ||
+                                "unknown"
+                            )}
+                        </div>
+
+                    `;
+
+
+                    container.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =========================
+           LOAD REQUESTS
+        ========================= */
+
+        async function loadHeroRequests() {
+
+            const container =
+                document.getElementById(
+                    "heroRequestsList"
+                );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        REQUESTS_API,
+                        {
+                            method: "GET",
+
+                            credentials:
+                                "include",
+
+                            cache:
+                                "no-store",
+
+                            headers: {
+                                "Accept":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to load requests."
+                    );
+
+                }
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * The API returns the
+                 * authenticated user's
+                 * own requests.
+                 */
+
+                const requests =
+                    Array.isArray(
+                        data.requests
+                    )
+                    ? data.requests
+                    : [];
+
+
+                updateRequestSummary(
+                    requests
+                );
+
+
+                renderHeroRequests(
+                    requests
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Request loading failed:",
+                    error
+                );
+
+
+                container.innerHTML = `
+                    <div class="requests-error">
+                        Unable to load request records.
+                        Please refresh the dashboard.
+                    </div>
+                `;
+
+            }
+
+        }
+
+
+        /* =========================
+           VERIFY HERO SESSION
+        ========================= */
+
+        async function verifyHeroSession() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        SESSION_API,
+                        {
+                            method: "GET",
+
+                            credentials:
+                                "include",
+
+                            cache:
+                                "no-store",
+
+                            headers: {
+                                "Accept":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    redirectToLogin();
+
+                    return;
+
+                }
+
+
+                const user =
+                    data.user || {};
+
+
+                const role =
+                    String(
+                        data.role ??
+                        user.role ??
+                        ""
+                    ).toLowerCase();
+
+
+                const handle =
+                    data.handle ??
+                    user.handle ??
+                    "";
+
+
+                const userId =
+                    data.user_id ??
+                    user.id ??
+                    "";
+
+
+                /*
+                 * ADMIN
+                 */
+
+                if (
+                    role === "admin"
+                ) {
+
+                    window.location.replace(
+                        "../admin/admin-dashboard.html"
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                 * VILLAIN
+                 *
+                 * Backend role is
+                 * "enemy".
+                 */
+
+                if (
+                    role === "enemy"
+                ) {
+
+                    window.location.replace(
+                        "../enemy/villain-dashboard.html"
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                 * ONLY HERO CAN
+                 * REMAIN HERE.
+                 */
+
+                if (
+                    role !== "hero"
+                ) {
+
+                    redirectToLogin();
+
+                    return;
+
+                }
+
+
+                const displayName =
+                    handle || "Hero";
+
+
+                document.getElementById(
+                    "welcomeName"
+                ).textContent =
+                    displayName;
+
+
+                document.getElementById(
+                    "sideUsername"
+                ).textContent =
+                    displayName;
+
+
+                document.getElementById(
+                    "footerHandle"
+                ).textContent =
+                    handle ||
+                    `USER-${userId}`;
+
+
+                document.getElementById(
+                    "avatar"
+                ).textContent =
+                    displayName
+                        .charAt(0)
+                        .toUpperCase();
+
+
+                /*
+                 * Remove loading screen
+                 * only after the session
+                 * has been successfully
+                 * verified.
+                 */
+
+                hideLoading();
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * Immediately load the
+                 * user's requests.
+                 */
+
+                await loadHeroRequests();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Hero session verification failed:",
+                    error
+                );
+
+
+                showError(
+                    "Could not connect to the ÆTHERYX authentication service."
+                );
+
+
+                hideLoading();
+
+            }
+
+        }
+
+
+        /* =========================
+           LOGOUT
+        ========================= */
+
+        async function logout() {
+
+            try {
+
+                await fetch(
+                    LOGOUT_API,
+                    {
+                        method: "POST",
+
+                        credentials:
+                            "include",
+
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+            } catch (error) {
+
+                console.warn(
+                    "Logout request failed:",
+                    error
+                );
+
+            } finally {
+
+                window.location.replace(
+                    "../public/login.html"
+                );
+
+            }
+
+        }
+
+
+        /* =========================
+           EVENTS
+        ========================= */
+
+        document
+            .getElementById(
+                "logoutButton"
+            )
+            .addEventListener(
+                "click",
+                logout
+            );
+
+
+        menuButton.addEventListener(
+            "click",
+            () => {
+
+                sidebar.classList.toggle(
+                    "open"
+                );
+
+            }
+        );
+
+
+        document
+            .querySelectorAll(
+                ".nav-item"
+            )
+            .forEach(
+                link => {
+
+                    link.addEventListener(
+                        "click",
+                        () => {
+
+                            if (
+                                window.innerWidth <= 800
+                            ) {
+
+                                sidebar.classList.remove(
+                                    "open"
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+        
+        /* =========================
+           WELCOME (time-aware greeting)
+        ========================= */
+        (function () {
+            const hour = new Date().getHours();
+            const slot =
+                hour < 5  ? ["Burning the midnight oil", "Late-night mission? Your gear is on standby."] :
+                hour < 12 ? ["Good morning", "A fresh day, a fresh loadout. What are we equipping today?"] :
+                hour < 18 ? ["Good afternoon", "Every mission starts with the right equipment. Pick yours."] :
+                            ["Good evening", "Wrap up the day: check your requests and review your gear."];
+            document.getElementById("greeting").textContent = slot[0];
+            document.getElementById("tagline").textContent = slot[1];
+            document.getElementById("welcomeDate").textContent =
+                new Date().toLocaleDateString(undefined, {
+                    weekday: "long", month: "long", day: "numeric"
+                });
+        })();
+
+        /* =========================
+           START
+        ========================= */
+
+        verifyHeroSession();
+
+    </script>
+
+</body>
+</html>

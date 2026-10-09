@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports — ÆTHERYX SENTINEL</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --base: #0D1117; --surface: #151B26; --surface-2: #1B2330; --border: rgba(255,255,255,.08);
+    --cyan: #4FE0C9; --violet: #8B6FEA; --text: #EEF2FF; --muted: #8E98B7;
+    --danger: #F07F8B; --warning: #E8B45C; --good: #5FD98A;
+    --sidebar: 230px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; background: var(--base); color: var(--text); font-family: "IBM Plex Sans", sans-serif; }
+
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar); padding: 24px 16px; background: var(--surface); border-right: 1px solid var(--border); }
+.brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+.brand span { color: var(--cyan); }
+.tagline { font-size: .68rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 28px; }
+.nav a { display: block; padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .88rem; font-weight: 500; margin-bottom: 2px; }
+.nav a.active, .nav a:hover { background: var(--surface-2); color: var(--text); }
+
+main { margin-left: var(--sidebar); padding: 28px 32px 60px; max-width: 1200px; }
+h1 { font-size: 1.5rem; font-weight: 700; }
+.subtitle { color: var(--muted); font-size: .9rem; margin-top: 4px; margin-bottom: 20px; }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; flex-wrap: wrap; }
+.tab { padding: 10px 16px; font-size: .86rem; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; font-weight: 500; }
+.tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+.toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.toolbar button {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 8px 13px; font-size: .82rem; cursor: pointer; font-family: inherit;
+}
+.toolbar button:hover { border-color: var(--cyan); }
+
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .84rem; min-width: 640px; }
+th { text-align: left; padding: 11px 14px; color: var(--muted); font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); }
+td { padding: 11px 14px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+
+.badge { font-size: .66rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: .03em; }
+.badge.CRITICAL, .badge.HIGH, .badge.RETIREMENT_REVIEW { background: rgba(240,127,139,.15); color: var(--danger); }
+.badge.ATTENTION, .badge.MEDIUM, .badge.LOW_RISK { background: rgba(232,180,92,.15); color: var(--warning); }
+.badge.MONITOR, .badge.UNKNOWN, .badge.LOW { background: rgba(142,152,183,.15); color: var(--muted); }
+.badge.HEALTHY, .badge.NONE { background: rgba(95,217,138,.15); color: var(--good); }
+
+.state-message { color: var(--muted); font-size: .9rem; padding: 36px 20px; text-align: center; }
+
+@media (max-width: 860px) { .sidebar { display: none; } main { margin-left: 0; padding: 20px; } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="brand">ÆTHERYX <span>SENTINEL</span></div>
+    <div class="tagline">Precision · Clarity · Intelligence</div>
+    <nav class="nav">
+        <a href="sentinel-dashboard.html">Command Center</a>
+        <a href="assets.html">Assets</a>
+        <a href="maintenance.html">Maintenance</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="activity-logs.html">Activity Logs</a>
+        <a href="reports.html" class="active">Reports</a>
+        <a href="profile.html">Profile</a>
+        <a href="../admin/admin-dashboard.html">← Back to ÆTHERYX</a>
+    </nav>
+</aside>
+
+<main>
+    <h1>Reports</h1>
+    <div class="subtitle">Operational reports built from live Sentinel data.</div>
+
+    <div class="tabs">
+        <div class="tab active" data-tab="health">Asset Health</div>
+        <div class="tab" data-tab="maintenance">Maintenance</div>
+        <div class="tab" data-tab="pressure">Inventory Pressure</div>
+        <div class="tab" data-tab="compat">Compatibility Risk</div>
+        <div class="tab" data-tab="recs">Recommendations</div>
+    </div>
+
+    <div class="toolbar"><button id="exportBtn">Export CSV</button></div>
+
+    <div class="table-wrap">
+        <table>
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"><tr><td class="state-message">Loading…</td></tr></tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Neutralise spreadsheet formula injection (=, +, -, @) in exported cells.
+function csvSafe(v) {
+    const s = String(v);
+    return /^[=+\-@]/.test(s) ? "'" + s : s;
+}
+
+const ENDPOINTS = {
+    health: "../../backend/api/sentinel/assets/list.php",
+    maintenance: "../../backend/api/sentinel/maintenance/list.php",
+    pressure: "../../backend/api/sentinel/intelligence/inventory-pressure.php",
+    compat: "../../backend/api/sentinel/intelligence/compatibility-risk.php",
+    recs: "../../backend/api/sentinel/intelligence/recommendations.php"
+};
+
+const COLUMNS = {
+    health: [
+        { key: 'name', label: 'Asset' },
+        { key: 'category', label: 'Category' },
+        { key: 'status', label: 'Status' },
+        { key: 'conditionStatus', label: 'Condition' },
+        { key: 'healthScore', label: 'Health Score' },
+        { key: 'lifecycleState', label: 'Lifecycle', badge: true }
+    ],
+    maintenance: [
+        { key: 'id', label: 'Request #' },
+        { key: 'equipmentName', label: 'Asset' },
+        { key: 'requesterName', label: 'Requester' },
+        { key: 'assignedName', label: 'Assigned Staff' },
+        { key: 'status', label: 'Status', badge: true },
+        { key: 'createdAt', label: 'Created' }
+    ],
+    pressure: [
+        { key: 'equipmentName', label: 'Equipment' },
+        { key: 'category', label: 'Category' },
+        { key: 'availableQuantity', label: 'Available' },
+        { key: 'quantity', label: 'Total' },
+        { key: 'availabilityPercent', label: 'Availability %' },
+        { key: 'pressure', label: 'Pressure', badge: true }
+    ],
+    compat: [
+        { key: 'equipmentName', label: 'Equipment' },
+        { key: 'riskLevel', label: 'Risk Level', badge: true },
+        { key: 'reason', label: 'Reason' },
+        { key: 'recommendedAction', label: 'Recommended Action' }
+    ],
+    recs: [
+        { key: 'equipmentName', label: 'Asset' },
+        { key: 'lifecycleState', label: 'State', badge: true },
+        { key: 'healthScore', label: 'Health Score' },
+        { key: 'action', label: 'Recommended Action' }
+    ]
+};
+
+let currentTab = 'health';
+let currentRows = [];
+
+function cellValue(row, col) {
+    const v = row[col.key];
+    return v === null || v === undefined || v === '' ? '—' : v;
+}
+
+async function loadTab(tab) {
+    currentTab = tab;
+    const tbody = document.getElementById('tableBody');
+    const thead = document.getElementById('tableHead');
+    const cols = COLUMNS[tab];
+
+    thead.innerHTML = '<tr>' + cols.map(c => `<th>${c.label}</th>`).join('') + '</tr>';
+    tbody.innerHTML = `<tr><td colspan="${cols.length}" class="state-message">Loading…</td></tr>`;
+
+    try {
+        const res = await fetch(ENDPOINTS[tab], { credentials: 'include' });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) throw new Error(payload.message);
+
+        let rows = payload.assets || payload.requests || payload.byEquipment || payload.results || payload.recommendations || [];
+        currentRows = rows;
+
+        if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${cols.length}" class="state-message">No data available for this report yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = rows.map(row => '<tr>' + cols.map(c => {
+            const val = cellValue(row, c);
+            return c.badge ? `<td><span class="badge ${esc(val)}">${esc(String(val).replace('_', ' '))}</span></td>` : `<td>${esc(val)}</td>`;
+        }).join('') + '</tr>').join('');
+
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="${cols.length}" class="state-message">Sentinel couldn't load this report. Make sure you're logged in as an administrator.</td></tr>`;
+        currentRows = [];
+    }
+}
+
+function exportCsv() {
+    if (currentRows.length === 0) return;
+    const cols = COLUMNS[currentTab];
+    const header = cols.map(c => c.label).join(',');
+    const lines = currentRows.map(row =>
+        cols.map(c => '"' + csvSafe(cellValue(row, c)).replace(/"/g, '""') + '"').join(',')
+    );
+    const csv = [header, ...lines].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sentinel-${currentTab}-report.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+document.querySelectorAll('.tab').forEach(tabEl => {
+    tabEl.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tabEl.classList.add('active');
+        loadTab(tabEl.dataset.tab);
+    });
+});
+
+document.getElementById('exportBtn').addEventListener('click', exportCsv);
+
+loadTab('health');
+</script>
+
+</body>
+</html>

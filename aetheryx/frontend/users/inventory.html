@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory — ÆTHERYX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/aetheryx-ui.css">
+<script defer src="../assets/js/common.js"></script>
+<script defer src="../assets/js/notification-drawer.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+<body>
+
+    <header class="mobile-header">
+        <div class="mobile-brand">ÆTHERYX</div>
+        <button class="menu-btn" id="menuButton" type="button" aria-label="Open navigation">☰</button>
+    </header>
+
+    <!-- Sidebar stays fixed while the page scrolls -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-symbol">Æ</div>
+            <div>
+                <div class="brand-name">ÆTHERYX</div>
+                <div class="brand-subtitle">HERO NETWORK</div>
+            </div>
+        </div>
+
+        <div class="section-label">Command</div>
+
+        <nav class="nav" aria-label="Primary navigation">
+            <a class="nav-item" href="../hero/hero-dashboard.html"><span class="nav-icon">⌂</span><span class="nav-text">Dashboard</span></a>
+            <a class="nav-item" href="marketplace.html"><span class="nav-icon">◈</span><span class="nav-text">Marketplace</span></a>
+            <a class="nav-item" href="cart.html"><span class="nav-icon">◇</span><span class="nav-text">Cart</span></a>
+            <a class="nav-item" href="my-requests.html"><span class="nav-icon">◎</span><span class="nav-text">My Requests</span></a>
+            <a class="nav-item active" href="inventory.html" aria-current="page"><span class="nav-icon">▣</span><span class="nav-text">Inventory</span></a>
+            <a class="nav-item" href="notifications.html"><span class="nav-icon">●</span><span class="nav-text">Notifications</span></a>
+            <a class="nav-item" href="compatibility.html"><span class="nav-icon">⌁</span><span class="nav-text">Compatibility</span></a>
+            <a class="nav-item" href="profile.html"><span class="nav-icon">○</span><span class="nav-text">Profile</span></a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="user-mini">
+                <div class="avatar">H</div>
+                <div class="user-name">
+                    <strong>Authenticated</strong>
+                    <span>Hero</span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutButton" type="button">Sign out</button>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <header class="page-header">
+            <div class="eyebrow">Inventory</div>
+            <h1>My Inventory</h1>
+            <p class="intro">Equipment currently assigned to your ÆTHERYX account.</p>
+            <div class="system-status" style="margin-top:14px">
+                <span class="status-dot"></span>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </header>
+
+        <section class="summary" aria-label="Inventory summary">
+            <div class="stat"><div class="stat-label">Total records</div><div class="stat-value" id="totalCount">0</div></div>
+            <div class="stat"><div class="stat-label">Active assignments</div><div class="stat-value" id="assignedCount">0</div></div>
+            <div class="stat"><div class="stat-label">Total quantity</div><div class="stat-value" id="quantityCount">0</div></div>
+        </section>
+
+        <section class="toolbar" aria-label="Inventory controls">
+            <input id="search" type="search" placeholder="Search equipment..." autocomplete="off" aria-label="Search equipment">
+            <select id="statusFilter" aria-label="Filter by status">
+                <option value="">All status</option>
+                <option value="assigned">Assigned</option>
+                <option value="returned">Returned</option>
+                <option value="lost">Lost</option>
+                <option value="damaged">Damaged</option>
+            </select>
+            <button class="btn btn-secondary" id="refresh" type="button">Refresh</button>
+        </section>
+
+        <section class="grid hidden" id="grid" aria-live="polite"></section>
+
+        <section class="state loading hidden" id="loading" aria-live="polite">
+            <div><strong>Loading inventory</strong>Retrieving your equipment records...</div>
+        </section>
+
+        <!-- Shown when the hero has no items/orders yet -->
+        <section class="empty-state hidden" id="empty">
+            <div class="empty-icon" aria-hidden="true">▣</div>
+            <div>
+                <strong>Your inventory is empty</strong>
+                <p>No equipment has been assigned to you yet. Browse the marketplace and place your first request.</p>
+                <a class="btn empty-action" href="marketplace.html">Shop Now</a>
+            </div>
+        </section>
+
+        <section class="state hidden" id="noMatch">
+            <div><strong>No matching equipment</strong>Try a different search or clear the status filter.</div>
+        </section>
+
+        <section class="state error hidden" id="error">
+            <div><strong>Inventory unavailable</strong><span id="errorText">Unable to retrieve inventory records.</span></div>
+        </section>
+
+    </main>
+
+<script>
+(function(){
+    const sidebar=document.getElementById("sidebar");
+    document.getElementById("menuButton").addEventListener("click",()=>sidebar.classList.toggle("open"));
+    sidebar.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>sidebar.classList.remove("open")));
+    document.getElementById("logoutButton").addEventListener("click",async()=>{
+        try{await fetch("../../backend/api/auth/logout.php",{method:"POST",credentials:"include"});}catch(e){}
+        window.location.replace("../public/login.html");
+    });
+})();
+</script>
+
+<script>
+"use strict";
+
+const API_URL = "../../backend/api/inventory/list.php";
+
+const grid = document.getElementById("grid");
+const loading = document.getElementById("loading");
+const empty = document.getElementById("empty");
+const error = document.getElementById("error");
+
+const errorText = document.getElementById("errorText");
+const search = document.getElementById("search");
+const statusFilter = document.getElementById("statusFilter");
+const refresh = document.getElementById("refresh");
+
+const totalCount = document.getElementById("totalCount");
+const assignedCount = document.getElementById("assignedCount");
+const quantityCount = document.getElementById("quantityCount");
+const statusText = document.getElementById("statusText");
+const noMatch = document.getElementById("noMatch");
+
+let inventory = [];
+
+function escapeHTML(value){
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+function normalize(item){
+    return {
+        id:item.id ?? item.inventory_id ?? "",
+        equipmentId:
+            item.equipment_id ??
+            item.equipmentId ??
+            "",
+
+        name:
+            item.equipment_name ??
+            item.name ??
+            item.equipment ??
+            "Unknown Equipment",
+
+        description:
+            item.description ??
+            item.equipment_description ??
+            "",
+
+        category:
+            item.category_name ??
+            item.category ??
+            "General",
+
+        quantity:Number(item.quantity ?? 0),
+
+        status:
+            String(item.status ?? "assigned")
+                .toLowerCase(),
+
+        assignedAt:
+            item.assigned_at ??
+            item.assignedAt ??
+            null,
+
+        returnedAt:
+            item.returned_at ??
+            item.returnedAt ??
+            null,
+
+        notes:
+            item.notes ?? ""
+    };
+}
+
+function setState(active){
+
+    [loading,empty,error,noMatch].forEach(el =>
+        el.classList.add("hidden")
+    );
+
+    if(active){
+        active.classList.remove("hidden");
+    }
+}
+
+async function requestJSON(){
+
+    const response = await fetch(API_URL,{
+        method:"GET",
+        credentials:"include",
+        cache:"no-store",
+        headers:{
+            "Accept":"application/json"
+        }
+    });
+
+    const raw = await response.text();
+
+    let data;
+
+    try{
+        data = raw ? JSON.parse(raw) : {};
+    }catch{
+        throw new Error(
+            `Invalid JSON response from inventory API. HTTP ${response.status}.`
+        );
+    }
+
+    if(!response.ok){
+        throw new Error(
+            data.message ||
+            `Inventory API returned HTTP ${response.status}.`
+        );
+    }
+
+    if(!data.success){
+        throw new Error(
+            data.message ||
+            "Inventory request was rejected."
+        );
+    }
+
+    return data;
+}
+
+function formatDate(value){
+
+    if(!value){
+        return "—";
+    }
+
+    const date = new Date(
+        String(value).replace(" ","T")
+    );
+
+    if(Number.isNaN(date.getTime())){
+        return String(value);
+    }
+
+    return date.toLocaleDateString(
+        undefined,
+        {
+            year:"numeric",
+            month:"short",
+            day:"numeric"
+        }
+    );
+}
+
+function render(){
+
+    const query =
+        search.value.trim().toLowerCase();
+
+    const selected =
+        statusFilter.value.trim().toLowerCase();
+
+    const visible = inventory.filter(item => {
+
+        const text = [
+            item.name,
+            item.description,
+            item.category,
+            item.status,
+            item.notes
+        ].join(" ").toLowerCase();
+
+        return (
+            (!query || text.includes(query)) &&
+            (!selected || item.status === selected)
+        );
+    });
+
+    grid.innerHTML = "";
+
+    if(!visible.length){
+        grid.classList.add("hidden");
+        setState(inventory.length ? noMatch : empty);
+        return;
+    }
+
+    grid.classList.remove("hidden");
+
+    [loading,empty,error,noMatch].forEach(el =>
+        el.classList.add("hidden")
+    );
+
+    visible.forEach((item,index)=>{
+
+        const card = document.createElement("article");
+
+        card.className = "card";
+        
+        const initials =
+            item.name
+                .split(/\s+/)
+                .filter(Boolean)
+                .slice(0,2)
+                .map(word=>word.charAt(0))
+                .join("")
+                .toUpperCase() || "EQ";
+
+        const statusClass =
+            ["assigned","returned","lost","damaged"]
+                .includes(item.status)
+                ? item.status
+                : "assigned";
+
+        card.innerHTML = `
+            <div class="icon">
+                ${escapeHTML(initials)}
+            </div>
+
+            <h2 class="name">
+                ${escapeHTML(item.name)}
+            </h2>
+
+            <p class="description">
+                ${escapeHTML(
+                    item.description ||
+                    "No equipment description available."
+                )}
+            </p>
+
+            <div class="details">
+
+                <div class="detail">
+                    <div class="detail-label">Category</div>
+                    <div class="detail-value">
+                        ${escapeHTML(item.category)}
+                    </div>
+                </div>
+
+                <div class="detail">
+                    <div class="detail-label">Quantity</div>
+                    <div class="detail-value">
+                        ${escapeHTML(item.quantity)}
+                    </div>
+                </div>
+
+                <div class="detail">
+                    <div class="detail-label">Assigned</div>
+                    <div class="detail-value">
+                        ${escapeHTML(
+                            formatDate(item.assignedAt)
+                        )}
+                    </div>
+                </div>
+
+                <div class="detail">
+                    <div class="detail-label">Record</div>
+                    <div class="detail-value">
+                        #${escapeHTML(item.id || "—")}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card-footer">
+                <span class="badge ${statusClass}">
+                    ${escapeHTML(item.status)}
+                </span>
+                ${item.status === "assigned"
+                    ? `<button class="btn btn-secondary btn-sm" type="button" data-return="${escapeHTML(item.id)}">Return</button>`
+                    : ""}
+            </div>
+        `;
+
+        grid.appendChild(card);
+    });
+}
+
+function updateStats(){
+
+    totalCount.textContent =
+        inventory.length;
+
+    assignedCount.textContent =
+        inventory.filter(
+            item => item.status === "assigned"
+        ).length;
+
+    quantityCount.textContent =
+        inventory.reduce(
+            (total,item) =>
+                total + (Number(item.quantity) || 0),
+            0
+        );
+}
+
+async function load(){
+
+    setState(loading);
+
+    grid.innerHTML = "";
+    grid.classList.add("hidden");
+
+    refresh.disabled = true;
+    refresh.textContent = "Syncing...";
+
+    try{
+
+        const data = await requestJSON();
+
+        const list =
+            Array.isArray(data.inventory)
+                ? data.inventory
+                : Array.isArray(data.data)
+                    ? data.data
+                    : [];
+
+        inventory = list.map(normalize);
+
+        updateStats();
+
+        statusText.textContent =
+            `${inventory.length} record${inventory.length === 1 ? "" : "s"} synced`;
+
+        render();
+
+        if(!inventory.length){
+            setState(empty);
+        }
+
+    }catch(err){
+
+        console.error("ÆTHERYX Inventory:",err);
+
+        inventory = [];
+
+        updateStats();
+
+        grid.innerHTML = "";
+
+        errorText.textContent =
+            err.message ||
+            "Unable to connect to inventory service.";
+
+        statusText.textContent =
+            "Inventory offline";
+
+        setState(error);
+
+    }finally{
+
+        refresh.disabled = false;
+        refresh.textContent = "Refresh";
+    }
+}
+
+grid.addEventListener("click", async event => {
+    const button = event.target.closest("[data-return]");
+    if(!button) return;
+    if(!confirm("Return this equipment? It will be made available to others again.")) return;
+
+    button.disabled = true;
+    button.textContent = "Returning...";
+
+    try{
+        const response = await fetch("../../backend/api/inventory/return.php",{
+            method:"POST",
+            credentials:"include",
+            headers:{"Content-Type":"application/json","Accept":"application/json"},
+            body:JSON.stringify({inventory_id:Number(button.dataset.return)})
+        });
+        const result = await response.json();
+        if(!response.ok || !result.success){
+            throw new Error(result.message || "Unable to return equipment.");
+        }
+        await load();
+    }catch(err){
+        alert(err.message);
+        button.disabled = false;
+        button.textContent = "Return";
+    }
+});
+
+search.addEventListener("input",render);
+
+statusFilter.addEventListener(
+    "change",
+    render
+);
+
+refresh.addEventListener(
+    "click",
+    load
+);
+
+load();
+</script>
+
+</body>
+</html>

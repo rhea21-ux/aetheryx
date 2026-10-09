@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Marketplace — ÆTHERYX</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --base: #0D1321;
+            --surface: #161B2E;
+            --surface-light: #1D2438;
+
+            --cyan: #4FE0C9;
+            --violet: #8B6FEA;
+
+            --text: #EEF2FF;
+            --muted: #8E98B7;
+
+            --border: rgba(255,255,255,.08);
+
+            --danger: #ff637d;
+            --warning: #f5bd5c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+
+            background:
+                radial-gradient(
+                    700px 450px at 85% -10%,
+                    rgba(139,111,234,.16),
+                    transparent 65%
+                ),
+                radial-gradient(
+                    600px 450px at -10% 20%,
+                    rgba(79,224,201,.10),
+                    transparent 65%
+                ),
+                var(--base);
+
+            color: var(--text);
+            font-family: "IBM Plex Sans", sans-serif;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+
+            pointer-events: none;
+
+            opacity: .28;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.025) 1px,
+                    transparent 1px
+                );
+
+            background-size: 48px 48px;
+        }
+
+        .aurora {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+
+            border-radius: 50%;
+            filter: blur(120px);
+
+            opacity: .08;
+            pointer-events: none;
+        }
+
+        .aurora.one {
+            background: var(--cyan);
+            top: -220px;
+            left: -180px;
+        }
+
+        .aurora.two {
+            background: var(--violet);
+            right: -220px;
+            bottom: -220px;
+        }
+
+        .app {
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+
+            width: 250px;
+            height: 100vh;
+
+            padding: 25px 17px;
+
+            display: flex;
+            flex-direction: column;
+
+            background: rgba(13,19,33,.92);
+            backdrop-filter: blur(20px);
+
+            border-right: 1px solid var(--border);
+
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 5px 9px 28px;
+        }
+
+        .brand-symbol {
+            width: 42px;
+            height: 42px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(79,224,201,.18),
+                    rgba(139,111,234,.18)
+                );
+
+            border: 1px solid rgba(79,224,201,.25);
+
+            color: var(--cyan);
+
+            font-family: "Space Grotesk";
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .brand-name {
+            font-family: "Space Grotesk";
+            font-weight: 700;
+            letter-spacing: .08em;
+        }
+
+        .brand-sub {
+            color: var(--muted);
+            font-family: "IBM Plex Mono";
+            font-size: 9px;
+            letter-spacing: .16em;
+        }
+
+        .nav-label {
+            margin: 5px 10px 10px;
+
+            color: #5f6882;
+
+            font-family: "IBM Plex Mono";
+            font-size: 9px;
+            letter-spacing: .16em;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav a {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            padding: 11px 12px;
+
+            border: 1px solid transparent;
+            border-radius: 9px;
+
+            color: var(--muted);
+            text-decoration: none;
+
+            font-size: 13px;
+
+            transition: .2s ease;
+        }
+
+        .nav a:hover {
+            color: var(--text);
+            background: rgba(255,255,255,.025);
+            border-color: var(--border);
+        }
+
+        .nav a.active {
+            color: var(--cyan);
+
+            background: rgba(79,224,201,.07);
+
+            border-color: rgba(79,224,201,.16);
+        }
+
+        .nav-icon {
+            width: 18px;
+            text-align: center;
+            font-family: "IBM Plex Mono";
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .session-box {
+            padding: 13px;
+
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            background: rgba(255,255,255,.018);
+        }
+
+        .session-label {
+            color: #626b85;
+
+            font-family: "IBM Plex Mono";
+            font-size: 8px;
+            letter-spacing: .13em;
+        }
+
+        .session-user {
+            margin-top: 5px;
+
+            color: var(--text);
+
+            font-family: "IBM Plex Mono";
+            font-size: 11px;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 9px;
+
+            padding: 9px;
+
+            border: 1px solid rgba(255,99,125,.18);
+            border-radius: 8px;
+
+            background: rgba(255,99,125,.05);
+
+            color: var(--danger);
+
+            cursor: pointer;
+
+            font-family: "IBM Plex Mono";
+            font-size: 10px;
+
+            transition: .2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,99,125,.10);
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 250px;
+            min-height: 100vh;
+
+            padding: 38px 42px 70px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .eyebrow {
+            color: var(--cyan);
+
+            font-family: "IBM Plex Mono";
+            font-size: 10px;
+            letter-spacing: .17em;
+        }
+
+        h1 {
+            margin-top: 8px;
+
+            font-family: "Space Grotesk";
+            font-size: clamp(2rem, 4vw, 3.2rem);
+
+            letter-spacing: -.04em;
+        }
+
+        h1 span {
+            color: var(--cyan);
+        }
+
+        .intro {
+            max-width: 680px;
+            margin-top: 9px;
+
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .cart-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            padding: 12px 17px;
+
+            border-radius: 10px;
+
+            background: rgba(79,224,201,.08);
+
+            border: 1px solid rgba(79,224,201,.25);
+
+            color: var(--cyan);
+
+            text-decoration: none;
+
+            font-family: "IBM Plex Mono";
+            font-size: 11px;
+
+            white-space: nowrap;
+
+            transition: .2s;
+        }
+
+        .cart-button:hover {
+            transform: translateY(-2px);
+            background: rgba(79,224,201,.13);
+        }
+
+        .cart-count {
+            min-width: 21px;
+            height: 21px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            background: var(--cyan);
+            color: var(--base);
+
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* CONTROLS */
+
+        .controls {
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) 190px 190px;
+            gap: 10px;
+
+            margin-bottom: 28px;
+        }
+
+        .search,
+        .filter {
+            width: 100%;
+
+            padding: 13px 15px;
+
+            background: rgba(22,27,46,.78);
+
+            color: var(--text);
+
+            border: 1px solid var(--border);
+            border-radius: 9px;
+
+            outline: none;
+
+            font-family: "IBM Plex Sans";
+        }
+
+        .search:focus,
+        .filter:focus {
+            border-color: rgba(79,224,201,.45);
+            box-shadow: 0 0 0 3px rgba(79,224,201,.05);
+        }
+
+        .filter {
+            cursor: pointer;
+        }
+
+        .filter option {
+            background: var(--surface);
+        }
+
+        /* STATUS */
+
+        .system-line {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            margin-bottom: 18px;
+
+            color: var(--muted);
+
+            font-family: "IBM Plex Mono";
+            font-size: 10px;
+        }
+
+        .pulse {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: var(--cyan);
+
+            box-shadow: 0 0 12px rgba(79,224,201,.8);
+
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0%,100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .4;
+            }
+        }
+
+        /* GRID */
+
+        .equipment-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fill, minmax(260px, 1fr));
+
+            gap: 18px;
+        }
+
+        .card {
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(22,27,46,.95),
+                    rgba(22,27,46,.70)
+                );
+
+            border: 1px solid var(--border);
+            border-radius: 13px;
+
+            transition:
+                transform .2s ease,
+                border-color .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+
+            border-color: rgba(79,224,201,.28);
+
+            box-shadow:
+                0 18px 50px rgba(0,0,0,.25),
+                0 0 30px rgba(79,224,201,.04);
+        }
+
+        .card-media {
+            height: 155px;
+
+            display: grid;
+            place-items: center;
+
+            position: relative;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(79,224,201,.12),
+                    transparent 60%
+                ),
+                var(--surface-light);
+        }
+
+        .card-media img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+        }
+
+        .equipment-symbol {
+            font-family: "Space Grotesk";
+            font-size: 45px;
+            font-weight: 700;
+
+            color: rgba(79,224,201,.45);
+        }
+
+        .status {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+
+            padding: 5px 8px;
+
+            border-radius: 5px;
+
+            background: rgba(13,19,33,.82);
+
+            border: 1px solid rgba(255,255,255,.09);
+
+            color: var(--cyan);
+
+            font-family: "IBM Plex Mono";
+            font-size: 8px;
+            letter-spacing: .08em;
+        }
+
+        .status.unavailable {
+            color: var(--danger);
+        }
+
+        .access-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+
+            padding: 5px 8px;
+
+            border-radius: 5px;
+
+            background: rgba(13,19,33,.82);
+
+            border: 1px solid rgba(139,111,234,.25);
+
+            color: var(--violet);
+
+            font-family: "IBM Plex Mono";
+            font-size: 8px;
+            letter-spacing: .05em;
+        }
+
+        .card-body {
+            padding: 17px;
+        }
+
+        .category {
+            color: var(--violet);
+
+            font-family: "IBM Plex Mono";
+            font-size: 9px;
+            letter-spacing: .12em;
+
+            text-transform: uppercase;
+        }
+
+        .card h2 {
+            margin-top: 6px;
+
+            font-family: "Space Grotesk";
+            font-size: 18px;
+        }
+
+        .description {
+            min-height: 42px;
+            margin-top: 7px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+
+            margin-top: 15px;
+            padding-top: 13px;
+
+            border-top: 1px solid var(--border);
+
+            font-family: "IBM Plex Mono";
+            font-size: 9px;
+
+            color: var(--muted);
+        }
+
+        .available {
+            color: var(--cyan);
+        }
+
+        .out {
+            color: var(--danger);
+        }
+
+        .card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+
+            gap: 8px;
+
+            margin-top: 14px;
+        }
+
+        .details-btn,
+        .add-btn {
+            padding: 10px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-family: "IBM Plex Mono";
+            font-size: 9px;
+
+            transition: .2s;
+        }
+
+        .details-btn {
+            background: transparent;
+
+            border: 1px solid var(--border);
+
+            color: var(--muted);
+        }
+
+        .details-btn:hover {
+            color: var(--text);
+            border-color: rgba(255,255,255,.2);
+        }
+
+        .add-btn {
+            border: 1px solid rgba(79,224,201,.25);
+
+            background: rgba(79,224,201,.09);
+
+            color: var(--cyan);
+        }
+
+        .add-btn:hover:not(:disabled) {
+            background: rgba(79,224,201,.16);
+        }
+
+        .add-btn:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        /* STATES */
+
+        .state {
+            min-height: 280px;
+
+            display: grid;
+            place-items: center;
+
+            padding: 30px;
+
+            border: 1px dashed var(--border);
+            border-radius: 13px;
+
+            text-align: center;
+        }
+
+        .state-title {
+            font-family: "Space Grotesk";
+            font-size: 18px;
+        }
+
+        .state-text {
+            max-width: 450px;
+            margin-top: 7px;
+
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+
+            margin: 0 auto 15px;
+
+            border: 2px solid rgba(79,224,201,.15);
+            border-top-color: var(--cyan);
+
+            border-radius: 50%;
+
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* TOAST */
+
+        .toast {
+            position: fixed;
+
+            right: 25px;
+            bottom: 25px;
+
+            max-width: 330px;
+
+            padding: 13px 16px;
+
+            background: #12192a;
+
+            border: 1px solid rgba(79,224,201,.25);
+
+            border-radius: 9px;
+
+            color: var(--text);
+
+            font-size: 12px;
+
+            box-shadow: 0 15px 45px rgba(0,0,0,.35);
+
+            transform: translateY(30px);
+            opacity: 0;
+
+            pointer-events: none;
+
+            transition: .25s;
+
+            z-index: 500;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            border-color: rgba(255,99,125,.3);
+        }
+
+        /* MOBILE */
+
+        .mobile-toggle {
+            display: none;
+
+            position: fixed;
+            top: 16px;
+            left: 16px;
+
+            z-index: 200;
+
+            width: 42px;
+            height: 42px;
+
+            border-radius: 9px;
+
+            border: 1px solid var(--border);
+
+            background: var(--surface);
+
+            color: var(--cyan);
+
+            cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: .25s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 80px 22px 50px;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .cart-button {
+                align-self: stretch;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 520px) {
+
+            .main {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .equipment-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+<script defer src="../assets/js/notification-drawer.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+<body>
+<div class="aurora one"></div>
+<div class="aurora two"></div>
+<button aria-label="Open navigation" class="mobile-toggle" id="mobileToggle">
+    ☰
+</button>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+<div class="brand">
+<div class="brand-symbol">
+                Æ
+            </div>
+<div>
+<div class="brand-name">
+                    ÆTHERYX
+                </div>
+<div class="brand-sub">
+                    EQUIPMENT NETWORK
+                </div>
+</div>
+</div>
+<div class="nav-label">
+            Command
+        </div>
+<nav class="nav">
+            <a href="../hero/hero-dashboard.html"><span class="nav-icon">⌂</span> Dashboard</a>
+            <a class="active" href="marketplace.html"><span class="nav-icon">◈</span> Marketplace</a>
+            <a href="cart.html"><span class="nav-icon">◇</span> Cart</a>
+            <a href="my-requests.html"><span class="nav-icon">◎</span> My Requests</a>
+            <a href="inventory.html"><span class="nav-icon">▣</span> Inventory</a>
+            <a href="notifications.html"><span class="nav-icon">●</span> Notifications</a>
+            <a href="compatibility.html"><span class="nav-icon">⌁</span> Compatibility</a>
+            <a href="profile.html"><span class="nav-icon">○</span> Profile</a>
+        </nav>
+<div class="sidebar-bottom">
+<div class="session-box">
+<div class="session-label">
+                    SESSION
+                </div>
+<div class="session-user" id="sessionUser">
+                    INITIALIZING...
+                </div>
+<button class="logout-btn" id="logoutBtn">
+                    TERMINATE SESSION
+                </button>
+</div>
+</div>
+</aside>
+<main class="main">
+<header class="topbar">
+<div>
+<div class="eyebrow">
+                     EQUIPMENT ACCESS PROTOCOL
+                </div>
+<h1>
+                    MARKETPLACE <span>CORE.</span>
+</h1>
+<p class="intro">
+                    Explore available ÆTHERYX equipment,
+                    inspect system specifications, and add
+                    required assets to your personal cart.
+                </p>
+</div>
+<a class="cart-button" href="cart.html">
+                CART
+
+                <span class="cart-count" id="cartCount">
+                    0
+                </span>
+</a>
+</header>
+<section class="controls">
+<input autocomplete="off" class="search" id="searchInput" placeholder="Search equipment..." type="search"/>
+<select class="filter" id="categoryFilter">
+<option value="all">
+                    ALL CATEGORIES
+                </option>
+</select>
+<select class="filter" id="availabilityFilter">
+<option value="all">
+                    ALL AVAILABILITY
+                </option>
+<option value="available">
+                    AVAILABLE
+                </option>
+<option value="unavailable">
+                    UNAVAILABLE
+                </option>
+</select>
+</section>
+<div class="system-line">
+<span class="pulse"></span>
+<span id="resultStatus">
+                CONNECTING TO EQUIPMENT CORE...
+            </span>
+</div>
+<section id="content">
+<div class="state">
+<div>
+<div class="spinner"></div>
+<div class="state-title">
+                        INITIALIZING ÆTHERYX...
+                    </div>
+<div class="state-text">
+                        Loading equipment inventory.
+                    </div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+
+/* =========================================================
+   API CONFIGURATION
+========================================================= */
+
+const SESSION_API =
+    "../../backend/api/auth/session.php";
+
+const EQUIPMENT_API =
+    "../../backend/api/equipment/list.php";
+
+const CART_LIST_API =
+    "../../backend/api/cart/list.php";
+
+const CART_ADD_API =
+    "../../backend/api/cart/add.php";
+
+const LOGOUT_API =
+    "../../backend/api/auth/logout.php";
+
+
+/* =========================================================
+   APPLICATION STATE
+========================================================= */
+
+const state = {
+    equipment: [],
+    search: "",
+    category: "all",
+    availability: "all",
+    cartCount: 0,
+    role: null
+};
+
+
+/* =========================================================
+   DOM REFERENCES
+========================================================= */
+
+const content =
+    document.getElementById("content");
+
+const searchInput =
+    document.getElementById("searchInput");
+
+const categoryFilter =
+    document.getElementById("categoryFilter");
+
+const availabilityFilter =
+    document.getElementById("availabilityFilter");
+
+const resultStatus =
+    document.getElementById("resultStatus");
+
+const cartCount =
+    document.getElementById("cartCount");
+
+const sessionUser =
+    document.getElementById("sessionUser");
+
+const toast =
+    document.getElementById("toast");
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message, error = false) {
+
+    toast.textContent = message;
+
+    toast.classList.toggle(
+        "error",
+        error
+    );
+
+    toast.classList.add("show");
+
+    clearTimeout(showToast.timer);
+
+    showToast.timer = setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 2800);
+}
+
+
+/* =========================================================
+   HTML ESCAPING
+========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   SESSION VERIFICATION
+========================================================= */
+
+async function verifySession() {
+
+    try {
+
+        const response = await fetch(
+            SESSION_API,
+            {
+                method: "GET",
+                credentials: "include",
+
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            window.location.href =
+                "../public/login.html";
+
+            return false;
+        }
+
+
+        /*
+         * Marketplace is available only to
+         * Hero and Villain accounts.
+         */
+
+        if (
+            data.role !== "hero" &&
+            data.role !== "enemy"
+        ) {
+
+            if (data.role === "admin") {
+
+                window.location.href =
+                    "../admin/admin-dashboard.html";
+
+            } else {
+
+                window.location.href =
+                    "../public/login.html";
+            }
+
+            return false;
+        }
+
+
+        state.role =
+            data.role;
+
+
+        sessionUser.textContent =
+            data.handle
+                ? "@" + data.handle
+                : "AUTHENTICATED USER";
+
+
+        return true;
+
+    } catch (error) {
+
+        window.location.href =
+            "../public/login.html";
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   LOAD EQUIPMENT
+========================================================= */
+
+async function loadEquipment() {
+
+    content.innerHTML = `
+        <div class="state">
+
+            <div>
+
+                <div class="spinner"></div>
+
+                <div class="state-title">
+                    LOADING EQUIPMENT
+                </div>
+
+                <div class="state-text">
+                    Synchronizing marketplace inventory...
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                EQUIPMENT_API,
+                {
+                    method: "GET",
+
+                    credentials: "include",
+
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Equipment request failed."
+            );
+        }
+
+
+        /*
+         * IMPORTANT:
+         *
+         * Backend response:
+         *
+         * data.equipment
+         *
+         * NOT:
+         *
+         * data.data
+         */
+
+        state.equipment =
+            Array.isArray(data.equipment)
+                ? data.equipment
+                : [];
+
+
+        /*
+         * Keep the authenticated role
+         * returned by the backend.
+         */
+
+        if (data.role) {
+            state.role = data.role;
+        }
+
+
+        buildCategoryFilter();
+
+        renderEquipment();
+
+
+    } catch (error) {
+
+        content.innerHTML = `
+            <div class="state">
+
+                <div>
+
+                    <div class="state-title">
+                        SYSTEM CONNECTION FAILED
+                    </div>
+
+                    <div class="state-text">
+                        ${escapeHTML(error.message)}
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        resultStatus.textContent =
+            "EQUIPMENT CORE OFFLINE";
+    }
+}
+
+
+/* =========================================================
+   CATEGORY FILTER
+========================================================= */
+
+function buildCategoryFilter() {
+
+    const categories = [
+        ...new Set(
+            state.equipment
+                .map(item => item.category)
+                .filter(Boolean)
+        )
+    ];
+
+
+    categoryFilter.innerHTML = `
+        <option value="all">
+            ALL CATEGORIES
+        </option>
+    `;
+
+
+    categories
+        .sort()
+        .forEach(category => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                category;
+
+            option.textContent =
+                category.toUpperCase();
+
+            categoryFilter.appendChild(
+                option
+            );
+        });
+
+
+    categoryFilter.value =
+        state.category;
+}
+
+
+/* =========================================================
+   AVAILABILITY CHECK
+========================================================= */
+
+function isEquipmentAvailable(item) {
+
+    return (
+        item.status === "available" &&
+        Number(item.availableQuantity) > 0
+    );
+}
+
+
+/* =========================================================
+   FILTER EQUIPMENT
+========================================================= */
+
+function getFilteredEquipment() {
+
+    const search =
+        state.search
+            .toLowerCase()
+            .trim();
+
+
+    return state.equipment.filter(item => {
+
+        const searchable = [
+
+            item.name,
+
+            item.description,
+
+            item.brand,
+
+            item.category
+
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+
+        const matchesSearch =
+            !search ||
+            searchable.includes(search);
+
+
+        const matchesCategory =
+            state.category === "all" ||
+            item.category === state.category;
+
+
+        const available =
+            isEquipmentAvailable(item);
+
+
+        const matchesAvailability =
+
+            state.availability === "all"
+
+            ||
+
+            (
+                state.availability === "available" &&
+                available
+            )
+
+            ||
+
+            (
+                state.availability === "unavailable" &&
+                !available
+            );
+
+
+        return (
+            matchesSearch &&
+            matchesCategory &&
+            matchesAvailability
+        );
+    });
+}
+
+
+/* =========================================================
+   RENDER EQUIPMENT
+========================================================= */
+
+function renderEquipment() {
+
+    const items =
+        getFilteredEquipment();
+
+
+    resultStatus.textContent =
+        `${items.length} EQUIPMENT ASSET${items.length === 1 ? "" : "S"} AVAILABLE`;
+
+
+    if (items.length === 0) {
+
+        content.innerHTML = `
+            <div class="state">
+
+                <div>
+
+                    <div class="state-title">
+                        NO EQUIPMENT FOUND
+                    </div>
+
+                    <div class="state-text">
+                        No equipment matches your current
+                        search and filter configuration.
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    const grid =
+        document.createElement("div");
+
+    grid.className =
+        "equipment-grid";
+
+
+    grid.innerHTML =
+        items.map(item => {
+
+
+            const available =
+                isEquipmentAvailable(item);
+
+
+            const image =
+                item.imageUrl
+
+                    ? `
+                        <img
+                            src="${escapeHTML(item.imageUrl)}"
+                            alt="${escapeHTML(item.name)}"
+                            onerror="this.style.display='none'"
+                        >
+                    `
+
+                    : "";
+
+
+            const access =
+                item.displayAccess ||
+                "Common";
+
+
+            return `
+
+                <article
+                    class="card"
+                    data-id="${Number(item.id)}"
+                >
+
+                    <div class="card-media">
+
+                        ${image}
+
+
+                        ${
+                            !item.imageUrl
+
+                                ? `
+                                    <div class="equipment-symbol">
+                                        Æ
+                                    </div>
+                                `
+
+                                : ""
+                        }
+
+
+                        <span
+                            class="status ${
+                                available
+                                    ? ""
+                                    : "unavailable"
+                            }"
+                        >
+
+                            ${
+                                available
+                                    ? "AVAILABLE"
+                                    : "UNAVAILABLE"
+                            }
+
+                        </span>
+
+
+                        <span class="access-badge">
+
+                            ${escapeHTML(access)}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div class="category">
+
+                            ${escapeHTML(
+                                item.category ||
+                                "UNCLASSIFIED"
+                            )}
+
+                        </div>
+
+
+                        <h2>
+
+                            ${escapeHTML(
+                                item.name
+                            )}
+
+                        </h2>
+
+
+                        <p class="description">
+
+                            ${escapeHTML(
+                                item.description ||
+                                "No equipment description available."
+                            )}
+
+                        </p>
+
+
+                        <div class="meta">
+
+                            <span>
+
+                                ${
+                                    item.brand
+
+                                        ? escapeHTML(
+                                            item.brand
+                                          )
+
+                                        : "ÆTHERYX ASSET"
+                                }
+
+                            </span>
+
+
+                            <span
+                                class="${
+                                    available
+                                        ? "available"
+                                        : "out"
+                                }"
+                            >
+
+                                ${
+                                    available
+
+                                        ? `${Number(
+                                            item.availableQuantity
+                                          )} AVAILABLE`
+
+                                        : "NO STOCK"
+                                }
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="card-actions">
+
+                            <button
+                                class="details-btn"
+                                onclick="viewDetails(${Number(item.id)})"
+                            >
+                                DETAILS
+                            </button>
+
+
+                            <button
+                                class="add-btn"
+                                onclick="addToCart(${Number(item.id)})"
+                                ${available ? "" : "disabled"}
+                            >
+
+                                ${
+                                    available
+                                        ? "ADD TO CART"
+                                        : "UNAVAILABLE"
+                                }
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            `;
+
+        }).join("");
+
+
+    content.innerHTML = "";
+
+    content.appendChild(grid);
+}
+
+
+/* =========================================================
+   ADD TO CART
+========================================================= */
+
+async function addToCart(equipmentId) {
+
+    try {
+
+        const response =
+            await fetch(
+                CART_ADD_API,
+                {
+                    method: "POST",
+
+                    credentials: "include",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        equipment_id:
+                            equipmentId,
+
+                        quantity: 1
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Unable to add equipment."
+            );
+        }
+
+
+        showToast(
+            "Equipment added to cart."
+        );
+
+
+        await loadCartCount();
+
+
+    } catch (error) {
+
+        showToast(
+            error.message,
+            true
+        );
+    }
+}
+
+
+/* =========================================================
+   CART COUNT
+========================================================= */
+
+async function loadCartCount() {
+
+    try {
+
+        const response =
+            await fetch(
+                CART_LIST_API,
+                {
+                    method: "GET",
+
+                    credentials: "include",
+
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            response.ok &&
+            data.success
+        ) {
+
+            /*
+             * Supports:
+             *
+             * data.data.total_items
+             *
+             * and future:
+             *
+             * data.total_items
+             */
+
+            const total =
+                data.data?.total_items ??
+                data.total_items ??
+                0;
+
+
+            state.cartCount =
+                Number(total);
+
+
+            cartCount.textContent =
+                state.cartCount;
+        }
+
+
+    } catch (error) {
+
+        cartCount.textContent =
+            "0";
+    }
+}
+
+
+/* =========================================================
+   EQUIPMENT DETAILS
+========================================================= */
+
+function viewDetails(id) {
+
+    window.location.href =
+        `equipment-details.html?id=${encodeURIComponent(id)}`;
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+searchInput.addEventListener(
+    "input",
+    event => {
+
+        state.search =
+            event.target.value;
+
+        renderEquipment();
+    }
+);
+
+
+/* =========================================================
+   CATEGORY FILTER
+========================================================= */
+
+categoryFilter.addEventListener(
+    "change",
+    event => {
+
+        state.category =
+            event.target.value;
+
+        renderEquipment();
+    }
+);
+
+
+/* =========================================================
+   AVAILABILITY FILTER
+========================================================= */
+
+availabilityFilter.addEventListener(
+    "change",
+    event => {
+
+        state.availability =
+            event.target.value;
+
+        renderEquipment();
+    }
+);
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+document
+    .getElementById("logoutBtn")
+    .addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                await fetch(
+                    LOGOUT_API,
+                    {
+                        method: "POST",
+
+                        credentials: "include",
+
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+            } finally {
+
+                window.location.href =
+                    "../public/login.html";
+            }
+        }
+    );
+
+
+/* =========================================================
+   MOBILE NAVIGATION
+========================================================= */
+
+document
+    .getElementById("mobileToggle")
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById("sidebar")
+                .classList.toggle("open");
+        }
+    );
+
+
+/* =========================================================
+   INITIALIZE MARKETPLACE
+========================================================= */
+
+async function initializeMarketplace() {
+
+    const authenticated =
+        await verifySession();
+
+
+    if (!authenticated) {
+        return;
+    }
+
+
+    await Promise.all([
+
+        loadEquipment(),
+
+        loadCartCount()
+
+    ]);
+}
+
+
+initializeMarketplace();
+
+</script>
+</body>
+</html>

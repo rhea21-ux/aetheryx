@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel Command Center — ÆTHERYX</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --base: #0D1117;
+    --surface: #151B26;
+    --surface-2: #1B2330;
+    --border: rgba(255,255,255,.08);
+
+    --cyan: #4FE0C9;
+    --violet: #8B6FEA;
+
+    --text: #EEF2FF;
+    --muted: #8E98B7;
+
+    --danger: #F07F8B;
+    --warning: #E8B45C;
+    --good: #5FD98A;
+
+    --sidebar: 230px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    min-height: 100vh;
+    background: var(--base);
+    color: var(--text);
+    font-family: "IBM Plex Sans", sans-serif;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: var(--sidebar);
+    padding: 24px 16px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+}
+
+.brand {
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -.01em;
+    margin-bottom: 4px;
+}
+.brand span { color: var(--cyan); }
+.tagline {
+    font-size: .68rem;
+    color: var(--muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+}
+
+.nav a {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .88rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+.nav a.active, .nav a:hover {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+main {
+    margin-left: var(--sidebar);
+    padding: 28px 32px 60px;
+    max-width: 1280px;
+}
+
+h1 { font-size: 1.5rem; font-weight: 700; }
+.subtitle { color: var(--muted); font-size: .9rem; margin-top: 4px; margin-bottom: 24px; }
+
+.section-title {
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--muted);
+    margin: 28px 0 12px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+.stat-value { font-size: 1.6rem; font-weight: 700; font-family: "IBM Plex Mono", monospace; }
+.stat-label { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+.stat-value.cyan { color: var(--cyan); }
+.stat-value.warning { color: var(--warning); }
+.stat-value.danger { color: var(--danger); }
+.stat-value.good { color: var(--good); }
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 12px;
+}
+
+.rec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+.rec-row:last-child { border-bottom: none; }
+.rec-name { font-weight: 600; font-size: .92rem; }
+.rec-action { font-size: .82rem; color: var(--cyan); margin-top: 2px; }
+.rec-why { font-size: .78rem; color: var(--muted); margin-top: 4px; }
+.badge {
+    font-size: .68rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+.badge.CRITICAL, .badge.RETIREMENT_REVIEW { background: rgba(240,127,139,.15); color: var(--danger); }
+.badge.ATTENTION { background: rgba(232,180,92,.15); color: var(--warning); }
+.badge.MONITOR { background: rgba(142,152,183,.15); color: var(--muted); }
+.badge.HEALTHY { background: rgba(95,217,138,.15); color: var(--good); }
+
+.activity-row {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: .84rem;
+}
+.activity-row:last-child { border-bottom: none; }
+.activity-time { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: .74rem; white-space: nowrap; }
+
+.state-message {
+    color: var(--muted);
+    font-size: .88rem;
+    padding: 24px 0;
+    text-align: center;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface) 37%, var(--surface-2) 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: 6px;
+    height: 1.6rem;
+    width: 60%;
+}
+@keyframes shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+@media (max-width: 860px) {
+    .sidebar { display: none; }
+    main { margin-left: 0; padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="brand">ÆTHERYX <span>SENTINEL</span></div>
+    <div class="tagline">Precision · Clarity · Intelligence</div>
+    <nav class="nav">
+        <a href="sentinel-dashboard.html" class="active">Command Center</a>
+        <a href="assets.html">Assets</a>
+        <a href="maintenance.html">Maintenance</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="activity-logs.html">Activity Logs</a>
+        <a href="reports.html">Reports</a>
+        <a href="profile.html">Profile</a>
+        <a href="../admin/admin-dashboard.html">← Back to ÆTHERYX</a>
+    </nav>
+</aside>
+
+<main>
+    <h1>Sentinel Command Center</h1>
+    <div class="subtitle">Operational intelligence for ÆTHERYX equipment.</div>
+
+    <div id="loadingState">
+        <div class="section-title">Asset Overview</div>
+        <div class="grid">
+            <div class="stat-card"><div class="skeleton"></div></div>
+            <div class="stat-card"><div class="skeleton"></div></div>
+            <div class="stat-card"><div class="skeleton"></div></div>
+            <div class="stat-card"><div class="skeleton"></div></div>
+        </div>
+    </div>
+
+    <div id="errorState" style="display:none;">
+        <div class="panel state-message">
+            Sentinel couldn't reach the dashboard API. Check that you're logged in as an administrator and try again.
+        </div>
+    </div>
+
+    <div id="dashboardContent" style="display:none;">
+
+        <div class="section-title">Asset Overview</div>
+        <div class="grid" id="assetOverviewGrid"></div>
+
+        <div class="section-title">Service Overview</div>
+        <div class="grid" id="serviceOverviewGrid"></div>
+
+        <div class="section-title">Intelligence</div>
+        <div class="grid" id="intelligenceGrid"></div>
+
+        <div class="section-title">Recommendations</div>
+        <div class="panel" id="recommendationsPanel"></div>
+
+        <div class="section-title">Recent Activity</div>
+        <div class="panel" id="activityPanel"></div>
+
+    </div>
+</main>
+
+<script>
+function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const API_URL = "../../backend/api/sentinel/dashboard-stats.php";
+
+function statCard(value, label, tone) {
+    return `<div class="stat-card">
+        <div class="stat-value ${tone || ''}">${value}</div>
+        <div class="stat-label">${label}</div>
+    </div>`;
+}
+
+function timeAgo(iso) {
+    const diffMs = Date.now() - new Date(iso.replace(' ', 'T')).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+}
+
+async function loadDashboard() {
+    const loadingEl = document.getElementById('loadingState');
+    const errorEl = document.getElementById('errorState');
+    const contentEl = document.getElementById('dashboardContent');
+
+    try {
+        const res = await fetch(API_URL, { credentials: 'include' });
+        const payload = await res.json();
+
+        if (!res.ok || !payload.success) {
+            throw new Error(payload.message || 'Request failed');
+        }
+
+        const d = payload.data;
+
+        document.getElementById('assetOverviewGrid').innerHTML =
+            statCard(d.assetOverview.totalEquipment, 'Total Equipment') +
+            statCard(d.assetOverview.healthy, 'Healthy', 'good') +
+            statCard(d.assetOverview.attention + d.assetOverview.critical, 'Needs Attention', 'warning') +
+            statCard(d.assetOverview.underMaintenance, 'Under Maintenance') +
+            statCard(d.assetOverview.unavailable, 'Unavailable', 'danger');
+
+        document.getElementById('serviceOverviewGrid').innerHTML =
+            statCard(d.serviceOverview.openRequests, 'Open Requests') +
+            statCard(d.serviceOverview.pendingRequests, 'Pending Review') +
+            statCard(d.serviceOverview.highPriorityRequests, 'High Priority', 'warning') +
+            statCard(d.serviceOverview.resolvedLast7Days, 'Resolved (7d)', 'good');
+
+        document.getElementById('intelligenceGrid').innerHTML =
+            statCard(d.intelligence.averageAssetHealth + ' / 100', 'Avg. Asset Health', 'cyan') +
+            statCard(d.intelligence.assetsFlaggedToday, 'Flagged Today') +
+            statCard(d.intelligence.compatibilityRiskCount, 'Compatibility Risks', d.intelligence.compatibilityRiskCount > 0 ? 'warning' : '') +
+            statCard(d.intelligence.inventoryPressureAlerts, 'Pressure Alerts', d.intelligence.inventoryPressureAlerts > 0 ? 'warning' : '');
+
+        const recPanel = document.getElementById('recommendationsPanel');
+        if (d.recommendations.length === 0) {
+            recPanel.innerHTML = '<div class="state-message">No assets currently need attention.</div>';
+        } else {
+            recPanel.innerHTML = d.recommendations.map(r => `
+                <div class="rec-row">
+                    <div>
+                        <div class="rec-name">${esc(r.equipmentName)}</div>
+                        <div class="rec-action">${esc(r.action)}</div>
+                        <div class="rec-why">${esc(r.why.join(' · '))}</div>
+                    </div>
+                    <span class="badge ${esc(r.lifecycleState)}">${esc(r.lifecycleState.replace('_', ' '))}</span>
+                </div>
+            `).join('');
+        }
+
+        const activityPanel = document.getElementById('activityPanel');
+        if (d.recentActivity.length === 0) {
+            activityPanel.innerHTML = '<div class="state-message">No activity recorded yet.</div>';
+        } else {
+            activityPanel.innerHTML = d.recentActivity.map(a => `
+                <div class="activity-row">
+                    <span class="activity-time">${timeAgo(a.created_at)}</span>
+                    <span>${esc(a.description || a.action)}</span>
+                </div>
+            `).join('');
+        }
+
+        loadingEl.style.display = 'none';
+        errorEl.style.display = 'none';
+        contentEl.style.display = 'block';
+
+    } catch (err) {
+        loadingEl.style.display = 'none';
+        contentEl.style.display = 'none';
+        errorEl.style.display = 'block';
+    }
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>

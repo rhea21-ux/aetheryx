@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile — ÆTHERYX</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+
+:root{
+    --bg:#0D1321;
+    --surface:#161B2E;
+    --surface2:#1D2438;
+
+    --cyan:#4FE0C9;
+    --violet:#8B6FEA;
+
+    --text:#EEF2FF;
+    --muted:#8E98B7;
+
+    --danger:#F07F8B;
+    --success:#4FE0C9;
+
+    --border:rgba(255,255,255,.08);
+    --glass:rgba(22,27,46,.72);
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    color:var(--text);
+    font-family:"IBM Plex Sans",sans-serif;
+    background:
+        radial-gradient(
+            circle at 10% 0%,
+            rgba(79,224,201,.12),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 90% 0%,
+            rgba(139,111,234,.15),
+            transparent 30%
+        ),
+        var(--bg);
+}
+
+/* GRID */
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:-2;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        );
+
+    background-size:42px 42px;
+    opacity:.45;
+}
+
+/* AURORA */
+
+body::after{
+    content:"";
+    position:fixed;
+    width:500px;
+    height:500px;
+    left:-250px;
+    top:20%;
+    border-radius:50%;
+
+    background:rgba(79,224,201,.06);
+    filter:blur(90px);
+
+    pointer-events:none;
+    z-index:-1;
+
+    animation:aurora 8s ease-in-out infinite alternate;
+}
+
+@keyframes aurora{
+    from{
+        transform:translate(0,0);
+    }
+
+    to{
+        transform:translate(180px,80px);
+    }
+}
+
+/* SCANLINE */
+
+.scanline{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:100;
+
+    background:
+        linear-gradient(
+            transparent 50%,
+            rgba(255,255,255,.012) 50%
+        );
+
+    background-size:100% 4px;
+    opacity:.25;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    position:fixed;
+    inset:0 auto 0 0;
+
+    width:255px;
+
+    padding:28px 18px;
+
+    background:rgba(13,19,33,.88);
+    border-right:1px solid var(--border);
+
+    backdrop-filter:blur(20px);
+
+    z-index:50;
+}
+
+.brand{
+    padding:4px 10px 28px;
+}
+
+.brand-code{
+    margin-bottom:9px;
+
+    color:var(--cyan);
+
+    font:
+        500 9px
+        "IBM Plex Mono";
+
+    letter-spacing:.16em;
+}
+
+.brand-code::before{
+    content:"";
+
+    display:inline-block;
+
+    width:7px;
+    height:7px;
+
+    margin-right:7px;
+
+    border-radius:50%;
+
+    background:var(--cyan);
+
+    box-shadow:
+        0 0 10px var(--cyan);
+
+    animation:blink 1.7s infinite;
+}
+
+@keyframes blink{
+    50%{
+        opacity:.35;
+        transform:scale(.7);
+    }
+}
+
+.logo{
+    font:
+        700 26px
+        "Space Grotesk";
+
+    letter-spacing:-.04em;
+
+    background:
+        linear-gradient(
+            100deg,
+            #fff,
+            var(--cyan),
+            #fff
+        );
+
+    background-size:200% auto;
+
+    -webkit-background-clip:text;
+    background-clip:text;
+
+    color: #E9EDF6;
+
+    animation:logoShine 5s linear infinite;
+}
+
+@keyframes logoShine{
+    to{
+        background-position:200% center;
+    }
+}
+
+.brand small{
+    display:block;
+
+    margin-top:5px;
+
+    color:var(--muted);
+
+    font:
+        400 8px
+        "IBM Plex Mono";
+
+    letter-spacing:.08em;
+}
+
+/* NAV */
+
+.nav-label{
+    margin:5px 10px 8px;
+
+    color:#626D88;
+
+    font:
+        500 8px
+        "IBM Plex Mono";
+
+    letter-spacing:.16em;
+}
+
+.nav{
+    display:grid;
+    gap:5px;
+}
+
+.nav a{
+    position:relative;
+
+    display:flex;
+    align-items:center;
+
+    padding:12px;
+
+    color:var(--muted);
+
+    text-decoration:none;
+
+    border:1px solid transparent;
+    border-radius:10px;
+
+    transition:
+        color .2s ease,
+        background .2s ease,
+        border .2s ease,
+        transform .2s ease;
+}
+
+.nav a:hover{
+    color:var(--cyan);
+
+    background:rgba(79,224,201,.055);
+
+    border-color:
+        rgba(79,224,201,.15);
+
+    transform:translateX(4px);
+}
+
+.nav a.active{
+    color:var(--cyan);
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(79,224,201,.09),
+            transparent
+        );
+
+    border-color:
+        rgba(79,224,201,.22);
+
+    box-shadow:
+        inset 3px 0 0 var(--cyan);
+}
+
+/* BOTTOM */
+
+.sidebar-bottom{
+    position:absolute;
+
+    left:18px;
+    right:18px;
+    bottom:20px;
+}
+
+.role{
+    margin-bottom:8px;
+
+    padding:10px;
+
+    border:
+        1px solid
+        rgba(79,224,201,.15);
+
+    border-radius:10px;
+
+    color:var(--cyan);
+
+    background:
+        rgba(79,224,201,.035);
+
+    font:
+        500 9px
+        "IBM Plex Mono";
+
+    text-align:center;
+
+    letter-spacing:.08em;
+}
+
+.logout{
+    width:100%;
+
+    padding:11px;
+
+    border:
+        1px solid
+        rgba(240,127,139,.2);
+
+    border-radius:10px;
+
+    color:#E5A7AE;
+
+    background:
+        rgba(240,127,139,.04);
+
+    cursor:pointer;
+
+    transition:.2s ease;
+}
+
+.logout:hover{
+    color:#fff;
+
+    background:
+        rgba(240,127,139,.09);
+
+    border-color:
+        rgba(240,127,139,.4);
+
+    transform:translateY(-2px);
+}
+
+/* MAIN */
+
+.main{
+    min-height:100vh;
+
+    margin-left:255px;
+
+    padding:
+        50px
+        42px
+        70px;
+
+    max-width:1500px;
+}
+
+.eyebrow{
+    color:var(--cyan);
+
+    font:
+        500 9px
+        "IBM Plex Mono";
+
+    letter-spacing:.18em;
+}
+
+.header{
+    animation:reveal .6s ease both;
+}
+
+@keyframes reveal{
+    from{
+        opacity:0;
+        transform:translateY(18px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+h1{
+    margin:
+        8px
+        0
+        10px;
+
+    font:
+        700 clamp(42px,5vw,64px)
+        "Space Grotesk";
+
+    letter-spacing:-.055em;
+}
+
+.subtitle{
+    max-width:760px;
+
+    color:var(--muted);
+
+    line-height:1.7;
+}
+
+/* PROFILE */
+
+.profile-layout{
+    display:grid;
+
+    grid-template-columns:
+        320px
+        minmax(0,1fr);
+
+    gap:16px;
+
+    margin-top:30px;
+}
+
+/* IDENTITY */
+
+.identity-card,
+.details-card{
+    position:relative;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(29,36,56,.88),
+            rgba(22,27,46,.72)
+        );
+
+    backdrop-filter:blur(18px);
+
+    overflow:hidden;
+
+    animation:
+        reveal .6s ease both;
+}
+
+.identity-card{
+    padding:30px;
+
+    text-align:center;
+}
+
+.identity-card::before{
+    content:"";
+
+    position:absolute;
+
+    width:230px;
+    height:230px;
+
+    top:-120px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    border:
+        1px solid
+        rgba(79,224,201,.12);
+
+    border-radius:50%;
+}
+
+.identity-card::after{
+    content:"";
+
+    position:absolute;
+
+    width:160px;
+    height:160px;
+
+    top:-85px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    border:
+        1px solid
+        rgba(139,111,234,.1);
+
+    border-radius:50%;
+}
+
+/* AVATAR */
+
+.avatar{
+    position:relative;
+
+    width:120px;
+    height:120px;
+
+    margin:
+        12px
+        auto
+        22px;
+
+    display:grid;
+    place-items:center;
+
+    border:
+        1px solid
+        rgba(79,224,201,.3);
+
+    border-radius:32px;
+
+    color:var(--cyan);
+
+    font:
+        700 48px
+        "Space Grotesk";
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(79,224,201,.14),
+            transparent 70%
+        ),
+        rgba(79,224,201,.035);
+
+    box-shadow:
+        0 0 55px
+        rgba(79,224,201,.08);
+
+    z-index:1;
+
+    animation:
+        avatarFloat 4s ease-in-out infinite;
+}
+
+@keyframes avatarFloat{
+    50%{
+        transform:translateY(-5px);
+    }
+}
+
+.identity-card h2{
+    margin:0;
+
+    font:
+        600 25px
+        "Space Grotesk";
+}
+
+.handle{
+    margin:
+        7px
+        0
+        16px;
+
+    color:var(--muted);
+
+    font:
+        400 10px
+        "IBM Plex Mono";
+}
+
+.role-badge{
+    display:inline-flex;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:7px 12px;
+
+    color:var(--cyan);
+
+    background:
+        rgba(79,224,201,.06);
+
+    border:
+        1px solid
+        rgba(79,224,201,.18);
+
+    border-radius:8px;
+
+    font:
+        500 8px
+        "IBM Plex Mono";
+
+    letter-spacing:.1em;
+}
+
+/* STATUS */
+
+.account-status{
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:7px;
+
+    margin-top:20px;
+
+    color:var(--muted);
+
+    font:
+        500 8px
+        "IBM Plex Mono";
+}
+
+.status-dot{
+    width:7px;
+    height:7px;
+
+    border-radius:50%;
+
+    background:var(--success);
+
+    box-shadow:
+        0 0 10px
+        var(--success);
+
+    animation:blink 1.8s infinite;
+}
+
+/* DETAILS */
+
+.details-card{
+    padding:28px;
+}
+
+.panel-header{
+    padding-bottom:18px;
+
+    margin-bottom:18px;
+
+    border-bottom:
+        1px solid
+        var(--border);
+}
+
+.panel-header h2{
+    margin:
+        6px
+        0
+        0;
+
+    font:
+        600 24px
+        "Space Grotesk";
+}
+
+.info-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:12px;
+}
+
+.info{
+    min-width:0;
+
+    padding:17px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.055);
+
+    border-radius:12px;
+
+    background:
+        rgba(13,19,33,.42);
+
+    transition:.2s ease;
+}
+
+.info:hover{
+    border-color:
+        rgba(79,224,201,.15);
+
+    transform:translateY(-2px);
+}
+
+.info-label{
+    display:block;
+
+    color:#68738F;
+
+    font:
+        500 8px
+        "IBM Plex Mono";
+
+    letter-spacing:.1em;
+}
+
+.info-value{
+    display:block;
+
+    margin-top:7px;
+
+    color:var(--text);
+
+    font:
+        600 14px
+        "IBM Plex Sans";
+
+    word-break:break-word;
+}
+
+/* ACTIONS */
+
+.actions{
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:9px;
+
+    margin-top:18px;
+}
+
+.action{
+    padding:
+        10px
+        14px;
+
+    border:
+        1px solid
+        rgba(79,224,201,.2);
+
+    border-radius:9px;
+
+    color:var(--cyan);
+
+    background:
+        rgba(79,224,201,.045);
+
+    cursor:pointer;
+
+    transition:.2s ease;
+}
+
+.action:hover{
+    background:
+        rgba(79,224,201,.1);
+
+    border-color:
+        rgba(79,224,201,.4);
+
+    transform:translateY(-2px);
+}
+
+/* ERROR */
+
+.error{
+    margin-top:18px;
+
+    padding:18px;
+
+    border:
+        1px solid
+        rgba(240,127,139,.25);
+
+    border-radius:12px;
+
+    color:#E5A7AE;
+
+    background:
+        rgba(240,127,139,.045);
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* LOADING */
+
+.loading{
+    color:var(--muted);
+
+    text-align:center;
+}
+
+.spinner{
+    width:28px;
+    height:28px;
+
+    margin:
+        0
+        auto
+        12px;
+
+    border:
+        2px solid
+        rgba(79,224,201,.12);
+
+    border-top-color:
+        var(--cyan);
+
+    border-radius:50%;
+
+    animation:
+        spin .8s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1000px){
+
+    .profile-layout{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:800px){
+
+    .sidebar{
+        position:relative;
+
+        width:100%;
+        height:auto;
+
+        padding:18px;
+
+        border-right:0;
+        border-bottom:
+            1px solid
+            var(--border);
+    }
+
+    .sidebar-bottom{
+        position:static;
+
+        margin-top:16px;
+    }
+
+    .nav{
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+    .main{
+        margin-left:0;
+
+        padding:
+            28px
+            16px
+            50px;
+    }
+
+    .info-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:500px){
+
+    .nav{
+        grid-template-columns:1fr;
+    }
+
+    h1{
+        font-size:40px;
+    }
+
+    .identity-card,
+    .details-card{
+        padding:22px;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .action{
+        width:100%;
+    }
+
+}
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+    *::before,
+    *::after{
+        animation:none!important;
+        transition:none!important;
+    }
+
+}
+
+</style>
+<link rel="stylesheet" href="../assets/css/no-gradient.css">
+<script defer src="../assets/js/notification-drawer.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
+<script defer src="../assets/js/aetheryx-consistent.js"></script>
+</head>
+<body>
+<div class="scanline"></div>
+<aside class="sidebar">
+<div class="brand">
+<div class="brand-code">
+
+        </div>
+<div class="logo">
+           ÆTHERYX
+        </div>
+
+</div>
+<div class="nav-label">
+        Command
+    </div>
+<nav class="nav">
+            <a href="#" id="dashboardLink">⌂ Dashboard</a>
+            <a href="marketplace.html">◈ Marketplace</a>
+            <a href="cart.html">◇ Cart</a>
+            <a href="my-requests.html">◎ My Requests</a>
+            <a href="inventory.html">▣ Inventory</a>
+            <a href="notifications.html">● Notifications</a>
+            <a href="compatibility.html">⌁ Compatibility</a>
+            <a class="active" href="profile.html">○ Profile</a>
+        </nav>
+<div class="sidebar-bottom">
+<div class="role" id="role">
+            VERIFYING...
+        </div>
+<button class="logout" id="logout">
+            TERMINATE SESSION
+        </button>
+</div>
+</aside>
+<main class="main">
+<header class="header">
+<div class="eyebrow">
+            ÆTHERYX | ACCOUNT PROFILE
+        </div>
+<h1>
+            Profile
+        </h1>
+<p class="subtitle">
+            Your authenticated identity record,
+            account status, and ÆTHERYX access profile.
+        </p>
+</header>
+<section class="profile-layout" id="profileLayout">
+<article class="identity-card">
+<div class="avatar" id="avatar">
+                Æ
+            </div>
+<h2 id="fullName">
+                Loading...
+            </h2>
+<div class="handle" id="handle">
+                @loading
+            </div>
+<span class="role-badge" id="roleBadge">
+                VERIFYING
+            </span>
+<div class="account-status">
+<span class="status-dot"></span>
+<span id="statusText">
+                    ACCOUNT VERIFIED
+                </span>
+</div>
+</article>
+<article class="details-card">
+<div class="panel-header">
+<div class="eyebrow">
+                    IDENTITY RECORD
+                </div>
+<h2>
+                    Account Information
+                </h2>
+</div>
+<div class="info-grid">
+<div class="info">
+<span class="info-label">
+                        ACCOUNT ID
+                    </span>
+<span class="info-value" id="accountId">
+                        —
+                    </span>
+</div>
+<div class="info">
+<span class="info-label">
+                        FULL NAME
+                    </span>
+<span class="info-value" id="nameValue">
+                        —
+                    </span>
+</div>
+<div class="info">
+<span class="info-label">
+                        HANDLE
+                    </span>
+<span class="info-value" id="handleValue">
+                        —
+                    </span>
+</div>
+<div class="info">
+<span class="info-label">
+                        EMAIL
+                    </span>
+<span class="info-value" id="emailValue">
+                        —
+                    </span>
+</div>
+<div class="info">
+<span class="info-label">
+                        ACCESS ROLE
+                    </span>
+<span class="info-value" id="roleValue">
+                        —
+                    </span>
+</div>
+<div class="info">
+<span class="info-label">
+                        ACCOUNT STATUS
+                    </span>
+<span class="info-value" id="accountStatus">
+                        —
+                    </span>
+</div>
+<div class="info">
+<span class="info-label">
+                        CREATED
+                    </span>
+<span class="info-value" id="createdValue">
+                        —
+                    </span>
+</div>
+<div class="info">
+<span class="info-label">
+                        LAST UPDATED
+                    </span>
+<span class="info-value" id="updatedValue">
+                        —
+                    </span>
+</div>
+</div>
+<div class="actions">
+<button class="action" id="copyEmail" type="button">
+                    COPY EMAIL
+                </button>
+<button class="action" id="copyHandle" type="button">
+                    COPY HANDLE
+                </button>
+<button class="action" id="refresh" type="button">
+                    ↻ REFRESH PROFILE
+                </button>
+</div>
+</article>
+</section>
+<div class="error hidden" id="error"></div>
+</main>
+<script>
+
+"use strict";
+
+/* =========================================
+   API
+========================================= */
+
+const API = {
+    session:
+        "../../backend/api/auth/session.php",
+
+    profile:
+        "../../backend/api/user/profile.php",
+
+    logout:
+        "../../backend/api/auth/logout.php"
+};
+
+const DASHBOARDS = {
+    hero:
+        "../hero/hero-dashboard.html",
+
+    enemy:
+        "../enemy/villain-dashboard.html",
+
+    admin:
+        "../admin/admin-dashboard.html"
+};
+
+/* =========================================
+   STATE
+========================================= */
+
+let currentProfile = null;
+
+/* =========================================
+   HELPERS
+========================================= */
+
+const $ = id =>
+    document.getElementById(id);
+
+function normalizeRole(role){
+
+    return String(role || "")
+        .trim()
+        .toLowerCase();
+
+}
+
+function displayRole(role){
+
+    const normalized =
+        normalizeRole(role);
+
+    if(normalized === "enemy"){
+        return "VILLAIN";
+    }
+
+    if(normalized === "admin"){
+        return "ADMIN";
+    }
+
+    if(normalized === "hero"){
+        return "HERO";
+    }
+
+    return normalized.toUpperCase() || "UNKNOWN";
+
+}
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/[&<>"']/g, character => {
+
+            const entities = {
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;",
+                '"':"&quot;",
+                "'":"&#039;"
+            };
+
+            return entities[character];
+
+        });
+
+}
+
+function showError(message){
+
+    const error =
+        $("error");
+
+    error.textContent =
+        message || "Unknown error.";
+
+    error.classList.remove("hidden");
+
+}
+
+function hideError(){
+
+    $("error")
+        .classList.add("hidden");
+
+}
+
+/* =========================================
+   SESSION
+========================================= */
+
+async function verifySession(){
+
+    const response =
+        await fetch(
+            API.session,
+            {
+                method:"GET",
+                credentials:"include",
+                cache:"no-store",
+                headers:{
+                    "Accept":
+                        "application/json"
+                }
+            }
+        );
+
+    let data;
+
+    try{
+        data =
+            await response.json();
+    }catch{
+        throw new Error(
+            "Session service returned invalid JSON."
+        );
+    }
+
+    if(
+        response.status === 401 ||
+        !response.ok ||
+        !data.success
+    ){
+        throw new Error(
+            "Authentication required."
+        );
+    }
+
+    const sessionUser =
+        data.user || {};
+
+    const role =
+        normalizeRole(
+            data.role ||
+            sessionUser.role
+        );
+
+    if(!DASHBOARDS[role]){
+
+        throw new Error(
+            "Your account has an invalid role."
+        );
+
+    }
+
+    $("dashboardLink").href =
+        DASHBOARDS[role];
+
+    $("role").textContent =
+        displayRole(role);
+
+    return role;
+
+}
+
+/* =========================================
+   PROFILE
+========================================= */
+
+async function loadProfile(){
+
+    hideError();
+
+    const refreshButton =
+        $("refresh");
+
+    refreshButton.disabled =
+        true;
+
+    refreshButton.textContent =
+        "↻ LOADING...";
+
+    try{
+
+        const response =
+            await fetch(
+                API.profile,
+                {
+                    method:"GET",
+                    credentials:"include",
+                    cache:"no-store",
+                    headers:{
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+        let data;
+
+        try{
+
+            data =
+                await response.json();
+
+        }catch{
+
+            throw new Error(
+                `Profile API returned invalid JSON (${response.status}).`
+            );
+
+        }
+
+        if(response.status === 401){
+
+            window.location.href =
+                "../public/login.html";
+
+            return;
+
+        }
+
+        if(!response.ok || !data.success){
+
+            throw new Error(
+                data.message ||
+                `Profile request failed (${response.status}).`
+            );
+
+        }
+
+        /*
+         * Your API returns:
+         *
+         * {
+         *   success:true,
+         *   user:{...}
+         * }
+         *
+         * Keep a fallback to profile/data
+         * so the page is less fragile.
+         */
+
+        const user =
+            data.user ||
+            data.profile ||
+            data.data;
+
+        if(!user){
+
+            throw new Error(
+                "Profile API returned no user record."
+            );
+
+        }
+
+        currentProfile =
+            user;
+
+        renderProfile(user);
+
+    }catch(error){
+
+        console.error(
+            "ÆTHERYX profile error:",
+            error
+        );
+
+        showError(
+            error.message ||
+            "Unable to load profile."
+        );
+
+    }finally{
+
+        refreshButton.disabled =
+            false;
+
+        refreshButton.textContent =
+            "↻ REFRESH PROFILE";
+
+    }
+
+}
+
+/* =========================================
+   RENDER
+========================================= */
+
+function renderProfile(user){
+
+    const fullName =
+        user.fullName ||
+        user.full_name ||
+        "Unknown User";
+
+    const handle =
+        user.handle ||
+        "unknown";
+
+    const role =
+        normalizeRole(
+            user.role
+        );
+
+    const visibleRole =
+        displayRole(role);
+
+    const status =
+        String(
+            user.status ||
+            "active"
+        ).toUpperCase();
+
+    $("fullName").textContent =
+        fullName;
+
+    $("handle").textContent =
+        "@" + handle;
+
+    $("avatar").textContent =
+        fullName
+            .trim()
+            .charAt(0)
+            .toUpperCase() ||
+        "Æ";
+
+    $("roleBadge").textContent =
+        visibleRole;
+
+    $("role").textContent =
+        visibleRole;
+
+    $("accountId").textContent =
+        user.id ??
+        "—";
+
+    $("nameValue").textContent =
+        fullName;
+
+    $("handleValue").textContent =
+        handle;
+
+    $("emailValue").textContent =
+        user.email ||
+        "—";
+
+    $("roleValue").textContent =
+        visibleRole;
+
+    $("accountStatus").textContent =
+        status;
+
+    $("createdValue").textContent =
+        user.createdAt ||
+        user.created_at ||
+        "—";
+
+    $("updatedValue").textContent =
+        user.updatedAt ||
+        user.updated_at ||
+        "—";
+
+    $("statusText").textContent =
+        status === "ACTIVE"
+            ? "ACCOUNT VERIFIED"
+            : "ACCOUNT " + status;
+
+}
+
+/* =========================================
+   COPY
+========================================= */
+
+async function copyText(
+    value,
+    button
+){
+
+    if(!value){
+
+        return;
+
+    }
+
+    const original =
+        button.textContent;
+
+    try{
+
+        await navigator.clipboard.writeText(
+            String(value)
+        );
+
+        button.textContent =
+            "COPIED ✓";
+
+        setTimeout(
+            ()=>{
+                button.textContent =
+                    original;
+            },
+            1200
+        );
+
+    }catch(error){
+
+        console.error(
+            "Clipboard error:",
+            error
+        );
+
+        button.textContent =
+            "COPY FAILED";
+
+        setTimeout(
+            ()=>{
+                button.textContent =
+                    original;
+            },
+            1200
+        );
+
+    }
+
+}
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logout(){
+
+    const button =
+        $("logout");
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "TERMINATING...";
+
+    try{
+
+        await fetch(
+            API.logout,
+            {
+                method:"POST",
+                credentials:"include",
+                cache:"no-store"
+            }
+        );
+
+    }catch(error){
+
+        console.warn(
+            "Logout request failed:",
+            error
+        );
+
+    }finally{
+
+        window.location.href =
+            "../public/login.html";
+
+    }
+
+}
+
+/* =========================================
+   EVENTS
+========================================= */
+
+$("refresh")
+    .addEventListener(
+        "click",
+        loadProfile
+    );
+
+$("logout")
+    .addEventListener(
+        "click",
+        logout
+    );
+
+$("copyEmail")
+    .addEventListener(
+        "click",
+        ()=>{
+            copyText(
+                currentProfile?.email,
+                $("copyEmail")
+            );
+        }
+    );
+
+$("copyHandle")
+    .addEventListener(
+        "click",
+        ()=>{
+            copyText(
+                currentProfile?.handle,
+                $("copyHandle")
+            );
+        }
+    );
+
+/* =========================================
+   BOOT
+========================================= */
+
+(async function(){
+
+    try{
+
+        await verifySession();
+
+        await loadProfile();
+
+    }catch(error){
+
+        console.error(
+            "ÆTHERYX boot error:",
+            error
+        );
+
+        window.location.href =
+            "../public/login.html";
+
+    }
+
+})();
+
+</script>
+</body>
+</html>

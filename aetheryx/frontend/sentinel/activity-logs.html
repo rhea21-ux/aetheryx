@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity Logs — ÆTHERYX SENTINEL</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+    --base: #0D1117; --surface: #151B26; --surface-2: #1B2330; --border: rgba(255,255,255,.08);
+    --cyan: #4FE0C9; --violet: #8B6FEA; --text: #EEF2FF; --muted: #8E98B7;
+    --danger: #F07F8B; --warning: #E8B45C; --good: #5FD98A;
+    --sidebar: 230px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; background: var(--base); color: var(--text); font-family: "IBM Plex Sans", sans-serif; }
+
+.sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar); padding: 24px 16px; background: var(--surface); border-right: 1px solid var(--border); }
+.brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+.brand span { color: var(--cyan); }
+.tagline { font-size: .68rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 28px; }
+.nav a { display: block; padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .88rem; font-weight: 500; margin-bottom: 2px; }
+.nav a.active, .nav a:hover { background: var(--surface-2); color: var(--text); }
+
+main { margin-left: var(--sidebar); padding: 28px 32px 60px; max-width: 1000px; }
+h1 { font-size: 1.5rem; font-weight: 700; }
+.subtitle { color: var(--muted); font-size: .9rem; margin-top: 4px; margin-bottom: 20px; }
+
+.toolbar { display: flex; gap: 10px; margin-bottom: 16px; }
+.toolbar input {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 9px 12px; font-size: .86rem; font-family: inherit; flex: 1; max-width: 320px;
+}
+
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .84rem; min-width: 680px; }
+th { text-align: left; padding: 11px 14px; color: var(--muted); font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); }
+td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+
+.action-tag { font-family: "IBM Plex Mono", monospace; font-size: .76rem; color: var(--violet); }
+.time-cell { color: var(--muted); font-size: .76rem; white-space: nowrap; font-family: "IBM Plex Mono", monospace; }
+
+.state-message { color: var(--muted); font-size: .9rem; padding: 36px 20px; text-align: center; }
+
+@media (max-width: 860px) { .sidebar { display: none; } main { margin-left: 0; padding: 20px; } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="brand">ÆTHERYX <span>SENTINEL</span></div>
+    <div class="tagline">Precision · Clarity · Intelligence</div>
+    <nav class="nav">
+        <a href="sentinel-dashboard.html">Command Center</a>
+        <a href="assets.html">Assets</a>
+        <a href="maintenance.html">Maintenance</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="activity-logs.html" class="active">Activity Logs</a>
+        <a href="reports.html">Reports</a>
+        <a href="profile.html">Profile</a>
+        <a href="../admin/admin-dashboard.html">← Back to ÆTHERYX</a>
+    </nav>
+</aside>
+
+<main>
+    <h1>Activity Logs</h1>
+    <div class="subtitle">System-wide audit trail (most recent 200 events).</div>
+
+    <div class="toolbar">
+        <input type="search" id="searchInput" placeholder="Filter by action, user, or description...">
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>When</th><th>User</th><th>Action</th><th>Description</th></tr></thead>
+            <tbody id="tableBody"><tr><td colspan="4" class="state-message">Loading…</td></tr></tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const API_URL = "../../backend/api/sentinel/activity-logs.php";
+let allLogs = [];
+
+function timeAgo(iso) {
+    const diffMs = Date.now() - new Date(iso.replace(' ', 'T')).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+}
+
+function render() {
+    const search = document.getElementById('searchInput').value.toLowerCase().trim();
+    const filtered = allLogs.filter(l =>
+        !search ||
+        (l.action || '').toLowerCase().includes(search) ||
+        (l.description || '').toLowerCase().includes(search) ||
+        (l.full_name || '').toLowerCase().includes(search)
+    );
+
+    const tbody = document.getElementById('tableBody');
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="state-message">No matching activity.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(l => `
+        <tr>
+            <td class="time-cell">${timeAgo(l.created_at)}</td>
+            <td>${esc(l.full_name || 'System')}</td>
+            <td class="action-tag">${esc(l.action)}</td>
+            <td>${esc(l.description)}</td>
+        </tr>
+    `).join('');
+}
+
+async function load() {
+    const tbody = document.getElementById('tableBody');
+    try {
+        const res = await fetch(API_URL, { credentials: 'include' });
+        const payload = await res.json();
+        if (!res.ok || !payload.success) throw new Error(payload.message);
+
+        allLogs = payload.logs;
+
+        if (allLogs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="state-message">No activity has been recorded yet.</td></tr>';
+            return;
+        }
+
+        render();
+
+    } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4" class="state-message">Sentinel couldn\'t load activity logs. Make sure you\'re logged in as an administrator.</td></tr>';
+    }
+}
+
+document.getElementById('searchInput').addEventListener('input', render);
+load();
+</script>
+
+</body>
+</html>

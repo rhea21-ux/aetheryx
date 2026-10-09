@@ -1,0 +1,4 @@
+/* Project-wide: solid colors only, no gradients or glow */
+*,*::before,*::after{background-image:none!important;text-shadow:none!important;}
+/* gradient text -> solid text */
+*{-webkit-background-clip:border-box!important;background-clip:border-box!important;}
