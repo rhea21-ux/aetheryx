@@ -1,3 +1,5 @@
+USE aetheryx;
+
 CREATE TABLE IF NOT EXISTS aetheryx_sessions (
     session_id VARCHAR(128) COLLATE ascii_bin NOT NULL,
     session_data MEDIUMBLOB NOT NULL,
