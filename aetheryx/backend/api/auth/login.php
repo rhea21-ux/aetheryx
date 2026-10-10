@@ -220,11 +220,21 @@ $stmt->execute([
 } catch (Throwable $e) {
     error_log('AETHERYX login processing error: ' . get_class($e) . ': ' . $e->getMessage());
 
+    // SQLSTATE is safe to expose and lets us distinguish a schema mismatch
+    // from a generic server failure without returning SQL or credentials.
+    $sqlState = $e instanceof PDOException
+        ? (string)($e->errorInfo[0] ?? $e->getCode())
+        : '';
+    $schemaMismatch = in_array($sqlState, ['42S02', '42S22'], true);
+
     http_response_code(500);
 
     echo json_encode([
         'success' => false,
-        'message' => 'Login service could not complete the request.',
-        'code' => 'LOGIN_PROCESSING_FAILED'
+        'message' => $schemaMismatch
+            ? 'The authentication database is missing a required table or column. Apply the current Aiven schema.'
+            : 'Login service could not complete the request.',
+        'code' => $schemaMismatch ? 'LOGIN_SCHEMA_MISMATCH' : 'LOGIN_PROCESSING_FAILED',
+        'diagnostic' => $sqlState !== '' ? $sqlState : null
     ]);
 }
