@@ -7,6 +7,49 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 header('Content-Type: application/json; charset=utf-8');
+ob_start();
+
+$loginFailureSent = false;
+$sendLoginFailure = static function () use (&$loginFailureSent): void {
+    if ($loginFailureSent) {
+        return;
+    }
+    $loginFailureSent = true;
+
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Login service encountered an internal error.',
+        'code' => 'LOGIN_INTERNAL_ERROR'
+    ]);
+};
+
+set_exception_handler(static function (Throwable $e) use ($sendLoginFailure): void {
+    error_log('AETHERYX unhandled login exception: ' . get_class($e) . ': ' . $e->getMessage());
+    $sendLoginFailure();
+});
+
+register_shutdown_function(static function () use ($sendLoginFailure): void {
+    $error = error_get_last();
+    $fatalTypes = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+
+    if ($error !== null && in_array($error['type'], $fatalTypes, true)) {
+        error_log(sprintf(
+            'AETHERYX fatal login error: %s in %s:%d',
+            $error['message'],
+            $error['file'],
+            $error['line']
+        ));
+        $sendLoginFailure();
+    }
+});
 
 try {
     require_once __DIR__ . '/../../config/session.php';
@@ -149,6 +192,13 @@ $stmt->execute([
     $_SESSION['role']    = $user['role'];
     $_SESSION['handle']  = $user['handle'];
 
+    // Persist the authenticated session before returning success so any
+    // session-table write failure is caught as an API error, not appended as
+    // an HTML warning after the JSON response.
+    if (!session_write_close()) {
+        throw new RuntimeException('Unable to persist the authenticated session.');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Response
@@ -167,12 +217,14 @@ $stmt->execute([
         ]
     ]);
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
+    error_log('AETHERYX login processing error: ' . get_class($e) . ': ' . $e->getMessage());
 
     http_response_code(500);
 
     echo json_encode([
         'success' => false,
-        'message' => 'Login failed.'
+        'message' => 'Login service could not complete the request.',
+        'code' => 'LOGIN_PROCESSING_FAILED'
     ]);
 }
