@@ -451,3 +451,10 @@ html.ax-sidebar-collapsed .page{
 .sidebar .section-label{flex:0 0 auto!important;}
 body.ax-compatibility-page .page{width:auto!important;max-width:none!important;margin-left:var(--ax-sidebar-w)!important;padding:30px 34px 48px!important;box-sizing:border-box!important;}
 @media(max-width:760px){body.ax-compatibility-page .page{margin-left:0!important;padding:76px 16px 28px!important;} .sidebar .nav{flex:1 1 auto!important;overflow-y:auto!important;}}
+
+/* Keep the account identity and sign-out control consistent across dashboards. */
+.sidebar .sidebar-bottom{display:flex!important;padding-top:10px!important;gap:8px!important;}
+.sidebar .user-mini{min-height:76px!important;padding:10px 14px!important;border:1px solid var(--ax-border-strong)!important;border-radius:13px!important;background:var(--ax-surface)!important;}
+.sidebar .avatar{width:44px!important;height:44px!important;min-width:44px!important;border-radius:12px!important;}
+.sidebar .logout-btn{min-height:56px!important;border:1px solid var(--ax-border)!important;border-radius:12px!important;background:transparent!important;color:var(--ax-danger)!important;font-size:16px!important;font-weight:500!important;}
+.sidebar .logout-btn:hover{border-color:var(--ax-danger)!important;background:rgba(230,107,123,.08)!important;color:#f0b2ba!important;}

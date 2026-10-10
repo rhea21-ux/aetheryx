@@ -18,11 +18,11 @@ $accounts = [
 $stmt = $pdo->prepare(
     'INSERT INTO users (full_name, handle, email, password_hash, role, status)
      VALUES (:n, :h, :e, :p, :r, "active")
-     ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), role = VALUES(role), status = "active"'
+     ON DUPLICATE KEY UPDATE full_name = VALUES(full_name)'
 );
 
 foreach ($accounts as [$name, $handle, $email, $password, $role]) {
     $stmt->execute([':n' => $name, ':h' => $handle, ':e' => $email, ':p' => password_hash($password, PASSWORD_DEFAULT), ':r' => $role]);
-    echo "$role: $email / $password\n";
+    echo "$role account ready: $email\n";
 }
-echo "Done. Change these passwords after your first login.\n";
+echo "Done. Existing account passwords were preserved. Change any setup password after first login.\n";

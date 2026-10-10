@@ -13,86 +13,69 @@
 <script defer src="../assets/js/aetheryx-consistent.js"></script>
 <style>
   body.ax-compatibility-page{background:var(--ax-bg)!important;color:var(--ax-text)!important;}
-  .compat-page{max-width:1200px;margin:0 auto;}
-  .compat-header{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:22px;}
-  .compat-kicker{font:600 12px/1.2 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--ax-accent);margin-bottom:8px;}
-  .compat-title{font:700 clamp(28px,4vw,42px)/1.05 "Space Grotesk",sans-serif;letter-spacing:-.025em;}
-  .compat-intro{max-width:720px;margin-top:10px;color:var(--ax-muted);line-height:1.65;}
-  .compat-status{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-surface);font:500 11px "IBM Plex Mono",monospace;color:var(--ax-muted);white-space:nowrap;}
-  .compat-status .dot{width:7px;height:7px;border-radius:50%;background:var(--ax-success);}
-  .compat-status.offline .dot{background:var(--ax-danger);}
-  .compat-help{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:18px;}
-  .help-panel{background:var(--ax-surface);border:1px solid var(--ax-border);border-radius:12px;padding:18px;}
-  .help-panel h2{font:600 15px "Space Grotesk",sans-serif;margin-bottom:10px;color:var(--ax-text);}
-  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-  .step{padding:12px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);}
-  .step-num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ax-surface-2);color:var(--ax-accent);font:600 11px "IBM Plex Mono",monospace;margin-bottom:9px;}
-  .step strong{display:block;font-size:13px;margin-bottom:4px;}
-  .step span,.help-panel p{font-size:12px;line-height:1.55;color:var(--ax-muted);}
-  .status-list{display:grid;gap:8px;}
-  .status-item{display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);}
-  .status-badge{font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;padding:5px 7px;border-radius:6px;white-space:nowrap;}
+  .compat-page{max-width:1220px;margin:0 auto;}
+  .compat-header{position:relative;display:flex;justify-content:space-between;align-items:center;gap:24px;overflow:hidden;margin-bottom:18px;padding:clamp(24px,4vw,38px);border:1px solid var(--ax-border-strong);border-right:3px solid var(--ax-accent);border-radius:18px;background:#151e32;}
+  .compat-header:after{content:"";position:absolute;width:260px;height:260px;right:8%;top:-165px;border:1px solid rgba(73,201,181,.2);border-radius:50%;box-shadow:0 0 0 28px rgba(73,201,181,.035),0 0 0 58px rgba(73,201,181,.025);pointer-events:none;}
+  .compat-header-copy{position:relative;z-index:1;max-width:760px;}
+  .compat-kicker{font:600 11px/1.2 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--ax-accent);margin-bottom:12px;}
+  .compat-title{font:700 clamp(30px,4vw,46px)/1.02 "Space Grotesk",sans-serif;letter-spacing:-.04em;}
+  .compat-intro{max-width:680px;margin-top:12px;color:#a8b2c7;line-height:1.65;font-size:14px;}
+  .compat-status{position:relative;z-index:1;display:inline-flex;align-items:center;gap:9px;padding:10px 13px;border:1px solid var(--ax-border-strong);border-radius:999px;background:rgba(11,16,32,.72);font:500 11px "IBM Plex Mono",monospace;color:var(--ax-muted);white-space:nowrap;}
+  .compat-status .dot{width:8px;height:8px;border-radius:50%;background:var(--ax-success);box-shadow:0 0 0 4px rgba(95,211,154,.12);}
+  .compat-status.offline .dot{background:var(--ax-danger);box-shadow:0 0 0 4px rgba(230,107,123,.12);}
+  .compat-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 22px;}
+  .summary-chip{position:relative;overflow:hidden;min-height:96px;padding:17px 18px;border:1px solid var(--ax-border);border-radius:13px;background:var(--ax-surface);color:var(--ax-muted);font-size:12px;}
+  .summary-chip:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:var(--ax-border-strong);}
+  .summary-chip.compat-stat:after{background:var(--ax-success);}.summary-chip.incompat-stat:after{background:var(--ax-danger);}.summary-chip.show-stat:after{background:var(--ax-accent);}
+  .summary-chip span{display:block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.05em;text-transform:uppercase;}
+  .summary-chip strong{display:block;margin-top:10px;color:var(--ax-text);font:600 26px/1 "Space Grotesk",sans-serif;}
+  .compat-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 220px auto auto;gap:10px;margin:0 0 12px;padding:12px;border:1px solid var(--ax-border);border-radius:14px;background:var(--ax-surface);}
+  .compat-toolbar input,.compat-toolbar select{min-width:0;width:100%;height:44px;padding-inline:13px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);color:var(--ax-text);}
+  .compat-toolbar input:focus,.compat-toolbar select:focus{outline:2px solid rgba(73,201,181,.32);border-color:var(--ax-accent);}
+  .compat-toolbar button{height:44px;white-space:nowrap;}
+  .compat-results-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 2px 11px;}
+  .compat-results-head h2{font:600 17px "Space Grotesk",sans-serif;}
+  .compat-results-head p{color:var(--ax-muted);font-size:12px;}
+  .compat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;}
+  .compat-card{position:relative;overflow:hidden;background:var(--ax-surface);border:1px solid var(--ax-border);border-radius:14px;padding:18px;transition:border-color var(--ax-motion),transform var(--ax-motion),box-shadow var(--ax-motion);animation:compat-rise .35s both;}
+  .compat-card:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--ax-success);}
+  .compat-card.incompatible:before{background:var(--ax-danger);}.compat-card.unknown:before{background:var(--ax-warning);}
+  .compat-card:hover{border-color:var(--ax-border-strong);transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,0,0,.16);}
+  @keyframes compat-rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .compat-card-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px;}
+  .compat-record{font:500 10px "IBM Plex Mono",monospace;color:var(--ax-muted);}
+  .status-badge{font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;padding:6px 8px;border-radius:6px;white-space:nowrap;}
   .status-badge.compatible{color:var(--ax-success);border:1px solid rgba(95,211,154,.28);background:rgba(95,211,154,.07);}
   .status-badge.incompatible{color:var(--ax-danger);border:1px solid rgba(230,107,123,.28);background:rgba(230,107,123,.07);}
-  .status-item span{font-size:12px;line-height:1.5;color:var(--ax-muted);}
-  .compat-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 220px auto auto;gap:10px;margin-bottom:16px;}
-  .compat-toolbar input,.compat-toolbar select{min-width:0;width:100%;height:44px;}
-  .compat-toolbar button{height:44px;white-space:nowrap;}
-  .compat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
-  .summary-chip{padding:8px 10px;border:1px solid var(--ax-border);border-radius:8px;background:var(--ax-surface);color:var(--ax-muted);font:500 11px "IBM Plex Mono",monospace;}
-  .summary-chip strong{color:var(--ax-text);}
-  .compat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
-  .compat-card{background:var(--ax-surface);border:1px solid var(--ax-border);border-radius:12px;padding:17px;transition:border-color var(--ax-motion),transform var(--ax-motion);}
-  .compat-card:hover{border-color:var(--ax-border-strong);transform:translateY(-2px);}
-  .compat-card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:13px;}
-  .compat-record{font:500 10px "IBM Plex Mono",monospace;color:var(--ax-muted);}
-  .compat-card h3{font:600 16px/1.3 "Space Grotesk",sans-serif;margin-bottom:5px;}
-  .pair{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0;}
-  .pair span{padding:6px 8px;border:1px solid var(--ax-border);border-radius:7px;background:var(--ax-bg);font-size:11px;color:var(--ax-text);}
-  .pair .plus{border:0;background:transparent;color:var(--ax-muted);padding-inline:0;}
+  .status-badge.unknown{color:var(--ax-warning);border:1px solid rgba(231,184,93,.28);background:rgba(231,184,93,.07);}
+  .compat-card h3{font:500 10px "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--ax-muted);margin-bottom:10px;}
+  .pair{display:grid;grid-template-columns:1fr 24px 1fr;align-items:center;gap:8px;margin-bottom:16px;}
+  .pair span:not(.plus){display:grid;place-items:center;min-height:52px;padding:9px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);font-size:12px;font-weight:600;text-align:center;color:var(--ax-text);overflow-wrap:anywhere;}
+  .pair .plus{color:var(--ax-accent);font:600 16px "IBM Plex Mono",monospace;text-align:center;}
   .compat-note{font-size:12px;line-height:1.6;color:var(--ax-muted);min-height:38px;}
-  .compat-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--ax-border);}
-  .compat-action{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 11px;border:1px solid var(--ax-border);border-radius:8px;background:var(--ax-surface-2);color:var(--ax-text);font-size:11px;font-weight:600;text-decoration:none;}
+  .compat-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:15px;padding-top:13px;border-top:1px solid var(--ax-border);}
+  .compat-action{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 12px;border:1px solid var(--ax-border);border-radius:8px;background:var(--ax-surface-2);color:var(--ax-text);font-size:11px;font-weight:600;text-decoration:none;transition:all var(--ax-motion);}
   .compat-action:hover{border-color:var(--ax-accent);color:var(--ax-accent);}
-  .compat-state{padding:36px 18px;text-align:center;background:var(--ax-surface);border:1px dashed var(--ax-border);border-radius:12px;color:var(--ax-muted);}
+  .compat-state{padding:42px 18px;text-align:center;background:var(--ax-surface);border:1px dashed var(--ax-border);border-radius:14px;color:var(--ax-muted);}
   .compat-state strong{display:block;color:var(--ax-text);margin-bottom:6px;font:600 16px "Space Grotesk",sans-serif;}
   .compat-state.error strong{color:var(--ax-danger);}
   .hidden{display:none!important;}
-  @media(max-width:900px){.compat-header{align-items:flex-start;flex-direction:column}.compat-help{grid-template-columns:1fr}.steps{grid-template-columns:repeat(2,1fr)}.compat-toolbar{grid-template-columns:1fr 1fr}.compat-toolbar input{grid-column:1/-1}}
-  @media(max-width:560px){.steps{grid-template-columns:1fr}.compat-toolbar{grid-template-columns:1fr}.compat-toolbar input{grid-column:auto}.compat-header{margin-bottom:18px}.compat-page{width:100%}}
+  @media(max-width:900px){.compat-header{align-items:flex-start;flex-direction:column}.compat-status{align-self:flex-start}.compat-toolbar{grid-template-columns:1fr 1fr}.compat-toolbar input{grid-column:1/-1}}
+  @media(max-width:620px){.compat-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.summary-chip{min-height:84px;padding:14px}.compat-toolbar{grid-template-columns:1fr}.compat-toolbar input{grid-column:auto}.compat-header{margin-bottom:14px;padding:23px}.compat-intro{font-size:13px}.compat-results-head{align-items:flex-start;flex-direction:column}.compat-page{width:100%}}
+  @media(prefers-reduced-motion:reduce){.compat-card{animation:none;transition:none}.compat-card:hover{transform:none}}
 </style>
 </head>
 <body class="ax-compatibility-page">
 <main class="page">
   <div class="compat-page">
     <header class="compat-header">
-      <div>
+      <div class="compat-header-copy">
         <div class="compat-kicker">ÆTHERYX / Equipment intelligence</div>
         <h1 class="compat-title">Compatibility</h1>
         <p class="compat-intro">Check the registered relationship between equipment and resources before you submit a request. Compatibility is an information tool: it shows what your system has recorded, including compatible and incompatible pairings.</p>
       </div>
       <div class="compat-status" id="statusPill"><span class="dot"></span><span id="statusText">Connecting...</span></div>
     </header>
-
-    <section class="compat-help" aria-label="How to use Compatibility">
-      <div class="help-panel">
-        <h2>How to use Compatibility</h2>
-        <div class="steps">
-          <div class="step"><span class="step-num">1</span><strong>Search</strong><span>Type an equipment or resource name to find matching records.</span></div>
-          <div class="step"><span class="step-num">2</span><strong>Filter</strong><span>Use the relationship filter to show compatible or incompatible records.</span></div>
-          <div class="step"><span class="step-num">3</span><strong>Review</strong><span>Read the pair and notes before deciding what to request.</span></div>
-          <div class="step"><span class="step-num">4</span><strong>Continue</strong><span>Use View equipment to open the equipment record and continue your normal request flow.</span></div>
-        </div>
-      </div>
-      <div class="help-panel">
-        <h2>What the status means</h2>
-        <div class="status-list">
-          <div class="status-item"><span class="status-badge compatible">Compatible</span><span>The database records this equipment/resource pairing as compatible.</span></div>
-          <div class="status-item"><span class="status-badge incompatible">Incompatible</span><span>The database records this pairing as incompatible, so review it before requesting the equipment.</span></div>
-        </div>
-        <p style="margin-top:10px">Compatibility does not create a request or change inventory. It is a reference check that uses the records already stored in ÆTHERYX.</p>
-      </div>
-    </section>
 
     <section class="compat-toolbar" aria-label="Compatibility controls">
       <input id="search" type="search" autocomplete="off" placeholder="Search equipment or resource..." aria-label="Search compatibility records">
@@ -102,15 +85,16 @@
     </section>
 
     <section class="compat-summary" aria-label="Compatibility summary">
-      <div class="summary-chip">Records <strong id="countTotal">0</strong></div>
-      <div class="summary-chip">Compatible <strong id="countCompatible">0</strong></div>
-      <div class="summary-chip">Incompatible <strong id="countIncompatible">0</strong></div>
-      <div class="summary-chip">Showing <strong id="countShowing">0</strong></div>
+      <div class="summary-chip"><span>Total records</span><strong id="countTotal">0</strong></div>
+      <div class="summary-chip compat-stat"><span>Compatible</span><strong id="countCompatible">0</strong></div>
+      <div class="summary-chip incompat-stat"><span>Incompatible</span><strong id="countIncompatible">0</strong></div>
+      <div class="summary-chip show-stat"><span>Currently shown</span><strong id="countShowing">0</strong></div>
     </section>
 
+    <div class="compat-results-head"><h2>Recorded relationships</h2><p>Reference data from the equipment catalog</p></div>
     <section id="matrix" class="compat-grid" aria-live="polite"></section>
     <section id="loading" class="compat-state"><strong>Loading compatibility records</strong>Reading the current compatibility data from ÆTHERYX.</section>
-    <section id="empty" class="compat-state hidden"><strong>No matching records</strong>Try a different search term or reset the filter.</section>
+    <section id="empty" class="compat-state hidden"><strong id="emptyTitle">No matching records</strong><span id="emptyText">Try a different search term or reset the filter.</span></section>
     <section id="error" class="compat-state error hidden"><strong>Compatibility service unavailable</strong><span id="errorText">Unable to retrieve compatibility records.</span></section>
   </div>
 </main>
@@ -124,6 +108,8 @@ const loading = document.getElementById('loading');
 const empty = document.getElementById('empty');
 const error = document.getElementById('error');
 const errorText = document.getElementById('errorText');
+const emptyTitle = document.getElementById('emptyTitle');
+const emptyText = document.getElementById('emptyText');
 const search = document.getElementById('search');
 const filter = document.getElementById('filter');
 const reset = document.getElementById('reset');
@@ -199,6 +185,10 @@ function render() {
 
   if (!visible.length) {
     matrix.classList.add('hidden');
+    emptyTitle.textContent = records.length ? 'No matching records' : 'No compatibility records yet';
+    emptyText.textContent = records.length
+      ? 'Try a different search term or reset the filter.'
+      : 'There are no equipment and resource relationships recorded in the catalog.';
     setState(empty);
     return;
   }
@@ -208,12 +198,13 @@ function render() {
 
   visible.forEach((item, index) => {
     const card = document.createElement('article');
-    card.className = 'compat-card';
+    const type = item.type.toLowerCase();
+    const statusClass = type === 'compatible' ? 'compatible' : type === 'incompatible' ? 'incompatible' : 'unknown';
+    card.className = `compat-card ${statusClass}`;
     card.style.animationDelay = `${Math.min(index * 30, 300)}ms`;
-    const isCompatible = item.type.toLowerCase() === 'compatible';
     card.innerHTML = `
       <div class="compat-card-top">
-        <span class="status-badge ${isCompatible ? 'compatible' : 'incompatible'}">${escapeHTML(item.type)}</span>
+        <span class="status-badge ${statusClass}">${escapeHTML(item.type)}</span>
         <span class="compat-record">RECORD #${escapeHTML(item.id || '—')}</span>
       </div>
       <h3>Equipment relationship</h3>
@@ -244,7 +235,11 @@ async function load() {
     statusText.textContent = `${records.length} record${records.length === 1 ? '' : 's'} online`;
     statusPill.classList.remove('offline');
     render();
-    if (!records.length) setState(empty);
+    if (!records.length) {
+      emptyTitle.textContent = 'No compatibility records yet';
+      emptyText.textContent = 'There are no equipment and resource relationships recorded in the catalog.';
+      setState(empty);
+    }
   } catch (err) {
     console.error('ÆTHERYX Compatibility:', err);
     records = [];

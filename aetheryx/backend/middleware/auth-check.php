@@ -21,6 +21,32 @@ function requireAuth(): void
 
         exit;
     }
+
+    require_once __DIR__ . '/../config/database.php';
+
+    $stmt = $pdo->prepare(
+        'SELECT role, status FROM users WHERE id = :user_id LIMIT 1'
+    );
+    $stmt->execute([
+        ':user_id' => (int) $_SESSION['user_id'],
+    ]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user || $user['status'] !== 'active') {
+        $_SESSION = [];
+        session_destroy();
+
+        http_response_code(401);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'message' => 'This account is inactive or no longer exists.',
+        ]);
+        exit;
+    }
+
+    // The database is authoritative if an account role changed after login.
+    $_SESSION['role'] = (string) $user['role'];
 }
 
 function getAuthenticatedUserId(): ?int

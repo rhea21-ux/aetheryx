@@ -12,6 +12,28 @@
 <script defer src="../assets/js/notification-drawer.js"></script>
 <link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
 <script defer src="../assets/js/aetheryx-consistent.js"></script>
+<style>
+    .inventory-intro{max-width:720px;line-height:1.6}
+    .inventory-guide{display:flex;align-items:flex-start;gap:12px;margin:-7px 0 20px;padding:14px 16px;border:1px solid var(--ax-border);border-left:3px solid var(--ax-accent);border-radius:10px;background:var(--ax-surface);color:var(--ax-muted);font-size:13px;line-height:1.55}
+    .inventory-guide strong{color:var(--ax-text)}
+    .inventory-guide-icon{display:grid;place-items:center;flex:0 0 26px;height:26px;border:1px solid var(--ax-border-strong);border-radius:8px;color:var(--ax-accent);font:600 12px "IBM Plex Mono",monospace}
+    .summary{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .summary .stat{position:relative;overflow:hidden;min-height:98px}
+    .summary .stat:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:var(--ax-border-strong)}
+    .summary .stat.active-stat:after{background:var(--ax-accent)}
+    .summary .stat.returned-stat:after{background:var(--ax-info)}
+    .summary .stat.attention-stat:after{background:var(--ax-warning)}
+    .card{position:relative;overflow:hidden}
+    .card .icon{width:44px;height:44px;border-radius:12px;color:var(--ax-accent);background:var(--ax-surface-2)}
+    .card .name{font:600 17px/1.3 "Space Grotesk",sans-serif}
+    .card .description{min-height:40px}
+    .card .detail-value{overflow-wrap:anywhere}
+    .inventory-notes{margin:0 0 14px;padding:10px 12px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);color:var(--ax-muted);font-size:12px;line-height:1.5}
+    .inventory-notes strong{color:var(--ax-text);font-weight:600}
+    .card-footer .btn{min-width:92px}
+    @media(max-width:800px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:520px){.summary{grid-template-columns:1fr 1fr;gap:9px}.summary .stat{padding:14px;min-height:88px}.inventory-guide{font-size:12px}}
+</style>
 </head>
 <body>
 
@@ -60,17 +82,23 @@
         <header class="page-header">
             <div class="eyebrow">Inventory</div>
             <h1>My Inventory</h1>
-            <p class="intro">Equipment currently assigned to your ÆTHERYX account.</p>
+            <p class="intro inventory-intro">Equipment assigned to your ÆTHERYX account, including its current status and return history.</p>
             <div class="system-status" style="margin-top:14px">
                 <span class="status-dot"></span>
                 <span id="statusText">Connecting...</span>
             </div>
         </header>
 
+        <aside class="inventory-guide" aria-label="Cart and inventory explanation">
+            <span class="inventory-guide-icon" aria-hidden="true">i</span>
+            <span><strong>Cart is for requests.</strong> Add equipment there and submit it for approval. <strong>Inventory is for issued equipment.</strong> Approved items appear here while assigned, and returned items remain as a record.</span>
+        </aside>
+
         <section class="summary" aria-label="Inventory summary">
             <div class="stat"><div class="stat-label">Total records</div><div class="stat-value" id="totalCount">0</div></div>
-            <div class="stat"><div class="stat-label">Active assignments</div><div class="stat-value" id="assignedCount">0</div></div>
-            <div class="stat"><div class="stat-label">Total quantity</div><div class="stat-value" id="quantityCount">0</div></div>
+            <div class="stat active-stat"><div class="stat-label">Units assigned</div><div class="stat-value" id="assignedCount">0</div></div>
+            <div class="stat returned-stat"><div class="stat-label">Units returned</div><div class="stat-value" id="returnedCount">0</div></div>
+            <div class="stat attention-stat"><div class="stat-label">Lost or damaged</div><div class="stat-value" id="attentionCount">0</div></div>
         </section>
 
         <section class="toolbar" aria-label="Inventory controls">
@@ -140,7 +168,8 @@ const refresh = document.getElementById("refresh");
 
 const totalCount = document.getElementById("totalCount");
 const assignedCount = document.getElementById("assignedCount");
-const quantityCount = document.getElementById("quantityCount");
+const returnedCount = document.getElementById("returnedCount");
+const attentionCount = document.getElementById("attentionCount");
 const statusText = document.getElementById("statusText");
 const noMatch = document.getElementById("noMatch");
 
@@ -375,6 +404,12 @@ function render(){
                     </div>
                 </div>
 
+                ${item.returnedAt ? `
+                <div class="detail">
+                    <div class="detail-label">Returned</div>
+                    <div class="detail-value">${escapeHTML(formatDate(item.returnedAt))}</div>
+                </div>` : ""}
+
                 <div class="detail">
                     <div class="detail-label">Record</div>
                     <div class="detail-value">
@@ -383,6 +418,8 @@ function render(){
                 </div>
 
             </div>
+
+            ${item.notes ? `<p class="inventory-notes"><strong>Note:</strong> ${escapeHTML(item.notes)}</p>` : ""}
 
             <div class="card-footer">
                 <span class="badge ${statusClass}">
@@ -404,16 +441,16 @@ function updateStats(){
         inventory.length;
 
     assignedCount.textContent =
-        inventory.filter(
-            item => item.status === "assigned"
-        ).length;
+        inventory.reduce((total,item) =>
+            total + (item.status === "assigned" ? (Number(item.quantity) || 0) : 0),0);
 
-    quantityCount.textContent =
-        inventory.reduce(
-            (total,item) =>
-                total + (Number(item.quantity) || 0),
-            0
-        );
+    returnedCount.textContent =
+        inventory.reduce((total,item) =>
+            total + (item.status === "returned" ? (Number(item.quantity) || 0) : 0),0);
+
+    attentionCount.textContent =
+        inventory.reduce((total,item) =>
+            total + (["lost","damaged"].includes(item.status) ? (Number(item.quantity) || 0) : 0),0);
 }
 
 async function load(){
