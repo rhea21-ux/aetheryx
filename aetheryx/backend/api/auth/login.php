@@ -2,12 +2,32 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../config/session.php';
-startSecureSession();
+// Keep PHP warnings and fatal bootstrap details out of the JSON response.
+// They are written to the application log instead.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../config/database.php';
+try {
+    require_once __DIR__ . '/../../config/session.php';
+    startSecureSession();
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        throw new RuntimeException('PHP session did not become active.');
+    }
 
-header('Content-Type: application/json');
+    require_once __DIR__ . '/../../config/database.php';
+} catch (Throwable $e) {
+    error_log('AETHERYX login bootstrap error: ' . get_class($e) . ': ' . $e->getMessage());
+    http_response_code(500);
+
+    echo json_encode([
+        'success' => false,
+        'message' => 'Authentication service could not start.',
+        'code' => 'AUTH_BOOTSTRAP_FAILED'
+    ]);
+
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
