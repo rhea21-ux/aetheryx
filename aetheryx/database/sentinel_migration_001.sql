@@ -1,23 +1,35 @@
 -- ÆTHERYX SENTINEL — Migration 001
--- Review before running. Run against `aetheryx_db_new` in phpMyAdmin's SQL tab.
+-- Run against the `aetheryx` database in Aiven's SQL editor.
 -- Non-destructive: one additive column, two new tables. No existing data touched.
+
+USE `aetheryx`;
 
 -- --------------------------------------------------------
 -- 1. Equipment condition tracking (nullable — existing rows become
 --    NULL, meaning "not yet assessed", not a guessed value)
 -- --------------------------------------------------------
 
-ALTER TABLE `equipment`
-  ADD COLUMN `condition_status` enum('excellent','good','fair','damaged')
-    COLLATE utf8mb4_unicode_ci DEFAULT NULL
-    AFTER `status`;
+SET @condition_column_sql = IF(
+  EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'equipment'
+      AND column_name = 'condition_status'
+  ),
+  'SELECT ''condition_status already exists; skipping''',
+  'ALTER TABLE `equipment` ADD COLUMN `condition_status` enum(''excellent'',''good'',''fair'',''damaged'') COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `status`'
+);
+PREPARE condition_column_stmt FROM @condition_column_sql;
+EXECUTE condition_column_stmt;
+DEALLOCATE PREPARE condition_column_stmt;
 
 -- --------------------------------------------------------
 -- 2. Maintenance / service requests
 --    Distinct from `equipment_requests` (checkout approval workflow).
 -- --------------------------------------------------------
 
-CREATE TABLE `maintenance_requests` (
+CREATE TABLE IF NOT EXISTS `maintenance_requests` (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `equipment_id` int UNSIGNED NOT NULL,
   `requester_id` int UNSIGNED NOT NULL,
@@ -47,7 +59,7 @@ CREATE TABLE `maintenance_requests` (
 --    system-wide feed — this table is not a duplicate of that log)
 -- --------------------------------------------------------
 
-CREATE TABLE `maintenance_updates` (
+CREATE TABLE IF NOT EXISTS `maintenance_updates` (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `request_id` int UNSIGNED NOT NULL,
   `actor_id` int UNSIGNED NOT NULL,

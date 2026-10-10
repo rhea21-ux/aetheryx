@@ -19,9 +19,12 @@ $charset = 'utf8mb4';
 
 $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
 
-// Aiven MySQL requires TLS. Set DB_SSL_CA to the mounted CA certificate path.
+// Aiven MySQL requires TLS. Verify the certificate when a CA file is mounted;
+// otherwise still require encryption so deployments without a mounted CA work.
 if ($sslCa !== '') {
     $dsn .= ";sslmode=verify-ca;sslrootcert='{$sslCa}'";
+} elseif (!in_array(strtolower($host), ['127.0.0.1', 'localhost', '::1'], true)) {
+    $dsn .= ';sslmode=require';
 }
 
 $options = [
