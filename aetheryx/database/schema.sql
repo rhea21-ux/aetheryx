@@ -6,9 +6,16 @@ CREATE DATABASE IF NOT EXISTS aetheryx_db_new CHARACTER SET utf8mb4 COLLATE utf8
 USE aetheryx_db_new;
 
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS activity_logs, notifications, inventory, equipment_requests, cart_items,
+DROP TABLE IF EXISTS aetheryx_sessions, activity_logs, notifications, inventory, equipment_requests, cart_items,
                      compatibility, resources, equipment, categories, users;
 SET FOREIGN_KEY_CHECKS = 1;
+
+CREATE TABLE aetheryx_sessions (
+  session_id    VARCHAR(128) COLLATE ascii_bin NOT NULL PRIMARY KEY,
+  session_data  MEDIUMBLOB NOT NULL,
+  last_activity INT UNSIGNED NOT NULL,
+  KEY idx_aetheryx_sessions_activity (last_activity)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE users (
   id            INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

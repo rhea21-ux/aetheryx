@@ -1,12 +1,7 @@
-INSERT INTO users (full_name, handle, email, password_hash, role, status)
-SELECT
-    'Rhea Admin',
-    'rhea',
-    'rhea@aetheryx.local',
-    '$2y$10$muNhJxpEJG1.pGJTNILKre5fjY93y79VTV01ZLasiFby5dVeWfY5G',
-    'admin',
-    'active'
-WHERE NOT EXISTS (
-    SELECT 1 FROM users
-    WHERE handle = 'rhea' OR email = 'rhea@aetheryx.local'
-);
+CREATE TABLE IF NOT EXISTS aetheryx_sessions (
+    session_id VARCHAR(128) COLLATE ascii_bin NOT NULL,
+    session_data MEDIUMBLOB NOT NULL,
+    last_activity INT UNSIGNED NOT NULL,
+    PRIMARY KEY (session_id),
+    KEY idx_aetheryx_sessions_activity (last_activity)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
