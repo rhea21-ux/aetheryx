@@ -507,6 +507,18 @@
             font-size: 10px;
         }
 
+        .auth-error {
+            display: none;
+            margin: 0 0 22px;
+            padding: 14px 16px;
+            border: 1px solid rgba(255, 107, 138, .35);
+            border-radius: 10px;
+            background: rgba(255, 107, 138, .08);
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
         /* RESPONSIVE */
 
         @media (max-width: 1050px) {
@@ -644,6 +656,8 @@
             </div>
 
         </header>
+
+        <div class="auth-error" id="authError" role="alert" aria-live="polite"></div>
 
         <!-- STATISTICS -->
 
@@ -810,6 +824,12 @@
 
         const API_BASE = "../../backend/api/";
 
+        function showAuthError(message) {
+            const errorBox = document.getElementById("authError");
+            errorBox.textContent = message;
+            errorBox.style.display = "block";
+        }
+
         async function verifyAdmin() {
 
             try {
@@ -822,13 +842,27 @@
                     }
                 );
 
-                const data = await response.json();
+                const responseText = await response.text();
+                let data = null;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    data = null;
+                }
 
-                if (!response.ok || !data.success) {
+                if (response.status === 401 || response.status === 403) {
 
                     window.location.href =
                         "../public/login.html";
 
+                    return false;
+                }
+
+                if (!response.ok || !data || !data.success) {
+                    showAuthError(
+                        data?.message ||
+                        `Could not verify the admin session (HTTP ${response.status}). Please retry in a moment.`
+                    );
                     return false;
                 }
 
@@ -849,8 +883,9 @@
                     error
                 );
 
-                window.location.href =
-                    "../public/login.html";
+                showAuthError(
+                    "Could not reach the authentication service. Your session was not cleared; refresh this page to retry."
+                );
 
                 return false;
             }

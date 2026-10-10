@@ -12,7 +12,12 @@ function startSecureSession(): void
         return;
     }
 
-    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    // Hosting proxies often terminate TLS before forwarding the request to
+    // Apache, so HTTPS may be signalled only by X-Forwarded-Proto.
+    $forwardedProto = strtolower(trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || $forwardedProto === 'https'
+        || strtolower((string)($_SERVER['HTTP_X_FORWARDED_SSL'] ?? '')) === 'on';
 
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
