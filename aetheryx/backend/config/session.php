@@ -15,6 +15,29 @@ function startSecureSession(): void
     // Persist sessions in MySQL so authentication survives container restarts
     // and requests routed to different application instances.
     require_once __DIR__ . '/database.php';
+
+    // A missing session table otherwise makes session_start() fail before an
+    // API endpoint can return its normal JSON response. Check first so the
+    // application DB user only needs CREATE permission when the table is absent.
+    $sessionTableCheck = $pdo->query(
+        "SELECT 1 FROM information_schema.tables
+         WHERE table_schema = DATABASE()
+           AND table_name = 'aetheryx_sessions'
+         LIMIT 1"
+    );
+
+    if (!$sessionTableCheck->fetchColumn()) {
+        $pdo->exec(
+            "CREATE TABLE `aetheryx_sessions` (
+                `session_id` VARCHAR(128) COLLATE ascii_bin NOT NULL,
+                `session_data` MEDIUMBLOB NOT NULL,
+                `last_activity` INT UNSIGNED NOT NULL,
+                PRIMARY KEY (`session_id`),
+                KEY `idx_aetheryx_sessions_activity` (`last_activity`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
+    }
+
     $handler = new AetheryxPdoSessionHandler($pdo);
     session_set_save_handler($handler, true);
 
