@@ -11,7 +11,7 @@ services:
       - key: DB_NAME
         value: aetheryx
       - key: DB_PORT
-        value: "3306"
+        sync: false
       - key: DB_USER
         sync: false
       - key: DB_PASSWORD
