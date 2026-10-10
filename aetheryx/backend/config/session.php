@@ -12,6 +12,11 @@ function startSecureSession(): void
         return;
     }
 
+    // The connection must remain available to the caller after this function
+    // returns. Declaring it global also lets the include below populate the
+    // shared PDO handle when this is the first place database.php is loaded.
+    global $pdo;
+
     // Persist sessions in MySQL so authentication survives container restarts
     // and requests routed to different application instances.
     require_once __DIR__ . '/database.php';
