@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script defer src="../assets/js/notification-drawer.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compatibility Data — ÆTHERYX Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0d1321;--panel:#161b2e;--panel-raised:#1d2438;--line:#2b344b;--text:#eef2ff;--muted:#9aa4bf;--accent:#4fe0c9;--danger:#ff8195;--warning:#f4c66a;--success:#5fd39a;--info:#9ebaff}
+*{box-sizing:border-box}
+body{min-height:100vh;margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "IBM Plex Sans",Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+a{color:var(--accent)}
+.shell{width:min(1320px,100%);margin:auto;padding:24px 28px 56px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--text);font-size:13px;font-weight:700;letter-spacing:.12em;text-decoration:none}
+.brand-mark{display:grid;width:36px;height:36px;place-items:center;border:1px solid rgba(79,224,201,.4);border-radius:10px;background:#102521;color:var(--accent)}
+.top nav{display:flex;flex-wrap:wrap;gap:18px}
+.top nav a{color:var(--muted);font-size:13px;text-decoration:none}
+.top nav a:hover,.top nav a.active{color:var(--accent)}
+.page-heading{padding:28px 0 20px}
+.eyebrow{margin:0 0 6px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+h1,h2{font-family:"Space Grotesk",sans-serif}
+h1{margin:0;font-size:clamp(27px,4vw,34px);line-height:1.2;letter-spacing:-.02em}
+h2{margin:0;font-size:18px}
+.intro,.hint{color:var(--muted);line-height:1.6}
+.intro{margin:8px 0 0}
+.grid{display:grid;grid-template-columns:1fr;gap:16px;margin:0 0 18px}
+.panel{min-width:0;padding:21px;border:1px solid var(--line);border-radius:13px;background:var(--panel)}
+.panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.panel-heading p{max-width:880px;margin:7px 0 18px;color:var(--muted);line-height:1.55}
+.form{display:grid;gap:14px}
+.form.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.field{display:grid;min-width:0;gap:6px}
+.field.full{grid-column:1/-1}
+label,legend{color:var(--muted);font-size:12px;font-weight:600}
+input,select,textarea{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;outline:none;background:var(--bg);color:var(--text)}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,224,201,.12)}
+input::placeholder,textarea::placeholder{color:#75809c}
+button{min-height:39px;padding:9px 14px;border:1px solid var(--accent);border-radius:8px;background:var(--accent);color:#071319;font-weight:700;cursor:pointer}
+button:hover:not(:disabled){filter:brightness(1.06)}
+button:disabled{opacity:.55;cursor:wait}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.actions .secondary{border-color:var(--line);background:var(--panel-raised);color:var(--text)}
+.actions .danger{border-color:rgba(255,129,149,.4);background:rgba(255,129,149,.08);color:var(--danger)}
+.message{min-height:0;color:var(--accent);font-size:13px}
+.message:empty{display:none}
+.message.error{color:var(--danger)}
+.role-options{display:flex;flex-wrap:wrap;gap:10px}
+.role-options label{display:flex;min-height:38px;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);cursor:pointer}
+.role-options input{width:16px;min-height:16px;height:16px;margin:0;accent-color:var(--accent)}
+.role-fieldset{min-width:0;margin:0;padding:0;border:0}
+.role-fieldset legend{margin-bottom:8px}
+.form-hint{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+.form-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:14px}
+.record-tools{display:grid;grid-template-columns:minmax(220px,1fr) minmax(170px,.5fr) auto;gap:10px;margin-bottom:14px}
+.record-tools input,.record-tools select{min-height:40px}
+.record-tools>button{align-self:end;min-height:40px;height:40px;padding:8px 12px;line-height:1.2;white-space:nowrap}
+.record-count{flex:0 0 auto;color:var(--muted);font-size:12px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
+.table{width:100%;border-collapse:collapse;min-width:1040px}
+.table th,.table td{padding:13px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.table tbody tr:last-child td{border-bottom:0}
+.table tbody tr:hover{background:rgba(255,255,255,.018)}
+.table th{background:#13192a;color:var(--muted);font:600 10px "IBM Plex Mono",monospace;letter-spacing:.07em}
+.table td{line-height:1.5}
+.account-name,.equipment-pair{font-weight:600}
+.meta{display:block;margin-top:4px;color:var(--muted);font-size:12px}
+.badge{display:inline-flex;margin:2px 3px 2px 0;padding:4px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font:600 10px "IBM Plex Mono",monospace;text-transform:capitalize}
+.badge.compatible{border-color:rgba(95,211,154,.35);background:rgba(95,211,154,.08);color:var(--success)}
+.badge.incompatible{border-color:rgba(255,129,149,.38);background:rgba(255,129,149,.08);color:var(--danger)}
+.badge.situational{border-color:rgba(244,198,106,.35);background:rgba(244,198,106,.08);color:var(--warning)}
+.row-actions{display:flex;gap:7px;flex-wrap:wrap}
+.row-actions button{min-height:32px;padding:5px 10px;font-size:12px;line-height:1.2}
+.row-actions .danger{border-color:rgba(255,129,149,.4);background:rgba(255,129,149,.08);color:var(--danger)}
+.empty{padding:30px 18px;color:var(--muted);text-align:center}
+.empty strong{display:block;margin-bottom:5px;color:var(--text);font-size:15px}
+.hidden{display:none!important}
+@media(max-width:760px){.shell{padding:16px 14px 36px}.top{align-items:flex-start;flex-direction:column;gap:14px}.top nav{gap:14px}.form.two{grid-template-columns:1fr}.field.full{grid-column:auto}.record-tools{grid-template-columns:1fr}.record-tools>button{justify-self:start;min-width:130px}.panel{padding:17px}.panel-heading{flex-direction:column;gap:0}.form-toolbar{align-items:flex-start;flex-direction:column}.table-wrap{overflow:visible;border:0}.table,.table tbody{display:block;width:100%;min-width:0}.table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap}.table tbody{display:grid;gap:11px}.table tr{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;padding:6px 13px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.table td{display:block;min-width:0;padding:10px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.table td:before{display:block;margin-bottom:5px;color:var(--muted);content:attr(data-label);font:600 10px "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase}.table td[data-label="Account"],.table td[data-label="Equipment pair"],.table td[data-label="Reason / guidance"],.table td[data-label="Situations"],.table td[data-label="Actions"]{grid-column:1/-1}.table td[data-label="Actions"]{border-bottom:0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <a class="brand" href="admin-dashboard.html"><span class="brand-mark" aria-hidden="true">Æ</span><span>ÆTHERYX ADMIN</span></a>
+    <nav aria-label="Admin navigation"><a href="admin-dashboard.html">Dashboard</a><a href="manage-users.html">Users</a><a href="manage-orders.html">Orders &amp; Payments</a><a class="active" href="manage-compatibility.html" aria-current="page">Compatibility</a><a href="admin-notifications.html">Notifications</a></nav>
+  </header>
+
+  <section class="page-heading">
+    <p class="eyebrow">Equipment guidance</p>
+    <h1>Compatibility management</h1>
+    <p class="intro">Create account-specific equipment pairings and recommendations for Heroes and Villains.</p>
+  </section>
+
+  <section class="grid">
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2 id="relationHeading">Add compatibility record</h2>
+          <p>Records are visible to the selected account and administrators. Compatible and situational pairings can also inform that account’s marketplace recommendations.</p>
+        </div>
+      </div>
+      <form class="form two" id="relationForm">
+        <div class="field full"><label for="assignedUser">Assign to account</label><select id="assignedUser" required></select></div>
+        <div id="assignmentMessage" class="message error field full" aria-live="polite"></div>
+        <div class="field"><label for="equipment">Equipment</label><select id="equipment" required></select></div>
+        <div class="field"><label for="compatibleEquipment">Matching equipment</label><select id="compatibleEquipment" required></select></div>
+        <div class="field"><label for="type">Relationship</label><select id="type" required><option value="compatible">Compatible</option><option value="incompatible">Incompatible</option><option value="situational">Situational</option></select></div>
+        <div class="field full">
+          <label for="compatibleRole">Applies to hero role(s)</label>
+          <select id="compatibleRole" required>
+            <option value="">Choose a role</option>
+            <option value="mage">Mage</option>
+            <option value="fighter">Fighter</option>
+            <option value="marksman">Marksman</option>
+            <option value="tank">Tank</option>
+            <option value="support">Support</option>
+            <option value="multiple">Multiple Roles</option>
+          </select>
+        </div>
+        <fieldset class="field full role-fieldset hidden" id="multipleRoleFields"><legend>Select all applicable hero roles</legend><div class="role-options">
+          <label><input type="checkbox" name="compatibleRoleChoice" value="mage"> Mage</label>
+          <label><input type="checkbox" name="compatibleRoleChoice" value="fighter"> Fighter</label>
+          <label><input type="checkbox" name="compatibleRoleChoice" value="marksman"> Marksman</label>
+          <label><input type="checkbox" name="compatibleRoleChoice" value="tank"> Tank</label>
+          <label><input type="checkbox" name="compatibleRoleChoice" value="support"> Support</label>
+        </div></fieldset>
+        <p class="form-hint field full" id="relationshipHelp">Choose a relationship type and provide guidance for the selected account.</p>
+        <div class="field full"><label for="notes">Reason / guidance <span aria-hidden="true">*</span></label><textarea id="notes" maxlength="5000" required placeholder="Explain why these items complement each other or do not suit this build."></textarea><span class="form-hint">Up to 5,000 characters.</span></div>
+        <div class="field full hidden" id="situationsField"><label for="situations">When is this combination useful? (required for Situational)</label><textarea id="situations" maxlength="5000" placeholder="Describe the enemy composition or gameplay conditions."></textarea></div>
+        <div class="actions field full"><button id="saveRelation" type="submit">Save relationship</button><button id="cancelEdit" class="secondary hidden" type="button">Cancel edit</button></div>
+        <div id="relationMessage" class="message field full" aria-live="polite"></div>
+      </form>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="form-toolbar"><div><h2>Recorded relationships</h2><p class="form-hint">Review, search, edit, or remove account-specific equipment guidance.</p></div><span id="recordCount" class="record-count">Loading…</span></div>
+    <div class="record-tools" aria-label="Relationship filters">
+      <div class="field"><label for="recordSearch">Search relationships</label><input id="recordSearch" type="search" placeholder="Account, equipment, role, or guidance" autocomplete="off"></div>
+      <div class="field"><label for="recordTypeFilter">Relationship type</label><select id="recordTypeFilter"><option value="">All relationship types</option><option value="compatible">Compatible</option><option value="incompatible">Incompatible</option><option value="situational">Situational</option></select></div>
+      <button id="refreshRecords" class="secondary" type="button">Refresh records</button>
+    </div>
+    <div class="table-wrap"><table class="table"><thead><tr><th scope="col">Assigned account</th><th scope="col">Equipment pair</th><th scope="col">Relationship</th><th scope="col">Roles</th><th scope="col">Reason / guidance</th><th scope="col">Situations</th><th scope="col">Actions</th></tr></thead><tbody id="records"><tr><td colspan="7" class="empty"><strong>Loading relationships</strong>Please wait while the compatibility registry loads.</td></tr></tbody></table></div>
+  </section>
+</main>
+<script>
+'use strict';
+const API='../../backend/api/admin/manage-compatibility.php';
+const sessionAPI='../../backend/api/auth/session.php';
+const $=id=>document.getElementById(id);
+const roleInputs=[...document.querySelectorAll('input[name="compatibleRoleChoice"]')];
+const state={equipment:[],users:[],records:[],editingId:null,loading:false,saving:false};
+
+function esc(value){return String(value??'').replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character]));}
+function message(id,text,error=false){$(id).textContent=text;$(id).classList.toggle('error',error);}
+async function request(url,options={}){
+  const response=await fetch(url,{credentials:'include',headers:{Accept:'application/json','Content-Type':'application/json',...(options.headers||{})},...options});
+  let data;
+  try{data=await response.json();}catch{throw new Error(`Invalid response from server (HTTP ${response.status}).`);}
+  if(!response.ok||data.success!==true){const error=new Error(data.message||`Request failed (HTTP ${response.status}).`);error.status=response.status;throw error;}
+  return data;
+}
+function fillSelect(select,items,placeholder,labelForItem=item=>item.name){
+  const previous=select.value;
+  select.replaceChildren(new Option(placeholder,''));
+  for(const item of items){
+    const id=Number(item.id);
+    if(!Number.isInteger(id)||id<1)continue;
+    select.add(new Option(labelForItem(item),String(id)));
+  }
+  if(items.some(item=>String(item.id)===previous))select.value=previous;
+}
+function filteredRecords(){
+  const query=$('recordSearch').value.trim().toLowerCase();
+  const type=$('recordTypeFilter').value;
+  return state.records.filter(row=>{
+    if(type&&row.compatibility_type!==type)return false;
+    const searchable=[row.assigned_user_name,row.assigned_user_handle,row.assigned_user_role,row.equipment_name,row.compatible_equipment_name,row.compatibility_type,...(row.compatible_roles||[]),row.notes,row.situations].join(' ').toLowerCase();
+    return !query||searchable.includes(query);
+  });
+}
+function renderRecords(){
+  const rows=filteredRecords();
+  $('recordCount').textContent=rows.length===state.records.length?`${rows.length} record${rows.length===1?'':'s'}`:`${rows.length} of ${state.records.length} records`;
+  $('records').innerHTML=rows.length?rows.map(row=>{
+    const type=['compatible','incompatible','situational'].includes(row.compatibility_type)?row.compatibility_type:'';
+    const id=Number(row.id);
+    return `<tr>
+      <td data-label="Account"><span class="account-name">${esc(row.assigned_user_name||'Unknown account')}</span><span class="meta">@${esc(row.assigned_user_handle||'—')} · ${esc(row.assigned_user_role==='enemy'?'Villain':row.assigned_user_role==='hero'?'Hero':'Unknown role')}</span></td>
+      <td data-label="Equipment pair"><span class="equipment-pair">${esc(row.equipment_name||'Unknown equipment')}</span><span class="meta">with</span><span class="equipment-pair">${esc(row.compatible_equipment_name||'Unknown equipment')}</span></td>
+      <td data-label="Relationship"><span class="badge ${type}">${esc(row.compatibility_type||'Unknown')}</span></td>
+      <td data-label="Roles">${(Array.isArray(row.compatible_roles)?row.compatible_roles:[]).map(role=>`<span class="badge">${esc(role)}</span>`).join('')||'<span class="meta">No roles</span>'}</td>
+      <td data-label="Reason / guidance">${esc(row.notes||'—')}</td>
+      <td data-label="Situations">${esc(row.situations||'—')}</td>
+      <td data-label="Actions"><div class="row-actions"><button type="button" data-edit="${id}">Edit</button><button type="button" class="danger" data-delete="${id}">Delete</button></div></td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="7" class="empty"><strong>${state.records.length?'No matching relationships':'No relationships recorded'}</strong>${state.records.length?'Try another search or relationship type.':'Add a compatibility record to provide account-specific equipment guidance.'}</td></tr>`;
+}
+function render(){
+  fillSelect($('assignedUser'),state.users,'Choose a Hero or Villain account',user=>`${user.name} (@${user.handle}) — ${user.role==='enemy'?'Villain':'Hero'}`);
+  $('assignedUser').disabled=state.users.length===0||state.loading;
+  const userWarning=state.users.length===0?'No active Hero or Villain accounts are available. Activate an account before assigning compatibility.':'';
+  message('assignmentMessage',userWarning,true);
+  fillSelect($('equipment'),state.equipment,'Choose equipment');
+  fillSelect($('compatibleEquipment'),state.equipment,'Choose matching equipment');
+  $('equipment').disabled=state.equipment.length===0||state.loading;
+  $('compatibleEquipment').disabled=state.equipment.length<2||state.loading;
+  $('saveRelation').disabled=state.users.length===0||state.equipment.length<2||state.loading||state.saving;
+  renderRecords();
+}
+async function load(){
+  if(state.loading)return false;
+  state.loading=true;
+  $('refreshRecords').disabled=true;
+  $('refreshRecords').textContent='Loading…';
+  try{
+    const data=await request(API,{method:'GET'});
+    if(!Array.isArray(data.equipment)||!Array.isArray(data.users)||!Array.isArray(data.records))throw new Error('The compatibility service returned incomplete data.');
+    state.equipment=data.equipment;
+    state.users=data.users;
+    state.records=data.records;
+    render();
+    return true;
+  }catch(error){
+    message('relationMessage',error.message,true);
+    if(!state.records.length)$('records').innerHTML=`<tr><td colspan="7" class="empty"><strong>Unable to load relationships</strong>${esc(error.message)}<br><button type="button" data-retry>Try again</button></td></tr>`;
+    return false;
+  }finally{
+    state.loading=false;
+    $('refreshRecords').disabled=false;
+    $('refreshRecords').textContent='Refresh records';
+    $('assignedUser').disabled=state.users.length===0;
+    $('equipment').disabled=state.equipment.length===0;
+    $('compatibleEquipment').disabled=state.equipment.length<2;
+    $('saveRelation').disabled=state.users.length===0||state.equipment.length<2||state.saving;
+  }
+}
+async function verifyAdmin(){
+  const data=await request(sessionAPI,{method:'GET'});
+  const role=String(data.role||data.user?.role||'').toLowerCase();
+  if(role!=='admin'){location.replace('../public/login.html');return false;}
+  return true;
+}
+function collectCompatibilityRoles(){
+  const mode=$('compatibleRole').value;
+  if(mode==='multiple')return roleInputs.filter(input=>input.checked).map(input=>input.value);
+  return mode?[mode]:[];
+}
+function syncConditionalFields(){
+  const multiple=$('compatibleRole').value==='multiple';
+  $('multipleRoleFields').classList.toggle('hidden',!multiple);
+  if(!multiple)roleInputs.forEach(input=>{input.checked=false;});
+  const situational=$('type').value==='situational';
+  $('situationsField').classList.toggle('hidden',!situational);
+  $('situations').required=situational;
+}
+function resetForm(){
+  state.editingId=null;
+  $('relationForm').reset();
+  $('relationHeading').textContent='Add compatibility record';
+  $('saveRelation').textContent='Save relationship';
+  $('cancelEdit').classList.add('hidden');
+  $('saveRelation').disabled=state.users.length===0||state.equipment.length<2||state.loading;
+  syncConditionalFields();
+  message('relationMessage','');
+}
+function editRecord(row){
+  if(!state.users.some(user=>Number(user.id)===Number(row.assigned_user_id))){
+    message('relationMessage','This record belongs to an inactive or unavailable account and cannot be edited until that account is active.',true);
+    return;
+  }
+  state.editingId=Number(row.id);
+  $('assignedUser').value=String(row.assigned_user_id);
+  $('equipment').value=String(row.equipment_id);
+  $('compatibleEquipment').value=String(row.compatible_equipment_id);
+  $('type').value=row.compatibility_type;
+  $('notes').value=row.notes||'';
+  $('situations').value=row.situations||'';
+  const roles=Array.isArray(row.compatible_roles)?row.compatible_roles:[];
+  const knownRoleValues=roleInputs.map(input=>input.value);
+  const selectedRole=roles.length===1&&knownRoleValues.includes(roles[0])?roles[0]:'multiple';
+  $('compatibleRole').value=selectedRole;
+  roleInputs.forEach(input=>{input.checked=selectedRole==='multiple'&&roles.includes(input.value);});
+  $('relationHeading').textContent='Edit compatibility record';
+  $('saveRelation').textContent='Update relationship';
+  $('cancelEdit').classList.remove('hidden');
+  syncConditionalFields();
+  message('relationMessage','');
+  $('relationHeading').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('relationForm').addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(state.saving)return;
+  const roles=collectCompatibilityRoles();
+  if(roles.length===0){message('relationMessage','Select at least one Hero role for this relationship.',true);if($('compatibleRole').value==='multiple')$('multipleRoleFields').scrollIntoView({behavior:'smooth',block:'center'});else $('compatibleRole').focus();return;}
+  const equipmentId=Number($('equipment').value);
+  const compatibleEquipmentId=Number($('compatibleEquipment').value);
+  if(!equipmentId||!compatibleEquipmentId){message('relationMessage','Choose both equipment items.',true);return;}
+  if(equipmentId===compatibleEquipmentId){message('relationMessage','Choose two different equipment items for a pairing.',true);$('compatibleEquipment').focus();return;}
+  const assignedUserId=Number($('assignedUser').value);
+  const duplicate=state.records.some(row=>{
+    if(Number(row.id)===state.editingId||Number(row.assigned_user_id)!==assignedUserId)return false;
+    return (Number(row.equipment_id)===equipmentId&&Number(row.compatible_equipment_id)===compatibleEquipmentId)
+      ||(Number(row.equipment_id)===compatibleEquipmentId&&Number(row.compatible_equipment_id)===equipmentId);
+  });
+  if(duplicate){message('relationMessage','This account already has a relationship for that equipment pair. Edit the existing record instead.',true);return;}
+  const payload={assigned_user_id:assignedUserId,equipment_id:equipmentId,compatible_equipment_id:compatibleEquipmentId,compatibility_type:$('type').value,compatible_role:$('compatibleRole').value,compatible_roles:roles,notes:$('notes').value.trim(),situations:$('situations').value.trim()};
+  if(state.editingId)payload.id=state.editingId;
+  state.saving=true;
+  $('saveRelation').disabled=true;
+  message('relationMessage',state.editingId?'Updating relationship…':'Saving relationship…');
+  try{
+    await request(API,{method:state.editingId?'PUT':'POST',body:JSON.stringify(payload)});
+    resetForm();
+    if(await load())message('relationMessage',payload.id?'Relationship updated successfully.':'Relationship saved successfully.');
+    else message('relationMessage','The change was saved, but the list could not be refreshed. Use Refresh records to reload it.',true);
+  }catch(error){message('relationMessage',error.message,true);}
+  finally{
+    state.saving=false;
+    $('saveRelation').disabled=state.users.length===0||state.equipment.length<2||state.loading;
+  }
+});
+$('cancelEdit').addEventListener('click',resetForm);
+$('compatibleRole').addEventListener('change',syncConditionalFields);
+$('type').addEventListener('change',syncConditionalFields);
+$('records').addEventListener('click',async event=>{
+  if(event.target.closest('[data-retry]')){await load();return;}
+  const edit=event.target.closest('[data-edit]');
+  if(edit){
+    const row=state.records.find(item=>Number(item.id)===Number(edit.dataset.edit));
+    if(row)editRecord(row);
+    return;
+  }
+  const button=event.target.closest('[data-delete]');
+  if(!button||button.disabled)return;
+  const id=Number(button.dataset.delete);
+  const row=state.records.find(item=>Number(item.id)===id);
+  if(!row)return;
+  if(!window.confirm(`Delete the ${row.compatibility_type} relationship between ${row.equipment_name} and ${row.compatible_equipment_name} for @${row.assigned_user_handle}?`))return;
+  button.disabled=true;
+  button.textContent='Deleting…';
+  try{
+    await request(API,{method:'DELETE',body:JSON.stringify({id})});
+    if(await load())message('relationMessage','Compatibility record deleted.');
+    else message('relationMessage','The record was deleted, but the list could not be refreshed. Use Refresh records to reload it.',true);
+  }catch(error){message('relationMessage',error.message,true);button.disabled=false;button.textContent='Delete';}
+});
+$('recordSearch').addEventListener('input',renderRecords);
+$('recordTypeFilter').addEventListener('change',renderRecords);
+$('refreshRecords').addEventListener('click',load);
+$('relationForm').addEventListener('input',()=>{if($('relationMessage').classList.contains('error'))message('relationMessage','');});
+(async()=>{
+  try{
+    if(await verifyAdmin())await load();
+  }catch(error){
+    $('records').innerHTML=`<tr><td colspan="7" class="empty"><strong>Unable to verify administrator access</strong>${esc(error.message)}</td></tr>`;
+    const authRequired=error.status===401||error.status===403||['Authentication required.','This tab session is invalid or has expired.'].includes(error.message);
+    const assignmentMessage=$('assignmentMessage');
+    assignmentMessage.replaceChildren(document.createTextNode(authRequired?'Admin sign-in is required in this browser tab. ':'Unable to load administrator access. '));
+    if(authRequired){const signIn=document.createElement('a');signIn.href='../public/login.html';signIn.textContent='Sign in as an admin';assignmentMessage.appendChild(signIn);}
+    $('assignedUser').disabled=true;
+    $('equipment').disabled=true;
+    $('compatibleEquipment').disabled=true;
+    $('saveRelation').disabled=true;
+  }
+})();
+</script>
+</body>
+</html>

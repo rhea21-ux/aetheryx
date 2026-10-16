@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../helpers/notify.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -355,6 +356,8 @@ try {
     */
 
     $userId = (int)$pdo->lastInsertId();
+    createNotification($pdo, $userId, 'Welcome to ÆTHERYX', 'Your account is ready. Explore the marketplace to get started.', 'success');
+    notifyAdminsOfActivity($pdo, $userId, 'New account registered', 'A new ' . ($role === 'enemy' ? 'Villain' : 'Hero') . ' account registered.', 'info');
 
     $displayRole =
         $role === 'enemy'
@@ -408,14 +411,20 @@ try {
         $e->getMessage()
     );
 
+    $sqlState = (string)($e->errorInfo[0] ?? $e->getCode());
+    $schemaMismatch = in_array($sqlState, ['42S02', '42S22'], true);
+
     http_response_code(500);
 
     echo json_encode([
 
         'success' => false,
 
-        'message' =>
-            'Registration failed. Please try again.'
+        'message' => $schemaMismatch
+            ? 'The local database is missing the users table or a required column. Import the local schema into aetheryx_db.'
+            : 'Registration failed. Please try again.',
+        'code' => $schemaMismatch ? 'REGISTRATION_SCHEMA_MISMATCH' : 'REGISTRATION_FAILED',
+        'diagnostic' => $sqlState
 
     ]);
 

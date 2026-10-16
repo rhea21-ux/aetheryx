@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -20,9 +21,10 @@
 <script defer src="../assets/js/notification-drawer.js"></script>
 <link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
 <script defer src="../assets/js/aetheryx-consistent.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-dashboard.css">
 </head>
 
-<body>
+<body class="dashboard-page hero-dashboard-page">
 
     <!-- =========================
          LOADING SCREEN
@@ -97,7 +99,7 @@
             <a class="nav-item active" href="hero-dashboard.html" aria-current="page"><span class="nav-icon">⌂</span><span class="nav-text">Dashboard</span></a>
             <a class="nav-item" href="../users/marketplace.html"><span class="nav-icon">◈</span><span class="nav-text">Marketplace</span></a>
             <a class="nav-item" href="../users/cart.html"><span class="nav-icon">◇</span><span class="nav-text">Cart</span></a>
-            <a class="nav-item" href="../users/my-requests.html"><span class="nav-icon">◎</span><span class="nav-text">My Requests</span></a>
+            <a class="nav-item" href="../users/orders.html"><span class="nav-icon">▤</span><span class="nav-text">Order History</span></a>
             <a class="nav-item" href="../users/inventory.html"><span class="nav-icon">▣</span><span class="nav-text">Inventory</span></a>
             <a class="nav-item" href="../users/notifications.html"><span class="nav-icon">●</span><span class="nav-text">Notifications</span></a>
             <a class="nav-item" href="../users/compatibility.html"><span class="nav-icon">⌁</span><span class="nav-text">Compatibility</span></a>
@@ -261,7 +263,7 @@
 
                     <div class="card-description">
                         Review equipment selected
-                        before submitting requests.
+                        before placing an order.
                     </div>
 
                 </div>
@@ -273,11 +275,11 @@
             </a>
 
 
-            <!-- MY REQUESTS -->
+            <!-- ORDER HISTORY -->
 
             <a
                 class="action-card"
-                href="../users/my-requests.html"
+                href="../users/orders.html"
             >
 
                 <div>
@@ -287,12 +289,11 @@
                     </div>
 
                     <div class="card-title">
-                        My Requests
+                        Order History
                     </div>
 
                     <div class="card-description">
-                        Track pending, approved,
-                        rejected, and cancelled requests.
+                        Review your orders and payment status.
                     </div>
 
                 </div>
@@ -403,7 +404,7 @@
 
 
         <!-- =========================
-             LIVE MY REQUESTS
+             RECENT ORDERS
         ========================== -->
 
         <section class="requests-panel">
@@ -419,11 +420,11 @@
                     <div>
 
                         <h2>
-                            My Requests
+                            Recent Orders
                         </h2>
 
                         <p>
-                            Live equipment request status
+                            Your latest marketplace activity
                         </p>
 
                     </div>
@@ -432,10 +433,10 @@
 
 
                 <a
-                    href="../users/my-requests.html"
+                    href="../users/orders.html"
                     class="view-requests"
                 >
-                    View All
+                    Order History
                 </a>
 
             </div>
@@ -453,7 +454,7 @@
 
                     <div
                         class="request-stat-value"
-                        id="heroPendingRequests"
+                        id="heroPendingOrders"
                     >
                         0
                     </div>
@@ -461,15 +462,15 @@
                 </div>
 
 
-                <div class="request-stat approved">
+                <div class="request-stat processing">
 
                     <div class="request-stat-label">
-                        Approved
+                        Processing
                     </div>
 
                     <div
                         class="request-stat-value"
-                        id="heroApprovedRequests"
+                        id="heroProcessingOrders"
                     >
                         0
                     </div>
@@ -477,15 +478,15 @@
                 </div>
 
 
-                <div class="request-stat rejected">
+                <div class="request-stat completed">
 
                     <div class="request-stat-label">
-                        Rejected
+                        Completed
                     </div>
 
                     <div
                         class="request-stat-value"
-                        id="heroRejectedRequests"
+                        id="heroCompletedOrders"
                     >
                         0
                     </div>
@@ -499,11 +500,11 @@
 
             <div
                 class="recent-requests"
-                id="heroRequestsList"
+                id="heroOrdersList"
             >
 
                 <div class="requests-loading">
-                    Loading request records...
+                    Loading recent orders...
                 </div>
 
             </div>
@@ -566,8 +567,8 @@
         const SESSION_API =
             "../../backend/api/auth/session.php";
 
-        const REQUESTS_API =
-            "../../backend/api/requests/list.php";
+        const ORDERS_API =
+            "../../backend/api/orders/list.php";
 
         const LOGOUT_API =
             "../../backend/api/auth/logout.php";
@@ -735,40 +736,40 @@
                 ).length;
 
 
-            const approved =
+            const processing =
                 requests.filter(
                     request =>
                         normalizeStatus(
                             request.status
-                        ) === "approved"
+                        ) === "processing"
                 ).length;
 
 
-            const rejected =
+            const completed =
                 requests.filter(
                     request =>
                         normalizeStatus(
                             request.status
-                        ) === "rejected"
+                        ) === "completed"
                 ).length;
 
 
             document.getElementById(
-                "heroPendingRequests"
+                "heroPendingOrders"
             ).textContent =
                 pending;
 
 
             document.getElementById(
-                "heroApprovedRequests"
+                "heroProcessingOrders"
             ).textContent =
-                approved;
+                processing;
 
 
             document.getElementById(
-                "heroRejectedRequests"
+                "heroCompletedOrders"
             ).textContent =
-                rejected;
+                completed;
 
         }
 
@@ -783,7 +784,7 @@
 
             const container =
                 document.getElementById(
-                    "heroRequestsList"
+                    "heroOrdersList"
                 );
 
 
@@ -799,7 +800,7 @@
                         <div class="empty-icon" aria-hidden="true">◎</div>
                         <div>
                             <strong>No orders yet</strong>
-                            <p>You haven't placed any equipment requests. Browse the marketplace to get started.</p>
+                            <p>You have no orders yet. Browse equipment available to your Hero account.</p>
                             <a class="primary-btn empty-action" href="../users/marketplace.html">Shop Now</a>
                         </div>
                     </div>
@@ -811,7 +812,7 @@
 
             /*
              * Show up to five recent
-             * request records.
+             * order records.
              */
 
             const recent =
@@ -903,7 +904,7 @@
 
             const container =
                 document.getElementById(
-                    "heroRequestsList"
+                    "heroOrdersList"
                 );
 
 
@@ -911,7 +912,7 @@
 
                 const response =
                     await fetch(
-                        REQUESTS_API,
+                        ORDERS_API,
                         {
                             method: "GET",
 
@@ -940,7 +941,7 @@
 
                     throw new Error(
                         data.message ||
-                        "Unable to load requests."
+                        "Unable to load orders."
                     );
 
                 }
@@ -954,13 +955,20 @@
                  * own requests.
                  */
 
-                const requests =
+                const orders =
                     Array.isArray(
-                        data.requests
+                        data.orders
                     )
-                    ? data.requests
+                    ? data.orders
                     : [];
 
+                const requests = orders.map(order => ({
+                    status: order.order_status,
+                    equipmentName: (order.items || [])
+                        .map(item => `${item.equipment_name} × ${item.quantity}`)
+                        .join(", "),
+                    quantity: (order.items || []).reduce((sum, item) => sum + Number(item.quantity), 0)
+                }));
 
                 updateRequestSummary(
                     requests
@@ -982,7 +990,7 @@
 
                 container.innerHTML = `
                     <div class="requests-error">
-                        Unable to load request records.
+                        Unable to load order history.
                         Please refresh the dashboard.
                     </div>
                 `;
@@ -1158,7 +1166,7 @@
                  * IMPORTANT:
                  *
                  * Immediately load the
-                 * user's requests.
+                 * user's orders.
                  */
 
                 await loadHeroRequests();
@@ -1289,7 +1297,7 @@
                 hour < 5  ? ["Burning the midnight oil", "Late-night mission? Your gear is on standby."] :
                 hour < 12 ? ["Good morning", "A fresh day, a fresh loadout. What are we equipping today?"] :
                 hour < 18 ? ["Good afternoon", "Every mission starts with the right equipment. Pick yours."] :
-                            ["Good evening", "Wrap up the day: check your requests and review your gear."];
+                            ["Good evening", "Review your recent orders and check your gear."];
             document.getElementById("greeting").textContent = slot[0];
             document.getElementById("tagline").textContent = slot[1];
             document.getElementById("welcomeDate").textContent =

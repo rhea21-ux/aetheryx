@@ -42,7 +42,7 @@
       ['⌂', 'Dashboard', dashboardHref],
       ['◈', 'Marketplace', '../users/marketplace.html'],
       ['◇', 'Cart', '../users/cart.html'],
-      ['◎', 'My Requests', '../users/my-requests.html'],
+      ['▤', 'Order History', '../users/orders.html'],
       ['▣', 'Inventory', '../users/inventory.html'],
       ['⌁', 'Compatibility', '../users/compatibility.html'],
       ['○', 'Profile', '../users/profile.html']
@@ -54,7 +54,7 @@
         ['⌂', 'Dashboard', dashboardHref],
         ['◈', 'Marketplace', 'marketplace.html'],
         ['◇', 'Cart', 'cart.html'],
-        ['◎', 'My Requests', 'my-requests.html'],
+        ['▤', 'Order History', 'orders.html'],
         ['▣', 'Inventory', 'inventory.html'],
         ['⌁', 'Compatibility', 'compatibility.html'],
         ['○', 'Profile', 'profile.html']
@@ -64,7 +64,7 @@
         ['⌂', 'Dashboard', 'hero-dashboard.html'],
         ['◈', 'Marketplace', '../users/marketplace.html'],
         ['◇', 'Cart', '../users/cart.html'],
-        ['◎', 'My Requests', '../users/my-requests.html'],
+        ['▤', 'Order History', '../users/orders.html'],
         ['▣', 'Inventory', '../users/inventory.html'],
         ['⌁', 'Compatibility', '../users/compatibility.html'],
         ['○', 'Profile', '../users/profile.html']
@@ -74,7 +74,7 @@
         ['⌂', 'Dashboard', 'villain-dashboard.html'],
         ['◈', 'Marketplace', '../users/marketplace.html'],
         ['◇', 'Cart', '../users/cart.html'],
-        ['◎', 'My Requests', '../users/my-requests.html'],
+        ['▤', 'Order History', '../users/orders.html'],
         ['▣', 'Inventory', '../users/inventory.html'],
         ['⌁', 'Compatibility', '../users/compatibility.html'],
         ['○', 'Profile', '../users/profile.html']
@@ -123,7 +123,7 @@
         <a href="../hero/hero-dashboard.html"><span class="nav-icon">⌂</span><span class="nav-text">Dashboard</span></a>
         <a href="marketplace.html"><span class="nav-icon">◈</span><span class="nav-text">Marketplace</span></a>
         <a href="cart.html"><span class="nav-icon">◇</span><span class="nav-text">Cart</span></a>
-        <a href="my-requests.html"><span class="nav-icon">◎</span><span class="nav-text">My Requests</span></a>
+        <a href="orders.html"><span class="nav-icon">▤</span><span class="nav-text">Order History</span></a>
         <a href="inventory.html"><span class="nav-icon">▣</span><span class="nav-text">Inventory</span></a>
         <a href="compatibility.html"><span class="nav-icon">⌁</span><span class="nav-text">Compatibility</span></a>
         <a href="profile.html"><span class="nav-icon">○</span><span class="nav-text">Profile</span></a>
@@ -283,9 +283,13 @@
       var handleNode = account.querySelector('.user-name strong, .user-name .ax-account-handle');
       var roleNode = account.querySelector('.user-name span, .user-name .ax-account-role');
       var avatarNode = account.querySelector('.avatar');
+      var networkNode = sidebar.querySelector('.brand-subtitle, .brand-sub');
       if (handleNode) handleNode.textContent = handleValue;
       if (roleNode) roleNode.textContent = role;
       if (avatarNode) avatarNode.textContent = handleValue.charAt(0).toUpperCase() || 'U';
+      if (networkNode && ['Hero', 'Villain'].indexOf(role) !== -1) {
+        networkNode.textContent = role.toUpperCase() + ' NETWORK';
+      }
     }).catch(function () {});
   }
 

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script defer src="../assets/js/notification-drawer.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -574,9 +576,10 @@
 <link rel="stylesheet" href="../assets/css/no-gradient.css">
 <link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
 <script defer src="../assets/js/aetheryx-consistent.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-dashboard.css">
 </head>
 
-<body>
+<body class="dashboard-page admin-dashboard-page">
 
     <div class="aurora cyan"></div>
     <div class="aurora violet"></div>
@@ -586,10 +589,12 @@
     <aside class="sidebar">
 
         <div class="brand">
-            <div class="brand-name">ÆTHERYX</div>
+            <div class="brand-copy">
+                <div class="brand-name">ÆTHERYX</div>
 
-            <div class="brand-label">
-                ADMINISTRATIVE CORE
+                <div class="brand-label">
+                    ADMINISTRATIVE CORE
+                </div>
             </div>
         </div>
 
@@ -609,7 +614,25 @@
                 Manage Users
             </a>
 
-            
+            <a href="manage-prices.html">
+                <span class="nav-icon">03</span>
+                Equipment Pricing &amp; Stock
+            </a>
+
+            <a href="manage-orders.html">
+                <span class="nav-icon">04</span>
+                Orders & Payments
+            </a>
+
+            <a href="manage-compatibility.html">
+                <span class="nav-icon">05</span>
+                Compatibility Data
+            </a>
+
+            <a href="admin-notifications.html">
+                <span class="nav-icon">06</span>
+                Notifications
+            </a>
 
             
 
@@ -797,6 +820,29 @@
                         <div class="action-description">
                             Review and control system accounts.
                         </div>
+                    </a>
+
+                    <a
+                        href="manage-orders.html"
+                        class="action"
+                    >
+                        <div class="action-icon">
+                            ↗
+                        </div>
+
+                        <div class="action-title">
+                            Orders & Payments
+                        </div>
+
+                        <div class="action-description">
+                            Review orders, record COD payments, and manage fulfillment.
+                        </div>
+                    </a>
+
+                    <a href="manage-compatibility.html" class="action">
+                        <div class="action-icon">+</div>
+                        <div class="action-title">Compatibility Data</div>
+                        <div class="action-description">Record equipment and resource compatibility guidance shown to users.</div>
                     </a>
 
                     

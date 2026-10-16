@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../middleware/auth-check.php';
+require_once __DIR__ . '/../../middleware/role-check.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../helpers/notify.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-requireAuth();
+requireMarketplaceRole();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -22,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $userId = getAuthenticatedUserId();
+$role = getAuthenticatedRole();
 
 $data = json_decode(
     file_get_contents('php://input'),
@@ -64,8 +66,14 @@ if (!$equipmentId || $equipmentId < 1) {
     exit;
 }
 
-if (!$quantity || $quantity < 1) {
-    $quantity = 1;
+if ($quantity === false || $quantity < 1 || $quantity > 999) {
+    http_response_code(422);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Quantity must be a whole number from 1 to 999.',
+        'code' => 'INVALID_QUANTITY'
+    ]);
+    exit;
 }
 
 try {
@@ -80,7 +88,10 @@ try {
         SELECT
             id,
             name,
+            access_role,
+            is_black_market,
             available_quantity,
+            price,
             status
         FROM equipment
         WHERE id = :equipment_id
@@ -108,7 +119,30 @@ try {
         exit;
     }
 
-    if (strtolower((string) $equipment['status']) === 'maintenance') {
+    if ((bool) $equipment['is_black_market'] && $role !== 'enemy') {
+        $pdo->rollBack();
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Only Villain accounts can purchase Black Market equipment.',
+            'code' => 'BLACK_MARKET_VILLAIN_ONLY'
+        ]);
+        exit;
+    }
+
+    if (!in_array($equipment['access_role'], ['common', $role], true)
+        && !((bool) $equipment['is_black_market'] && $role === 'enemy')) {
+        $pdo->rollBack();
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'message' => 'You are not authorized to add this equipment to your cart.',
+            'code' => 'EQUIPMENT_ROLE_RESTRICTED'
+        ]);
+        exit;
+    }
+
+    if ($equipment['status'] !== 'available') {
 
         $pdo->rollBack();
 
@@ -120,6 +154,17 @@ try {
             'code' => 'EQUIPMENT_UNAVAILABLE'
         ]);
 
+        exit;
+    }
+
+    if ((float)$equipment['price'] <= 0) {
+        $pdo->rollBack();
+        http_response_code(409);
+        echo json_encode([
+            'success' => false,
+            'message' => 'This equipment does not have a checkout price yet.',
+            'code' => 'PRICE_UNAVAILABLE'
+        ]);
         exit;
     }
 
@@ -230,6 +275,9 @@ try {
     }
 
     $pdo->commit();
+    $message = sprintf('Added %s (quantity %d) to the cart.', $equipment['name'], $finalQuantity);
+    createNotification($pdo, (int) $userId, 'Cart updated', $message, 'success');
+    notifyAdminsOfActivity($pdo, (int) $userId, 'Cart updated', $message, 'info');
 
     echo json_encode([
         'success' => true,

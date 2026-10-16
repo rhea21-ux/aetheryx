@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../middleware/auth-check.php';
+require_once __DIR__ . '/../../middleware/role-check.php';
 require_once __DIR__ . '/../../config/database.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-requireAuth();
+requireMarketplaceRole();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $userId = getAuthenticatedUserId();
+$role = getAuthenticatedRole();
 
 try {
 
@@ -38,7 +39,9 @@ try {
             e.brand,
             e.quantity AS total_quantity,
             e.available_quantity,
+            e.price,
             e.status,
+            e.is_black_market,
             e.image_url,
 
             c.name AS category_name
@@ -52,12 +55,14 @@ try {
             ON c.id = e.category_id
 
         WHERE ci.user_id = :user_id
+          AND e.access_role IN ('common', :access_role)
 
         ORDER BY ci.created_at DESC
     ");
 
     $stmt->execute([
-        ':user_id' => $userId
+        ':user_id' => $userId,
+        ':access_role' => $role,
     ]);
 
     $items = $stmt->fetchAll();
@@ -71,6 +76,9 @@ try {
         $item['quantity'] = (int) $item['quantity'];
         $item['total_quantity'] = (int) $item['total_quantity'];
         $item['available_quantity'] = (int) $item['available_quantity'];
+        $item['price'] = (float) $item['price'];
+        $item['is_black_market'] = (bool) $item['is_black_market'];
+        $item['is_restricted'] = $item['is_black_market'] && $role !== 'enemy';
 
         $totalItems += $item['quantity'];
     }

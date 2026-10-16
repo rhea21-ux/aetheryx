@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script defer src="../assets/js/notification-drawer.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sentinel Command Center — ÆTHERYX</title>
@@ -180,10 +182,16 @@ h1 { font-size: 1.5rem; font-weight: 700; }
     main { margin-left: 0; padding: 20px; }
 }
 </style>
+<link rel="stylesheet" href="../assets/css/aetheryx-dashboard.css">
 </head>
-<body>
+<body class="dashboard-page sentinel-dashboard-page">
 
-<aside class="sidebar">
+<header class="mobile-header">
+    <strong class="mobile-brand">ÆTHERYX SENTINEL</strong>
+    <button class="menu-btn" id="menuButton" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+</header>
+
+<aside class="sidebar" id="sidebar">
     <div class="brand">ÆTHERYX <span>SENTINEL</span></div>
     <div class="tagline">Precision · Clarity · Intelligence</div>
     <nav class="nav">
@@ -239,6 +247,19 @@ h1 { font-size: 1.5rem; font-weight: 700; }
 </main>
 
 <script>
+const sentinelSidebar = document.getElementById('sidebar');
+const sentinelMenuButton = document.getElementById('menuButton');
+sentinelMenuButton.addEventListener('click', () => {
+    const isOpen = sentinelSidebar.classList.toggle('open');
+    sentinelMenuButton.setAttribute('aria-expanded', String(isOpen));
+});
+sentinelSidebar.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+        sentinelSidebar.classList.remove('open');
+        sentinelMenuButton.setAttribute('aria-expanded', 'false');
+    });
+});
+
 function esc(v) {
     return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }

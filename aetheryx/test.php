@@ -12,5 +12,5 @@ requireAdminRole();
 echo json_encode([
     'success' => true,
     'message' => 'ÆTHERYX database connection successful.',
-    'database' => 'aetheryx_db_new'
+    'database' => $dbname
 ]);

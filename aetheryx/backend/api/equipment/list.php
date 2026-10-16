@@ -74,30 +74,53 @@ try {
         array_fill(0, count($allowedRoles), '?')
     );
 
+    $characterRole = strtolower(trim((string)($_GET['character_role'] ?? '')));
+    $allowedCharacterRoles = ['mage', 'fighter', 'marksman', 'tank', 'support'];
+    if ($characterRole !== '' && $characterRole !== 'multiple'
+        && !in_array($characterRole, $allowedCharacterRoles, true)) {
+        http_response_code(422);
+        echo json_encode(['success' => false, 'message' => 'Invalid character role filter.']);
+        exit;
+    }
+
+    $roleSql = $characterRole === '' ? '' : ($characterRole === 'multiple'
+        ? ' AND (SELECT COUNT(*) FROM equipment_character_roles ecr WHERE ecr.equipment_id=e.id) > 1'
+        : ' AND EXISTS (SELECT 1 FROM equipment_character_roles ecr WHERE ecr.equipment_id=e.id AND ecr.character_role = ?)');
     $sql = "
         SELECT
             e.id,
             e.category_id,
             e.access_role,
+            e.is_black_market,
             e.name,
+            e.item_type,
             e.description,
+            e.lore,
+            e.rarity,
+            e.fictional_effect,
             e.brand,
             e.quantity,
             e.available_quantity,
+            e.price,
             e.status,
             e.image_url,
             e.created_at,
             e.updated_at,
-            c.name AS category_name
+            c.name AS category_name,
+            (SELECT GROUP_CONCAT(ecr.character_role ORDER BY ecr.character_role SEPARATOR ',')
+             FROM equipment_character_roles ecr WHERE ecr.equipment_id=e.id) AS compatible_roles
         FROM equipment e
         LEFT JOIN categories c
             ON c.id = e.category_id
         WHERE e.access_role IN ($placeholders)
+          $roleSql
         ORDER BY e.id ASC
     ";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute($allowedRoles);
+    $params = $allowedRoles;
+    if ($characterRole !== '' && $characterRole !== 'multiple') $params[] = $characterRole;
+    $stmt->execute($params);
 
     $equipment = $stmt->fetchAll();
 
@@ -122,16 +145,23 @@ try {
                     : null,
 
                 'category' => $item['category_name'] ?? 'Uncategorized',
+                'compatibleRoles' => empty($item['compatible_roles']) ? [] : explode(',', $item['compatible_roles']),
 
                 'accessRole' => $accessRole,
                 'displayAccess' => $displayAccess,
+                'isBlackMarket' => (bool) $item['is_black_market'],
 
                 'name' => $item['name'],
+                'itemType' => $item['item_type'],
                 'description' => $item['description'],
+                'lore' => $item['lore'],
+                'rarity' => $item['rarity'],
+                'fictionalEffect' => $item['fictional_effect'],
                 'brand' => $item['brand'],
 
                 'quantity' => (int) $item['quantity'],
                 'availableQuantity' => (int) $item['available_quantity'],
+                'price' => (float) $item['price'],
 
                 'status' => $item['status'],
 

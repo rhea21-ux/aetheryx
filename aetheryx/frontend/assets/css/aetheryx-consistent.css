@@ -80,6 +80,8 @@ body::before,body::after,.aurora,.scanline{display:none!important;}
 
 .sidebar .brand-name{color:var(--ax-text)!important;white-space:nowrap!important;}
 .sidebar .brand-sub,.sidebar .brand-subtitle{color:var(--ax-muted)!important;white-space:nowrap!important;}
+.sidebar .brand-copy{display:flex!important;flex:1 1 auto!important;min-width:0!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important;overflow:hidden!important;}
+.sidebar .brand-copy .brand-name,.sidebar .brand-copy .brand-title{max-width:100%!important;white-space:nowrap!important;}
 
 .sidebar .nav-label,.sidebar .section-label{
   flex:0 0 auto!important;
@@ -185,9 +187,11 @@ body::before,body::after,.aurora,.scanline{display:none!important;}
   border-radius:9px!important;
   background:transparent!important;
   color:var(--ax-danger)!important;
+  text-decoration:none!important;
   box-shadow:none!important;
   transition:background var(--ax-motion),border-color var(--ax-motion),color var(--ax-motion)!important;
 }
+.sidebar a.logout-btn{display:flex!important;align-items:center!important;justify-content:center!important;text-decoration:none!important;}
 .sidebar .logout-btn:hover{background:var(--ax-surface)!important;border-color:var(--ax-danger)!important;}
 
 /* Desktop collapse control */
@@ -457,4 +461,17 @@ body.ax-compatibility-page .page{width:auto!important;max-width:none!important;m
 .sidebar .user-mini{min-height:76px!important;padding:10px 14px!important;border:1px solid var(--ax-border-strong)!important;border-radius:13px!important;background:var(--ax-surface)!important;}
 .sidebar .avatar{width:44px!important;height:44px!important;min-width:44px!important;border-radius:12px!important;}
 .sidebar .logout-btn{min-height:56px!important;border:1px solid var(--ax-border)!important;border-radius:12px!important;background:transparent!important;color:var(--ax-danger)!important;font-size:16px!important;font-weight:500!important;}
+.sidebar .sidebar-bottom > .logout-btn,
+.sidebar .sidebar-bottom > a.logout-btn{
+  display:grid!important;
+  place-items:center!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  padding:0 14px!important;
+  text-align:center!important;
+  line-height:1.2!important;
+  text-decoration:none!important;
+  font-family:inherit!important;
+}
+.sidebar .sidebar-bottom > a.logout-btn:hover{text-decoration:none!important;}
 .sidebar .logout-btn:hover{border-color:var(--ax-danger)!important;background:rgba(230,107,123,.08)!important;color:#f0b2ba!important;}

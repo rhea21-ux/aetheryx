@@ -26,7 +26,8 @@ DEALLOCATE PREPARE condition_column_stmt;
 
 -- --------------------------------------------------------
 -- 2. Maintenance / service requests
---    Distinct from `equipment_requests` (checkout approval workflow).
+--    Legacy `equipment_requests` rows, if present, are historical only and do not
+--    participate in marketplace checkout.
 -- --------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `maintenance_requests` (

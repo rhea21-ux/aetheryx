@@ -161,14 +161,14 @@ body td, body th, .ax-content td, .ax-content th { border-color:var(--ax-line) !
 body tr:hover td { background:#151d30 !important; }
 
 /* Buttons */
-body button, body .btn, body .add-btn, body .refresh-btn, body .marketplace-btn, body .details-btn, body .approve, body .save {
+body button, body .btn, body .add-btn, body .refresh-btn, body .marketplace-btn, body .details-btn, body .save {
   background:var(--ax-primary) !important; color:#071311 !important;
   border:1px solid var(--ax-primary) !important; border-radius:8px !important;
   box-shadow:none !important; text-shadow:none !important; transform:none !important;
 }
-body button:hover, body .btn:hover, body .add-btn:hover, body .approve:hover, body .save:hover { background:var(--ax-primary-dark) !important; }
-body .delete, body .reject, body .danger { background:var(--ax-danger-soft) !important; color:var(--ax-danger) !important; border-color:#5a2b35 !important; }
-body .delete:hover, body .reject:hover { background:#42202a !important; }
+body button:hover, body .btn:hover, body .add-btn:hover, body .save:hover { background:var(--ax-primary-dark) !important; }
+body .delete, body .danger { background:var(--ax-danger-soft) !important; color:var(--ax-danger) !important; border-color:#5a2b35 !important; }
+body .delete:hover { background:#42202a !important; }
 
 /* Inputs / filters */
 body input, body select, body textarea {
@@ -179,7 +179,7 @@ body input::placeholder, body textarea::placeholder { color:#687389 !important; 
 body input:focus, body select:focus, body textarea:focus { border-color:#397f78 !important; box-shadow:0 0 0 3px rgba(73,201,181,.10) !important; }
 
 /* Status colors */
-body .approved, body .success, body .status.approved, body .badge.assigned { color:var(--ax-success) !important; background:var(--ax-success-soft) !important; border-color:#285640 !important; }
+body .success, body .badge.assigned { color:var(--ax-success) !important; background:var(--ax-success-soft) !important; border-color:#285640 !important; }
 body .pending, body .warning, body .status.pending { color:var(--ax-warning) !important; background:var(--ax-warning-soft) !important; border-color:#59481f !important; }
 body .rejected, body .danger, body .status.rejected, body .badge.damaged, body .badge.lost { color:var(--ax-danger) !important; background:var(--ax-danger-soft) !important; border-color:#5a2b35 !important; }
 body .status-dot { box-shadow:none !important; }

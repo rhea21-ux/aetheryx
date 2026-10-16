@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script defer src="../assets/js/notification-drawer.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1123,11 +1125,11 @@
             color: var(--warning);
         }
 
-        .request-stat.approved .request-stat-value {
+        .request-stat.processing .request-stat-value {
             color: var(--success);
         }
 
-        .request-stat.rejected .request-stat-value {
+        .request-stat.completed .request-stat-value {
             color: var(--danger);
         }
 
@@ -1228,7 +1230,8 @@
                 rgba(255,200,87,0.15);
         }
 
-        .request-status.approved {
+        .request-status.processing,
+        .request-status.completed {
             color: var(--success);
 
             background:
@@ -1239,7 +1242,7 @@
                 rgba(84,227,142,0.15);
         }
 
-        .request-status.rejected {
+        .request-status.failed {
             color: var(--danger);
 
             background:
@@ -1555,9 +1558,10 @@
 <link rel="stylesheet" href="../assets/css/no-gradient.css">
 <link rel="stylesheet" href="../assets/css/aetheryx-consistent.css">
 <script defer src="../assets/js/aetheryx-consistent.js"></script>
+<link rel="stylesheet" href="../assets/css/aetheryx-dashboard.css">
 </head>
 
-<body>
+<body class="dashboard-page villain-dashboard-page">
 
     <!-- =========================
          LOADING
@@ -1668,15 +1672,25 @@
 
             <a
                 class="nav-item"
-                href="../users/my-requests.html"
+                href="../users/orders.html"
             >
                 <span class="nav-icon">◎</span>
 
                 <span class="nav-text">
-                    My Requests
+                    Order History
                 </span>
             </a>
 
+            <a
+                class="nav-item"
+                href="../users/notifications.html"
+            >
+                <span class="nav-icon">●</span>
+
+                <span class="nav-text">
+                    Notifications
+                </span>
+            </a>
 
             <a
                 class="nav-item"
@@ -1788,7 +1802,7 @@
 
                 <p class="intro">
                     Access equipment, resources,
-                    requests, and operational tools.
+                    marketplace, orders, inventory, and villain resources.
                 </p>
 
             </div>
@@ -1822,7 +1836,7 @@
             <p class="panel-text">
                 Your account is authenticated as a villain.
                 Use the command modules below to browse
-                available equipment, manage requests,
+                available equipment, review orders,
                 inspect assigned resources, and access
                 compatibility tools.
             </p>
@@ -1902,8 +1916,7 @@
                     </div>
 
                     <div class="card-description">
-                        Review equipment selected
-                        before submitting requests.
+                        Review your selected equipment before checkout.
                     </div>
 
                 </div>
@@ -1919,7 +1932,7 @@
 
             <a
                 class="action-card"
-                href="../users/my-requests.html"
+                href="../users/orders.html"
             >
 
                 <div>
@@ -1929,12 +1942,11 @@
                     </div>
 
                     <div class="card-title">
-                        My Requests
+                        Order History
                     </div>
 
                     <div class="card-description">
-                        Track pending, approved,
-                        rejected, and cancelled requests.
+                        Review your orders and payment status.
                     </div>
 
                 </div>
@@ -2062,11 +2074,11 @@
                     <div>
 
                         <h2>
-                            My Requests
+                            Recent Orders
                         </h2>
 
                         <p>
-                            Live equipment request status
+                            Your latest marketplace activity
                         </p>
 
                     </div>
@@ -2075,10 +2087,10 @@
 
 
                 <a
-                    href="../users/my-requests.html"
+                    href="../users/orders.html"
                     class="view-requests"
                 >
-                    View All
+                    Order History
                 </a>
 
             </div>
@@ -2096,7 +2108,7 @@
 
                     <div
                         class="request-stat-value"
-                        id="villainPendingRequests"
+                        id="villainPendingOrders"
                     >
                         0
                     </div>
@@ -2104,15 +2116,15 @@
                 </div>
 
 
-                <div class="request-stat approved">
+                <div class="request-stat processing">
 
                     <div class="request-stat-label">
-                        Approved
+                        Processing
                     </div>
 
                     <div
                         class="request-stat-value"
-                        id="villainApprovedRequests"
+                        id="villainProcessingOrders"
                     >
                         0
                     </div>
@@ -2120,15 +2132,15 @@
                 </div>
 
 
-                <div class="request-stat rejected">
+                <div class="request-stat completed">
 
                     <div class="request-stat-label">
-                        Rejected
+                        Completed
                     </div>
 
                     <div
                         class="request-stat-value"
-                        id="villainRejectedRequests"
+                        id="villainCompletedOrders"
                     >
                         0
                     </div>
@@ -2142,11 +2154,11 @@
 
             <div
                 class="recent-requests"
-                id="villainRequestsList"
+                id="villainOrdersList"
             >
 
                 <div class="requests-loading">
-                    Loading request records...
+                    Loading recent orders...
                 </div>
 
             </div>
@@ -2209,8 +2221,8 @@
         const SESSION_API =
             "../../backend/api/auth/session.php";
 
-        const REQUESTS_API =
-            "../../backend/api/requests/list.php";
+        const ORDERS_API =
+            "../../backend/api/orders/list.php";
 
         const LOGOUT_API =
             "../../backend/api/auth/logout.php";
@@ -2378,40 +2390,40 @@
                 ).length;
 
 
-            const approved =
+            const processing =
                 requests.filter(
                     request =>
                         normalizeStatus(
                             request.status
-                        ) === "approved"
+                        ) === "processing"
                 ).length;
 
 
-            const rejected =
+            const completed =
                 requests.filter(
                     request =>
                         normalizeStatus(
                             request.status
-                        ) === "rejected"
+                        ) === "completed"
                 ).length;
 
 
             document.getElementById(
-                "villainPendingRequests"
+                "villainPendingOrders"
             ).textContent =
                 pending;
 
 
             document.getElementById(
-                "villainApprovedRequests"
+                "villainProcessingOrders"
             ).textContent =
-                approved;
+                processing;
 
 
             document.getElementById(
-                "villainRejectedRequests"
+                "villainCompletedOrders"
             ).textContent =
-                rejected;
+                completed;
 
         }
 
@@ -2426,7 +2438,7 @@
 
             const container =
                 document.getElementById(
-                    "villainRequestsList"
+                    "villainOrdersList"
                 );
 
 
@@ -2439,7 +2451,7 @@
 
                 container.innerHTML = `
                     <div class="requests-empty">
-                        No equipment requests have been submitted yet.
+                        You have no orders yet. Browse equipment available to your Villain account.
                     </div>
                 `;
 
@@ -2536,7 +2548,7 @@
 
             const container =
                 document.getElementById(
-                    "villainRequestsList"
+                    "villainOrdersList"
                 );
 
 
@@ -2544,7 +2556,7 @@
 
                 const response =
                     await fetch(
-                        REQUESTS_API,
+                        ORDERS_API,
                         {
                             method: "GET",
 
@@ -2573,7 +2585,7 @@
 
                     throw new Error(
                         data.message ||
-                        "Unable to load requests."
+                        "Unable to load orders."
                     );
 
                 }
@@ -2581,20 +2593,22 @@
 
                 const requests =
                     Array.isArray(
-                        data.requests
+                        data.orders
                     )
-                    ? data.requests
+                    ? data.orders
                     : [];
 
 
-                updateRequestSummary(
-                    requests
-                );
+                const recentOrders = requests.map(order => ({
+                    status: order.order_status,
+                    equipmentName: (order.items || [])
+                        .map(item => `${item.equipment_name} × ${item.quantity}`)
+                        .join(", "),
+                    quantity: (order.items || []).reduce((sum, item) => sum + Number(item.quantity), 0)
+                }));
 
-
-                renderVillainRequests(
-                    requests
-                );
+                updateRequestSummary(recentOrders);
+                renderVillainRequests(recentOrders);
 
 
             } catch (error) {
@@ -2607,7 +2621,7 @@
 
                 container.innerHTML = `
                     <div class="requests-error">
-                        Unable to load request records.
+                        Unable to load order history.
                         Please refresh the dashboard.
                     </div>
                 `;
@@ -2786,7 +2800,7 @@
                 /*
                  * Immediately load
                  * this villain's own
-                 * request records.
+                 * order records.
                  */
 
                 await loadVillainRequests();

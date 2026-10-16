@@ -7,6 +7,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, private');
 ob_start();
 
 $loginFailureSent = false;
@@ -59,6 +60,8 @@ try {
     }
 
     require_once __DIR__ . '/../../config/database.php';
+    require_once __DIR__ . '/../../middleware/auth-check.php';
+    require_once __DIR__ . '/../../helpers/notify.php';
 } catch (Throwable $e) {
     error_log('AETHERYX login bootstrap error: ' . get_class($e) . ': ' . $e->getMessage());
     http_response_code(500);
@@ -146,7 +149,18 @@ $stmt->execute([
     |--------------------------------------------------------------------------
     */
 
-    if (!$user || !password_verify($password, $user['password_hash'])) {
+    $storedPasswordHash = is_array($user)
+        ? (string)($user['password_hash'] ?? '')
+        : '';
+    if (!$user || $storedPasswordHash === '' || !password_verify($password, $storedPasswordHash)) {
+        if ($user && !empty($user['id'])) {
+            notifyFailedSignIn(
+                $pdo,
+                (int) $user['id'],
+                'Unsuccessful sign-in attempt',
+                'A sign-in attempt for your account could not be verified. If this was not you, change your password.'
+            );
+        }
         http_response_code(401);
 
         echo json_encode([
@@ -164,6 +178,12 @@ $stmt->execute([
     */
 
     if ($user['status'] !== 'active') {
+        notifyFailedSignIn(
+            $pdo,
+            (int) $user['id'],
+            'Sign-in blocked',
+            'A sign-in attempt was blocked because this account is not active.'
+        );
         http_response_code(403);
 
         echo json_encode([
@@ -174,30 +194,11 @@ $stmt->execute([
         exit;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Prevent session fixation
-    |--------------------------------------------------------------------------
-    */
-
-    session_regenerate_id(true);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Store authenticated user
-    |--------------------------------------------------------------------------
-    */
-
-    $_SESSION['user_id'] = (int)$user['id'];
-    $_SESSION['role']    = $user['role'];
-    $_SESSION['handle']  = $user['handle'];
-
-    // Persist the authenticated session before returning success so any
-    // session-table write failure is caught as an API error, not appended as
-    // an HTML warning after the JSON response.
-    if (!session_write_close()) {
-        throw new RuntimeException('Unable to persist the authenticated session.');
-    }
+    $pdo->beginTransaction();
+    $tabSessionToken = createTabAuthSession($pdo, (int) $user['id']);
+    $pdo->commit();
+    createNotification($pdo, (int) $user['id'], 'New sign-in', 'Your account was signed in successfully.', 'info');
+    notifyAdminsOfActivity($pdo, (int) $user['id'], 'Account signed in', 'A user signed in successfully.', 'info');
 
     /*
     |--------------------------------------------------------------------------
@@ -208,6 +209,7 @@ $stmt->execute([
     echo json_encode([
         'success' => true,
         'message' => 'Login successful.',
+        'tab_session_token' => $tabSessionToken,
         'user' => [
             'id'       => (int)$user['id'],
             'fullName' => $user['full_name'],
@@ -218,6 +220,9 @@ $stmt->execute([
     ]);
 
 } catch (Throwable $e) {
+    if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     error_log('AETHERYX login processing error: ' . get_class($e) . ': ' . $e->getMessage());
 
     // SQLSTATE is safe to expose and lets us distinguish a schema mismatch

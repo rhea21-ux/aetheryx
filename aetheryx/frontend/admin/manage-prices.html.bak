@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script src="../assets/js/tab-auth-context.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Equipment pricing &amp; stock — ÆTHERYX Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/no-gradient.css">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0d1321;
+            --panel: #161b2e;
+            --panel-raised: #1d2438;
+            --line: #2b344b;
+            --text: #eef2ff;
+            --muted: #9aa4bf;
+            --accent: #4fe0c9;
+            --warning: #f4c66a;
+            --danger: #ff8195;
+        }
+        * { box-sizing: border-box; }
+        body { min-height: 100vh; margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 "IBM Plex Sans", Arial, sans-serif; }
+        button, input, select { font: inherit; }
+        a { color: var(--accent); }
+        .shell { width: min(1180px, 100%); margin: 0 auto; padding: 24px 26px 56px; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+        .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-size: 13px; font-weight: 700; letter-spacing: .12em; text-decoration: none; }
+        .brand-mark { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid rgba(79,224,201,.4); border-radius: 10px; background: #102521; color: var(--accent); }
+        .nav { display: flex; flex-wrap: wrap; gap: 17px; }
+        .nav a { color: var(--muted); font-size: 13px; text-decoration: none; }
+        .nav a:hover, .nav a.active { color: var(--accent); }
+        .heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding: 29px 0 19px; }
+        .eyebrow { margin: 0 0 6px; color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+        h1 { margin: 0; font-size: clamp(26px, 4vw, 34px); line-height: 1.2; letter-spacing: -.025em; }
+        h2 { margin: 0; font-size: 18px; }
+        .intro { margin: 8px 0 0; color: var(--muted); }
+        button { min-height: 38px; padding: 8px 13px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: #071319; font-weight: 700; cursor: pointer; }
+        button:hover:not(:disabled) { filter: brightness(1.06); }
+        button:disabled { opacity: .55; cursor: wait; }
+        .secondary { border-color: var(--line); background: var(--panel-raised); color: var(--text); }
+        .select-all { display: inline-flex; align-items: center; gap: 8px; margin-left: 10px; padding: 8px 12px; border: 1px solid var(--line); background: var(--panel-raised); color: var(--text); border-radius: 8px; font-size: 13px; cursor: pointer; }
+        .select-all input { width: 16px; height: 16px; accent-color: var(--accent); }
+        .select-all:hover { border-color: var(--accent); }
+        .black-market-selected { color: var(--accent); font-weight: 700; font-size: 12px; margin-left: 8px; }
+        button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .notice { display: flex; align-items: flex-start; gap: 11px; margin: 0 0 18px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--muted); line-height: 1.55; }
+        .notice strong { color: var(--text); }
+        .notice-mark { display: grid; width: 22px; height: 22px; flex: 0 0 22px; place-items: center; border: 1px solid rgba(244,198,106,.4); border-radius: 50%; color: var(--warning); font-weight: 700; }
+        .stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat { min-width: 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+        .stat-label { color: var(--muted); font-size: 12px; }
+        .stat-value { margin-top: 4px; font-size: 22px; font-weight: 700; }
+        .stat-value.accent { color: var(--accent); }
+        .toolbar { display: grid; grid-template-columns: minmax(220px,1fr) minmax(170px,.55fr) auto; align-items: end; gap: 11px; margin: 0 0 20px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+        .field { display: grid; min-width: 0; gap: 6px; }
+        .field label { color: var(--muted); font-size: 11px; font-weight: 600; }
+        .field input, .field select { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--text); }
+        .field input::placeholder { color: #75809c; }
+        .toolbar .clear-button { min-height: 40px; }
+        .section { margin-top: 24px; }
+        .section-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; margin-bottom: 11px; }
+        .section-copy { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+        .section-count { flex: 0 0 auto; color: var(--muted); font-size: 12px; }
+        .list { display: grid; gap: 10px; }
+        .item { display: grid; grid-template-columns: minmax(190px,1.2fr) minmax(150px,.7fr) minmax(135px,.55fr) auto; align-items: center; gap: 16px; padding: 15px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+        .product { min-width: 0; }
+        .name { font-weight: 700; overflow-wrap: anywhere; }
+        .meta { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+        .price, .restock { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--text); }
+        .price:focus, .restock:focus, .field input:focus, .field select:focus { border-color: var(--accent); }
+        .inline-label { display: grid; min-width: 0; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 600; }
+        .black-market-toggle { display: flex; align-items: center; gap: 9px; color: var(--text); font-size: 12px; cursor: pointer; }
+        .black-market-toggle input { width: 17px; height: 17px; margin: 0; accent-color: var(--accent); }
+        .listing-state { display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; color: var(--muted); font-size: 11px; }
+        .listing-state.enabled { color: var(--accent); }
+        .row-button { min-width: 120px; }
+        .status { min-height: 23px; margin: 0 0 11px; color: var(--muted); font-size: 13px; }
+        .status.success { color: var(--accent); }
+        .status.error { color: var(--danger); }
+        .empty { padding: 26px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--muted); text-align: center; }
+        .empty strong { display: block; margin-bottom: 4px; color: var(--text); }
+        @media (max-width: 850px) {
+            .shell { padding: 20px 16px 42px; }
+            .item { grid-template-columns: minmax(0,1fr) minmax(150px,.8fr); }
+            .item .product { grid-column: 1 / -1; }
+            .row-button { width: 100%; }
+        }
+        @media (max-width: 600px) {
+            .shell { padding: 14px 12px 34px; }
+            .topbar { align-items: flex-start; flex-direction: column; gap: 13px; }
+            .nav { gap: 12px; }
+            .heading { align-items: flex-start; flex-direction: column; gap: 13px; padding: 22px 0 17px; }
+            .heading .secondary { width: 100%; }
+            .stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat:last-child { grid-column: 1 / -1; }
+            .toolbar { grid-template-columns: 1fr; padding: 12px; }
+            .toolbar .clear-button { width: 100%; }
+            .section-heading { align-items: flex-start; flex-direction: column; gap: 3px; }
+            .item { grid-template-columns: 1fr; gap: 12px; padding: 14px; }
+            .item .product { grid-column: auto; }
+            .row-button { min-height: 42px; }
+        }
+        @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+    </style>
+</head>
+<body>
+<main class="shell">
+    <header class="topbar">
+        <a class="brand" href="admin-dashboard.html"><span class="brand-mark" aria-hidden="true">Æ</span><span>ÆTHERYX ADMIN</span></a>
+        <nav class="nav" aria-label="Admin navigation">
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="manage-users.html">Users</a>
+            <a href="manage-orders.html">Orders &amp; Payments</a>
+            <a href="manage-compatibility.html">Compatibility</a>
+            <a class="active" href="manage-prices.html" aria-current="page">Pricing &amp; Stock</a>
+        </nav>
+    </header>
+
+    <section class="heading">
+        <div>
+            <p class="eyebrow">Catalog operations</p>
+            <h1>Pricing &amp; stock</h1>
+            <p class="intro">Manage equipment prices, replenish inventory, and control Black Market visibility.</p>
+        </div>
+        <button class="secondary" id="refreshButton" type="button">↻ Refresh catalog</button>
+    </section>
+
+    <aside class="notice">
+        <span class="notice-mark" aria-hidden="true">i</span>
+        <span><strong>Black Market listings</strong> are visible to Heroes, but only Villain accounts can add them to a cart or check out. Restocking increases both total stock and available stock. A price of ₱0.00 makes an item unavailable for checkout.</span>
+    </aside>
+
+    <section class="stats" aria-label="Catalog overview">
+        <article class="stat"><div class="stat-label">Catalog items</div><div class="stat-value" id="statItems">—</div></article>
+        <article class="stat"><div class="stat-label">Units available</div><div class="stat-value" id="statAvailable">—</div></article>
+        <article class="stat"><div class="stat-label">Black Market listings</div><div class="stat-value accent" id="statBlackMarket">—</div></article>
+    </section>
+
+    <section class="toolbar" aria-label="Catalog filters">
+        <div class="field">
+            <label for="searchItems">Search equipment</label>
+            <input id="searchItems" type="search" autocomplete="off" placeholder="Search by equipment name…">
+        </div>
+        <div class="field">
+            <label for="roleFilter">Equipment access</label>
+            <select id="roleFilter">
+                <option value="">All equipment</option>
+                <option value="common">Common</option>
+                <option value="hero">Hero</option>
+                <option value="enemy">Villain</option>
+            </select>
+        </div>
+        <button class="secondary clear-button" id="clearFilters" type="button">Clear filters</button>
+        <label class="select-all" id="selectAllBlackMarket" title="Select all Black Market toggles">
+            <input type="checkbox" id="selectAllCheckbox"> Select all
+        </label>
+        <span class="black-market-selected" id="blackMarketSelectedCount">0 listed</span>
+    </section>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+
+    <section class="section" aria-labelledby="pricingHeading">
+        <div class="section-heading">
+            <div><h2 id="pricingHeading">Catalog pricing</h2><p class="section-copy">Set a price between ₱0.00 and ₱99,999,999.99.</p></div>
+            <span class="section-count" id="priceCount"></span>
+        </div>
+        <div id="equipment" class="list" aria-live="polite"><div class="empty"><strong>Loading prices</strong>Retrieving catalog items…</div></div>
+    </section>
+
+    <section class="section" id="stockMarket" aria-labelledby="stockHeading">
+        <div class="section-heading">
+            <div><h2 id="stockHeading">Restock &amp; Black Market listings</h2><p class="section-copy">Enter the number of additional units to add. Black Market changes save immediately.</p></div>
+            <span class="section-count" id="stockCount"></span>
+        </div>
+        <div id="stockEquipment" class="list" aria-live="polite"><div class="empty"><strong>Loading stock</strong>Retrieving stock and listing status…</div></div>
+    </section>
+</main>
+<script>
+"use strict";
+
+const API = "../../backend/api";
+const PRICE_API = "admin/equipment/prices.php";
+const STOCK_API = "admin/equipment/stock.php";
+const $ = id => document.getElementById(id);
+const state = { prices: [], stock: [], loading: false };
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    })[character]);
+}
+
+function roleLabel(role) {
+    if (role === "enemy") return "Villain";
+    if (role === "hero") return "Hero";
+    return "Common";
+}
+
+function formatPrice(value) {
+    const price = Number(value);
+    return Number.isFinite(price) ? price.toFixed(2) : "0.00";
+}
+
+function setStatus(text, type = "") {
+    $("status").textContent = text;
+    $("status").className = `status${type ? ` ${type}` : ""}`;
+}
+
+async function request(path, options = {}) {
+    const response = await fetch(`${API}/${path}`, {
+        credentials: "include",
+        headers: { "Accept": "application/json", "Content-Type": "application/json", ...(options.headers || {}) },
+        ...options
+    });
+    let data;
+    try {
+        data = await response.json();
+    } catch {
+        throw new Error(`The server returned an invalid response (HTTP ${response.status}).`);
+    }
+    if (!response.ok || data.success !== true) {
+        const error = new Error(data.message || `Request failed (HTTP ${response.status}).`);
+        error.status = response.status;
+        throw error;
+    }
+    return data;
+}
+
+function itemMatches(item) {
+    const query = $("searchItems").value.trim().toLowerCase();
+    const selectedRole = $("roleFilter").value;
+    return (!query || String(item.name || "").toLowerCase().includes(query))
+        && (!selectedRole || item.access_role === selectedRole);
+}
+
+function updateSummary() {
+    $("statItems").textContent = String(state.stock.length || state.prices.length);
+    $("statAvailable").textContent = state.stock.reduce((total, item) => total + (Number(item.available_quantity) || 0), 0).toLocaleString();
+    $("statBlackMarket").textContent = String(state.stock.filter(item => item.is_black_market).length);
+}
+
+function renderPrices() {
+    const visible = state.prices.filter(itemMatches);
+    $("priceCount").textContent = `${visible.length} of ${state.prices.length} item${state.prices.length === 1 ? "" : "s"}`;
+    $("equipment").innerHTML = visible.length ? visible.map(item => `
+        <form class="item price-form" data-id="${Number(item.id)}">
+            <div class="product"><div class="name">${escapeHTML(item.name)}</div><div class="meta">${escapeHTML(roleLabel(item.access_role))} · ${escapeHTML(item.status || "unknown")}</div></div>
+            <label class="inline-label">Price (PHP)
+                <input class="price" type="number" name="price" min="0" max="99999999.99" step="0.01" inputmode="decimal" value="${escapeHTML(formatPrice(item.price))}" required aria-label="Price for ${escapeHTML(item.name)}">
+            </label>
+            <span class="meta price-feedback" aria-live="polite">${Number(item.price) > 0 ? "Checkout enabled" : "Checkout unavailable at ₱0.00"}</span>
+            <button class="row-button" type="submit">Save price</button>
+        </form>`).join("") : `<div class="empty"><strong>${state.prices.length ? "No matching equipment" : "No catalog items"}</strong>${state.prices.length ? "Try another search or access filter." : "Equipment will appear here once it has been configured."}</div>`;
+}
+
+function renderStock() {
+    const visible = state.stock.filter(itemMatches);
+    $("stockCount").textContent = `${visible.length} of ${state.stock.length} item${state.stock.length === 1 ? "" : "s"}`;
+    $("stockEquipment").innerHTML = visible.length ? visible.map(item => `
+        <form class="item stock-form" data-id="${Number(item.id)}">
+            <div class="product">
+                <div class="name">${escapeHTML(item.name)}</div>
+                <div class="meta">${escapeHTML(roleLabel(item.access_role))} · ${escapeHTML(item.status || "unknown")} · ${Number(item.available_quantity) || 0} available of ${Number(item.quantity) || 0} total</div>
+            </div>
+            <label class="inline-label">Restock quantity
+                <input class="restock" type="number" name="quantity" min="1" max="2147483647" step="1" inputmode="numeric" placeholder="Units to add" required aria-label="Restock quantity for ${escapeHTML(item.name)}">
+            </label>
+            <div>
+                <label class="black-market-toggle"><input type="checkbox" name="is_black_market" ${item.is_black_market ? "checked" : ""}> Black Market listing</label>
+                <span class="listing-state ${item.is_black_market ? "enabled" : ""}" data-listing-state>${item.is_black_market ? "Listed" : "Not listed"}</span>
+            </div>
+            <button class="row-button" type="submit">Restock</button>
+        </form>`).join("") : `<div class="empty"><strong>${state.stock.length ? "No matching equipment" : "No stock records"}</strong>${state.stock.length ? "Try another search or access filter." : "Stock details will appear here once equipment is configured."}</div>`;
+}
+
+function render() {
+    updateSummary();
+    renderPrices();
+    renderStock();
+    updateBlackMarketCount();
+}
+
+async function load() {
+    if (state.loading) return;
+    state.loading = true;
+    state.prices = [];
+    state.stock = [];
+    updateSummary();
+    $("refreshButton").disabled = true;
+    $("refreshButton").textContent = "Loading…";
+    setStatus("Loading catalog and stock…");
+    $("equipment").innerHTML = '<div class="empty"><strong>Loading prices</strong>Retrieving catalog items…</div>';
+    $("stockEquipment").innerHTML = '<div class="empty"><strong>Loading stock</strong>Retrieving stock and listing status…</div>';
+    try {
+        const session = await request("auth/session.php");
+        if (String(session.role || session.user?.role || "").toLowerCase() !== "admin") {
+            window.location.href = "../public/login.html";
+            return;
+        }
+        const [priceResult, stockResult] = await Promise.allSettled([
+            request(PRICE_API),
+            request(STOCK_API)
+        ]);
+        const pricesLoaded = priceResult.status === "fulfilled" && Array.isArray(priceResult.value.equipment);
+        const stockLoaded = stockResult.status === "fulfilled" && Array.isArray(stockResult.value.equipment);
+        if (pricesLoaded) {
+            state.prices = priceResult.value.equipment;
+        } else {
+            const error = priceResult.status === "rejected" ? priceResult.reason : new Error("The pricing service returned an invalid equipment list.");
+            $("equipment").innerHTML = `<div class="empty"><strong>Pricing unavailable</strong>${escapeHTML(error.message)}<br><button type="button" class="secondary" data-retry>Try again</button></div>`;
+        }
+        if (stockLoaded) {
+            state.stock = stockResult.value.equipment;
+        } else {
+            const error = stockResult.status === "rejected" ? stockResult.reason : new Error("The stock service returned an invalid equipment list.");
+            $("stockEquipment").innerHTML = `<div class="empty"><strong>Stock unavailable</strong>${escapeHTML(error.message)}<br><button type="button" class="secondary" data-retry>Try again</button></div>`;
+        }
+        if (pricesLoaded) renderPrices();
+        if (stockLoaded) renderStock();
+        updateSummary();
+        const failures = Number(!pricesLoaded) + Number(!stockLoaded);
+        setStatus(failures ? "Some catalog data could not be loaded. Retry the affected section." : "Catalog and stock are up to date.", failures ? "error" : "success");
+    } catch (error) {
+        state.prices = [];
+        state.stock = [];
+        updateSummary();
+        $("equipment").innerHTML = `<div class="empty"><strong>Unable to load catalog</strong>${escapeHTML(error.message)}<br><button type="button" class="secondary" data-retry>Try again</button></div>`;
+        $("stockEquipment").innerHTML = `<div class="empty"><strong>Unable to load stock</strong>${escapeHTML(error.message)}<br><button type="button" class="secondary" data-retry>Try again</button></div>`;
+        setStatus(error.message, "error");
+    } finally {
+        state.loading = false;
+        $("refreshButton").disabled = false;
+        $("refreshButton").textContent = "↻ Refresh catalog";
+    }
+}
+
+async function reloadPrices() {
+    const result = await request(PRICE_API);
+    if (!Array.isArray(result.equipment)) throw new Error("The pricing service returned an invalid equipment list.");
+    state.prices = result.equipment;
+    renderPrices();
+    updateSummary();
+}
+
+async function reloadStock() {
+    const result = await request(STOCK_API);
+    if (!Array.isArray(result.equipment)) throw new Error("The stock service returned an invalid equipment list.");
+    state.stock = result.equipment;
+    renderStock();
+    updateSummary();
+}
+
+$("equipment").addEventListener("click", async event => {
+    if (event.target.closest("[data-retry]")) { await load(); return; }
+});
+
+$("equipment").addEventListener("submit", async event => {
+    const form = event.target.closest(".price-form");
+    if (!form) return;
+    event.preventDefault();
+    const input = form.elements.price;
+    if (!input.reportValidity()) return;
+    const price = input.value.trim();
+    if (!/^\d{1,8}(?:\.\d{1,2})?$/.test(price)) {
+        setStatus("Enter a price with up to 8 whole-number digits and 2 decimal places.", "error");
+        input.focus();
+        return;
+    }
+    const button = form.querySelector("button[type=submit]");
+    button.disabled = true;
+    button.textContent = "Saving…";
+    setStatus("");
+    try {
+        const result = await request(PRICE_API, {
+            method: "PUT",
+            body: JSON.stringify({ equipment_id: Number(form.dataset.id), price })
+        });
+        const item = state.prices.find(entry => Number(entry.id) === Number(form.dataset.id));
+        if (item) item.price = Number(result.price);
+        renderPrices();
+        setStatus(`${item?.name || "Equipment"} price saved at ₱${formatPrice(result.price)}.`, "success");
+    } catch (error) {
+        setStatus(error.message, "error");
+        button.disabled = false;
+        button.textContent = "Save price";
+    }
+});
+
+$("stockEquipment").addEventListener("click", async event => {
+    if (event.target.closest("[data-retry]")) await load();
+});
+
+$("stockEquipment").addEventListener("submit", async event => {
+    const form = event.target.closest(".stock-form");
+    if (!form) return;
+    event.preventDefault();
+    const input = form.elements.quantity;
+    if (!input.reportValidity()) return;
+    const quantity = Number(input.value);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 2147483647) {
+        setStatus("Restock quantity must be a whole number from 1 to 2,147,483,647.", "error");
+        input.focus();
+        return;
+    }
+    const button = form.querySelector("button[type=submit]");
+    button.disabled = true;
+    button.textContent = "Restocking…";
+    setStatus("");
+    try {
+        const result = await request(STOCK_API, {
+            method: "POST",
+            body: JSON.stringify({ equipment_id: Number(form.dataset.id), quantity })
+        });
+        const stockItem = state.stock.find(item => Number(item.id) === Number(form.dataset.id));
+        if (stockItem) {
+            stockItem.quantity = Number(result.quantity);
+            stockItem.available_quantity = Number(result.available_quantity);
+            stockItem.is_black_market = Boolean(result.is_black_market);
+            if (stockItem.status === "unavailable") stockItem.status = "available";
+        }
+        renderStock();
+        updateSummary();
+        setStatus(`Restocked ${result.quantity_added} unit${Number(result.quantity_added) === 1 ? "" : "s"}. ${result.available_quantity} now available.`, "success");
+    } catch (error) {
+        setStatus(error.message, "error");
+        button.disabled = false;
+        button.textContent = "Restock";
+    }
+});
+
+$("stockEquipment").addEventListener("change", async event => {
+    const checkbox = event.target.closest('input[name="is_black_market"]');
+    if (!checkbox) return;
+    const form = checkbox.closest(".stock-form");
+    const item = state.stock.find(entry => Number(entry.id) === Number(form?.dataset.id));
+    if (!item) return;
+    const previousValue = Boolean(item.is_black_market);
+    const requestedValue = checkbox.checked;
+    checkbox.disabled = true;
+    setStatus("");
+    try {
+        const result = await request(STOCK_API, {
+            method: "PATCH",
+            body: JSON.stringify({ equipment_id: Number(item.id), is_black_market: requestedValue })
+        });
+        item.is_black_market = Boolean(result.is_black_market);
+        const stateLabel = form.querySelector("[data-listing-state]");
+        stateLabel.textContent = item.is_black_market ? "Listed" : "Not listed";
+        stateLabel.classList.toggle("enabled", item.is_black_market);
+        updateSummary();
+        setStatus(item.is_black_market ? `${item.name} added to Black Market listings.` : `${item.name} removed from Black Market listings.`, "success");
+    } catch (error) {
+        checkbox.checked = previousValue;
+        setStatus(error.message, "error");
+    } finally {
+        checkbox.disabled = false;
+    }
+});
+
+$("searchItems").addEventListener("input", render);
+$("roleFilter").addEventListener("change", render);
+$("clearFilters").addEventListener("click", () => {
+    $("searchItems").value = "";
+    $("roleFilter").value = "";
+    render();
+    $("searchItems").focus();
+});
+
+function updateBlackMarketCount() {
+    const checkboxes = document.querySelectorAll(".stock-form input[name=\"is_black_market\"]");
+    const checked = document.querySelectorAll(".stock-form input[name=\"is_black_market\"]:checked");
+    const countEl = $("blackMarketSelectedCount");
+    const selectAll = $("selectAllCheckbox");
+    if (countEl) countEl.textContent = `${checked.length} listed`;
+    if (selectAll && checkboxes.length > 0) {
+        selectAll.checked = checked.length === checkboxes.length;
+        selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+    }
+}
+
+$("selectAllCheckbox").addEventListener("change", async event => {
+    const checked = event.target.checked;
+    const checkboxes = document.querySelectorAll(".stock-form input[name=\"is_black_market\"]");
+    for (const checkbox of checkboxes) {
+        if (checkbox.checked !== checked) {
+            checkbox.checked = checked;
+            checkbox.dispatchEvent(new Event("change"));
+        }
+    }
+    updateBlackMarketCount();
+});
+
+document.addEventListener("change", event => {
+    if (event.target.matches(".stock-form input[name=\"is_black_market\"]")) {
+        updateBlackMarketCount();
+    }
+});
+
+$("refreshButton").addEventListener("click", load);
+load();
+</script>
+</body>
+</html>

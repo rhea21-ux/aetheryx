@@ -176,7 +176,7 @@ tbody tr:last-child td{border-bottom:0!important}
 
 /* Status */
 .status,.status-dot-small,.badge,.status-dot{box-shadow:none!important}
-.status.active,.status-approved,.status-dot-small.active{color:var(--ax-success)!important;background:var(--ax-success-soft)!important}
+.status.active,.status-dot-small.active{color:var(--ax-success)!important;background:var(--ax-success-soft)!important}
 .status.pending{color:var(--ax-warning)!important;background:var(--ax-warning-soft)!important}
 .status.rejected,.status.lost,.status.damaged{color:var(--ax-danger)!important;background:var(--ax-danger-soft)!important}
 

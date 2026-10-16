@@ -115,11 +115,13 @@ CREATE TABLE `equipment` (
   `id` int UNSIGNED NOT NULL,
   `category_id` int UNSIGNED DEFAULT NULL,
   `access_role` enum('common','hero','enemy') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'common',
+  `is_black_market` tinyint(1) NOT NULL DEFAULT '0',
   `name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
   `brand` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `quantity` int UNSIGNED NOT NULL DEFAULT '0',
   `available_quantity` int UNSIGNED NOT NULL DEFAULT '0',
+  `price` decimal(10,2) NOT NULL DEFAULT '0.00',
   `status` enum('available','unavailable','maintenance') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'available',
   `image_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -184,9 +186,12 @@ CREATE TABLE `inventory` (
   `user_id` int UNSIGNED NOT NULL,
   `equipment_id` int UNSIGNED NOT NULL,
   `quantity` int UNSIGNED NOT NULL DEFAULT '1',
-  `status` enum('assigned','returned','lost','damaged') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'assigned',
+  `status` enum('assigned','returned','sold','lost','damaged') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'assigned',
+  `purchase_price` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `sale_price` decimal(10,2) DEFAULT NULL,
   `assigned_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `returned_at` timestamp NULL DEFAULT NULL,
+  `sold_at` timestamp NULL DEFAULT NULL,
   `notes` text COLLATE utf8mb4_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

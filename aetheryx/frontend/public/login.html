@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -1125,6 +1126,19 @@
                         );
                     }
 
+                    if (
+                        typeof data.tab_session_token !== "string" ||
+                        typeof window.setAetheryxTabAuthToken !== "function"
+                    ) {
+                        throw new Error(
+                            "Login succeeded, but this tab could not save its secure session. Please try again."
+                        );
+                    }
+
+                    await window.setAetheryxTabAuthToken(
+                        data.tab_session_token
+                    );
+
 
                     /*
                      * IMPORTANT:
@@ -1158,31 +1172,6 @@
                             "Your account has an invalid role."
                         );
                     }
-
-
-                    /*
-                     * Store display information only.
-                     *
-                     * Authentication is still controlled
-                     * by the PHP session.
-                     */
-
-                    sessionStorage.setItem(
-                        "aetheryx_role",
-                        role
-                    );
-
-                    sessionStorage.setItem(
-                        "aetheryx_handle",
-                        data.user.handle || ""
-                    );
-
-                    sessionStorage.setItem(
-                        "aetheryx_user_id",
-                        String(
-                            data.user.id || ""
-                        )
-                    );
 
 
                     /*

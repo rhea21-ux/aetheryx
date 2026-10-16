@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../middleware/auth-check.php';
+require_once __DIR__ . '/../../middleware/role-check.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../helpers/notify.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-requireAuth();
+requireMarketplaceRole();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
     http_response_code(405);
@@ -22,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
 }
 
 $userId = getAuthenticatedUserId();
+$role = getAuthenticatedRole();
 
 $data = json_decode(
     file_get_contents('php://input'),
@@ -70,8 +72,11 @@ try {
         SELECT
             ci.id,
             ci.equipment_id,
+            e.name,
             e.available_quantity,
-            e.status
+            e.status,
+            e.access_role,
+            e.is_black_market
         FROM cart_items ci
 
         INNER JOIN equipment e
@@ -103,7 +108,28 @@ try {
         exit;
     }
 
-    if (strtolower((string) $item['status']) === 'maintenance') {
+    if ((bool) $item['is_black_market'] && $role !== 'enemy') {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Only Villain accounts can purchase Black Market equipment.',
+            'code' => 'BLACK_MARKET_VILLAIN_ONLY'
+        ]);
+        exit;
+    }
+
+    if (!in_array($item['access_role'], ['common', $role], true)
+        && !((bool) $item['is_black_market'] && $role === 'enemy')) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'message' => 'You are not authorized to access this equipment.',
+            'code' => 'EQUIPMENT_ROLE_RESTRICTED'
+        ]);
+        exit;
+    }
+
+    if ($item['status'] !== 'available') {
 
         http_response_code(409);
 
@@ -144,6 +170,9 @@ try {
         ':cart_id' => $cartId,
         ':user_id' => $userId
     ]);
+    $message = sprintf('Updated %s in the cart to quantity %d.', $item['name'], $quantity);
+    createNotification($pdo, (int) $userId, 'Cart updated', $message, 'success');
+    notifyAdminsOfActivity($pdo, (int) $userId, 'Cart updated', $message, 'info');
 
     echo json_encode([
         'success' => true,

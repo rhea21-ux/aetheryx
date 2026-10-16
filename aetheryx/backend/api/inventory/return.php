@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../middleware/auth-check.php';
+require_once __DIR__ . '/../../middleware/role-check.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../helpers/notify.php';
 
@@ -18,7 +18,7 @@ function respond(bool $success, string $message, int $status = 200, array $extra
     exit;
 }
 
-requireAuth();
+requireMarketplaceRole();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     respond(false, 'Method not allowed.', 405, ['code' => 'METHOD_NOT_ALLOWED']);
@@ -58,6 +58,13 @@ try {
         respond(false, 'Only assigned equipment can be returned.', 409, ['code' => 'NOT_RETURNABLE']);
     }
 
+    $listed = $pdo->prepare("SELECT id FROM resale_listings WHERE inventory_id = :id AND status = 'active' LIMIT 1");
+    $listed->execute([':id' => $inventoryId]);
+    if ($listed->fetchColumn()) {
+        $pdo->rollBack();
+        respond(false, 'Withdraw this active resale listing before returning the item.', 409, ['code' => 'ITEM_LISTED_FOR_RESALE']);
+    }
+
     $pdo->prepare(
         'UPDATE inventory
          SET status = "returned", returned_at = CURRENT_TIMESTAMP
@@ -75,9 +82,9 @@ try {
         ':equipment_id' => (int) $item['equipment_id']
     ]);
 
-    createNotification($pdo, (int) $userId, 'Equipment returned', 'Your equipment was returned and is available to others again.', 'success');
-
     $pdo->commit();
+    createNotification($pdo, (int) $userId, 'Equipment returned', 'Your equipment was returned and is available to others again.', 'success');
+    notifyAdminsOfActivity($pdo, (int) $userId, 'Equipment returned', 'A user returned equipment to inventory.', 'info');
 
     respond(true, 'Equipment returned successfully.');
 } catch (Throwable $e) {

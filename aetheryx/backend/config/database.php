@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 $host = getenv('DB_HOST') ?: '127.0.0.1';
 $port = getenv('DB_PORT') ?: '3306';
-$dbname = getenv('DB_NAME') ?: 'aetheryx';
+$dbname = getenv('DB_NAME') ?: 'aetheryx_db';
 $username = getenv('DB_USER') ?: 'root';
 $password = getenv('DB_PASSWORD') ?: '';
 $sslCa = getenv('DB_SSL_CA') ?: '';

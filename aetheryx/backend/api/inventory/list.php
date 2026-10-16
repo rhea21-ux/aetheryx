@@ -5,7 +5,7 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../../middleware/auth-check.php';
+require_once __DIR__ . '/../../middleware/role-check.php';
 
 function respond(
     bool $success,
@@ -39,7 +39,7 @@ try {
     |--------------------------------------------------------------------------
     */
 
-    requireAuth();
+    requireMarketplaceRole();
 
     /*
     |--------------------------------------------------------------------------
@@ -133,12 +133,17 @@ try {
             i.equipment_id,
             i.quantity,
             i.status,
+            i.purchase_price,
+            i.sale_price,
             i.assigned_at,
             i.returned_at,
+            i.sold_at,
             i.notes,
 
             e.name AS equipment_name,
             e.description AS equipment_description,
+            e.price AS current_price,
+            e.access_role,
 
             c.name AS category_name
 
@@ -207,6 +212,19 @@ try {
             'quantity' =>
                 (int) ($row['quantity'] ?? 0),
 
+            'purchase_price' =>
+                (float) ($row['purchase_price'] ?? 0),
+
+            'current_price' =>
+                (float) ($row['current_price'] ?? 0),
+
+            'access_role' =>
+                (string) ($row['access_role'] ?? 'common'),
+
+            'sale_price' => $row['sale_price'] !== null
+                ? (float) $row['sale_price']
+                : null,
+
             'status' =>
                 (string) ($row['status'] ?? 'assigned'),
 
@@ -215,6 +233,9 @@ try {
 
             'returned_at' =>
                 $row['returned_at'] ?? null,
+
+            'sold_at' =>
+                $row['sold_at'] ?? null,
 
             'notes' =>
                 (string) ($row['notes'] ?? '')

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script src="../assets/js/tab-auth-context.js"></script>
+    <script defer src="../assets/js/notification-drawer.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Notifications — ÆTHERYX Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0b1020;
+            --surface: #12182a;
+            --surface-raised: #171e31;
+            --line: #283147;
+            --text: #e6eaf2;
+            --muted: #929caf;
+            --accent: #49c9b5;
+            --danger: #e66b7b;
+            --warning: #e7b85d;
+            --success: #5fd39a;
+        }
+        * { box-sizing: border-box; }
+        body { min-height: 100vh; margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 "IBM Plex Sans", sans-serif; }
+        a { color: inherit; }
+        .shell { width: min(1060px, 100%); margin: auto; padding: 28px 24px 60px; }
+        .top { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+        .brand { color: var(--text); font: 700 13px "Space Grotesk", sans-serif; letter-spacing: .12em; text-decoration: none; }
+        nav { display: flex; flex-wrap: wrap; gap: 18px; }
+        nav a { color: var(--muted); font-size: 13px; text-decoration: none; }
+        nav a:hover, nav a[aria-current="page"] { color: var(--accent); }
+        header.page { padding: 30px 0 22px; }
+        .eyebrow { margin: 0 0 7px; color: var(--accent); font: 600 10px "IBM Plex Mono", monospace; letter-spacing: .14em; text-transform: uppercase; }
+        h1 { margin: 0; font: 600 clamp(28px, 4vw, 36px)/1.2 "Space Grotesk", sans-serif; letter-spacing: -.03em; }
+        .intro { margin: 9px 0 0; color: var(--muted); }
+        .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 4px 0 14px; }
+        .counts { color: var(--muted); font-size: 13px; }
+        .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+        button { min-height: 40px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-raised); color: var(--text); font: 600 12px "IBM Plex Sans", sans-serif; cursor: pointer; }
+        button:hover:not(:disabled) { border-color: var(--accent); }
+        button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+        button:disabled { opacity: .5; cursor: not-allowed; }
+        .danger { color: var(--danger); }
+        .list { overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+        .item { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: start; gap: 14px; padding: 17px 18px; border-bottom: 1px solid var(--line); }
+        .item:last-child { border-bottom: 0; }
+        .item.unread { background: rgba(73,201,181,.055); }
+        .dot { width: 9px; height: 9px; margin-top: 7px; border-radius: 50%; background: var(--muted); }
+        .dot.success { background: var(--success); } .dot.warning { background: var(--warning); } .dot.danger { background: var(--danger); }
+        .title { font-weight: 700; }
+        .message { margin-top: 3px; color: var(--muted); overflow-wrap: anywhere; }
+        time { display: block; margin-top: 7px; color: var(--muted); font: 11px "IBM Plex Mono", monospace; }
+        .row-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+        .row-actions button { min-height: 34px; padding: 6px 9px; }
+        .state { padding: 42px 20px; color: var(--muted); text-align: center; }
+        .state strong { display: block; margin-bottom: 5px; color: var(--text); }
+        .error { color: var(--danger); }
+        @media (max-width: 640px) {
+            .shell { padding: 18px 14px 40px; }
+            .top, .toolbar { align-items: flex-start; flex-direction: column; }
+            nav { gap: 12px; }
+            .item { grid-template-columns: 9px minmax(0, 1fr); gap: 10px; }
+            .row-actions { grid-column: 2; justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<main class="shell">
+    <header class="top">
+        <a class="brand" href="admin-dashboard.html">ÆTHERYX ADMIN</a>
+        <nav aria-label="Admin navigation">
+            <a href="admin-dashboard.html">Dashboard</a>
+            <a href="manage-users.html">Users</a>
+            <a href="manage-orders.html">Orders</a>
+            <a href="manage-compatibility.html">Compatibility</a>
+            <a href="admin-notifications.html" aria-current="page">Notifications</a>
+        </nav>
+    </header>
+    <header class="page">
+        <p class="eyebrow">Account activity</p>
+        <h1>Notifications</h1>
+        <p class="intro">Updates about account activity, orders, inventory, and administrative changes.</p>
+    </header>
+    <section class="toolbar" aria-label="Notification controls">
+        <div class="counts" id="counts" aria-live="polite">Loading notifications…</div>
+        <div class="actions">
+            <button id="markAll" type="button">Mark all as read</button>
+            <button class="danger" id="clearRead" type="button">Clear read</button>
+        </div>
+    </section>
+    <section class="list" id="list" aria-live="polite">
+        <div class="state">Loading notifications…</div>
+    </section>
+</main>
+<script>
+"use strict";
+const API = "../../backend/api/notifications/";
+const list = document.getElementById("list");
+const counts = document.getElementById("counts");
+let notifications = [];
+
+const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+}[char]));
+
+function formatTime(value) {
+    const date = new Date(String(value || "").replace(" ", "T"));
+    return Number.isNaN(date.getTime())
+        ? ""
+        : date.toLocaleString(undefined, {dateStyle: "medium", timeStyle: "short"});
+}
+
+async function request(endpoint, body) {
+    const response = await fetch(API + endpoint, {
+        method: body ? "POST" : "GET",
+        credentials: "include",
+        cache: "no-store",
+        headers: {"Accept": "application/json", "Content-Type": "application/json"},
+        body: body ? JSON.stringify(body) : undefined
+    });
+    let data;
+    try {
+        data = await response.json();
+    } catch {
+        throw new Error("The server returned an invalid response.");
+    }
+    if (response.status === 401) {
+        location.replace("../public/login.html");
+        throw new Error("Your session has expired.");
+    }
+    if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to complete the request.");
+    }
+    return data;
+}
+
+function render() {
+    const unread = notifications.filter(item => !item.is_read).length;
+    counts.textContent = `${notifications.length} notification${notifications.length === 1 ? "" : "s"} · ${unread} unread`;
+    document.getElementById("markAll").disabled = unread === 0;
+    document.getElementById("clearRead").disabled = unread === notifications.length;
+    if (!notifications.length) {
+        list.innerHTML = '<div class="state"><strong>You’re all caught up</strong>No notifications yet.</div>';
+        return;
+    }
+    list.innerHTML = notifications.map(item => `
+        <article class="item ${item.is_read ? "" : "unread"}" data-id="${escapeHTML(item.id)}">
+            <span class="dot ${escapeHTML(item.type)}" aria-hidden="true"></span>
+            <div>
+                <div class="title">${escapeHTML(item.title)}</div>
+                <div class="message">${escapeHTML(item.message)}</div>
+                <time>${escapeHTML(formatTime(item.created_at))}</time>
+            </div>
+            <div class="row-actions">
+                ${item.is_read ? "" : '<button data-action="read" type="button">Mark read</button>'}
+                <button class="danger" data-action="delete" type="button">Delete</button>
+            </div>
+        </article>
+    `).join("");
+}
+
+async function load() {
+    list.innerHTML = '<div class="state">Loading notifications…</div>';
+    try {
+        const data = await request("list.php");
+        notifications = (data.notifications || []).map(item => ({...item, is_read: !!item.is_read}));
+        render();
+    } catch (error) {
+        counts.textContent = "Notifications unavailable";
+        list.innerHTML = `<div class="state error"><strong>Couldn’t load notifications</strong>${escapeHTML(error.message)}<br><button id="retry" type="button">Try again</button></div>`;
+        document.getElementById("retry").addEventListener("click", load);
+    }
+}
+
+list.addEventListener("click", async event => {
+    const button = event.target.closest("[data-action]");
+    if (!button) return;
+    const row = button.closest("[data-id]");
+    const id = Number(row.dataset.id);
+    const item = notifications.find(notification => Number(notification.id) === id);
+    if (!item) return;
+    try {
+        if (button.dataset.action === "read") {
+            await request("mark-read.php", {id});
+            item.is_read = true;
+        } else {
+            await request("delete.php", {id});
+            notifications = notifications.filter(notification => Number(notification.id) !== id);
+        }
+        render();
+    } catch (error) {
+        alert(error.message);
+    }
+});
+
+document.getElementById("markAll").addEventListener("click", async () => {
+    try {
+        await request("mark-read.php", {all: true});
+        notifications.forEach(item => { item.is_read = true; });
+        render();
+    } catch (error) {
+        alert(error.message);
+    }
+});
+
+document.getElementById("clearRead").addEventListener("click", async () => {
+    if (!confirm("Delete all read notifications?")) return;
+    try {
+        await request("delete.php", {all_read: true});
+        notifications = notifications.filter(item => !item.is_read);
+        render();
+    } catch (error) {
+        alert(error.message);
+    }
+});
+
+load();
+</script>
+</body>
+</html>

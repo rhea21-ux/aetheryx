@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script src="../assets/js/role-context.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Notifications — ÆTHERYX</title>
@@ -35,7 +37,7 @@
             <a class="nav-item" href="../hero/hero-dashboard.html"><span class="nav-icon">⌂</span><span class="nav-text">Dashboard</span></a>
             <a class="nav-item" href="marketplace.html"><span class="nav-icon">◈</span><span class="nav-text">Marketplace</span></a>
             <a class="nav-item" href="cart.html"><span class="nav-icon">◇</span><span class="nav-text">Cart</span></a>
-            <a class="nav-item" href="my-requests.html"><span class="nav-icon">◎</span><span class="nav-text">My Requests</span></a>
+            <a class="nav-item" href="orders.html"><span class="nav-icon">▤</span><span class="nav-text">Order History</span></a>
             <a class="nav-item" href="inventory.html"><span class="nav-icon">▣</span><span class="nav-text">Inventory</span></a>
             <a class="nav-item active" href="notifications.html" aria-current="page"><span class="nav-icon">●</span><span class="nav-text">Notifications</span></a>
             <a class="nav-item" href="compatibility.html"><span class="nav-icon">⌁</span><span class="nav-text">Compatibility</span></a>
@@ -59,7 +61,7 @@
         <header class="page-header">
             <div class="eyebrow">Activity</div>
             <h1>Notifications</h1>
-            <p class="intro">Updates about your requests, approvals and returned equipment.</p>
+            <p class="intro">Updates about sign-ins, cart activity, orders, resale listings, and your equipment.</p>
         </header>
 
         <div class="nf-bar">
@@ -81,7 +83,7 @@
             <div class="empty-icon" aria-hidden="true">●</div>
             <div>
                 <strong id="emptyTitle">You're all caught up</strong>
-                <p id="emptyText">New updates about your requests will show up here.</p>
+                <p id="emptyText">New account, order, marketplace, and equipment updates will show up here.</p>
                 <a class="btn empty-action" href="marketplace.html">Browse marketplace</a>
             </div>
         </section>
@@ -146,7 +148,7 @@ function render(){
         $("emptyTitle").textContent = filter === "unread" ? "No unread notifications" : "You're all caught up";
         $("emptyText").textContent = filter === "unread"
             ? "Everything has been read."
-            : "New updates about your requests will show up here.";
+            : "New account, order, marketplace, and equipment updates will show up here.";
         show(empty);
         return;
     }

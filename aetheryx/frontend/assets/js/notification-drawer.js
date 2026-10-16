@@ -1,14 +1,22 @@
-/* Notification bell + right-side drawer (used on every hero/user page). */
+/* Notification bell + right-side drawer (shared across account and admin pages). */
 (function () {
     "use strict";
 
     var API = "../../backend/api/notifications/";
-    var VIEW_ALL = location.pathname.indexOf("/hero/") !== -1 ? "../users/notifications.html" : "notifications.html";
+    var VIEW_ALL = location.pathname.indexOf("/hero/") !== -1 || location.pathname.indexOf("/enemy/") !== -1
+        ? "../users/notifications.html"
+        : location.pathname.indexOf("/admin/") !== -1
+            ? "admin-notifications.html"
+            : "notifications.html";
     var items = [], filter = "all", lastFocus = null, timer = null;
 
     var css = [
-        ".nd-bell{position:fixed;top:14px;right:24px;z-index:120;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--surface,#151C2F);color:var(--text,#E9EDF6);border:1px solid var(--border,#3A4566);}",
-        ".nd-bell:hover{background:var(--surface-2,#1B2338);}",
+        ".nd-nav-control{display:flex;align-items:center;gap:6px;min-width:0;}",
+        ".nd-nav-control>a{flex:1 1 auto;min-width:0;}",
+        ".nd-bell{position:relative;flex:0 0 40px;width:40px;height:40px;border-radius:9px;display:grid;place-items:center;cursor:pointer;background:var(--surface,#151C2F);color:var(--text,#E9EDF6);border:1px solid var(--border,#3A4566);}",
+        ".market-top-actions .nd-bell{flex:0 0 40px;}",
+        ".nd-bell:hover{background:var(--surface-2,#1B2338);color:var(--primary,#4CC9B4);}",
+        ".nd-bell-floating{position:fixed;right:20px;bottom:20px;z-index:120;box-shadow:0 8px 24px rgba(0,0,0,.28);}",
         ".nd-bell svg{width:22px;height:22px;}",
         ".nd-badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#E66B7B;color:#fff;font:700 12px/20px system-ui,sans-serif;text-align:center;}",
         ".nd-overlay{position:fixed;inset:0;z-index:300;background:rgba(5,9,18,.6);opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;}",
@@ -41,7 +49,7 @@
         ".nd-empty{padding:48px 24px;text-align:center;color:var(--muted,#AEB9D0);font-size:16px;}",
         ".nd-foot{padding:14px 20px;border-top:1px solid var(--border,#3A4566);}",
         ".nd-foot a{display:block;text-align:center;padding:12px;border-radius:9px;background:var(--primary,#4CC9B4);color:var(--on-primary,#06201B);font-weight:700;text-decoration:none;}",
-        "@media (max-width:900px){.nd-bell{top:6px;right:68px;width:44px;height:44px;}}"
+        "@media (max-width:900px){.nd-bell-floating{right:16px;bottom:16px;}}"
     ].join("");
 
     function el(tag, cls, text) {
@@ -66,6 +74,7 @@
         var res = await fetch(API + endpoint, {
             method: body ? "POST" : "GET",
             credentials: "include",
+            cache: "no-store",
             headers: { "Accept": "application/json", "Content-Type": "application/json" },
             body: body ? JSON.stringify(body) : undefined
         });
@@ -83,6 +92,7 @@
         bell.type = "button";
         bell.setAttribute("aria-label", "Notifications");
         bell.setAttribute("aria-haspopup", "dialog");
+        bell.title = "Open notification preview";
         bell.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
         var badge = el("span", "nd-badge");
         badge.hidden = true;
@@ -126,7 +136,26 @@
         foot.appendChild(viewAll);
 
         [head, bar, list, foot].forEach(function (n) { panel.appendChild(n); });
-        document.body.appendChild(bell);
+        var marketplaceActions = location.pathname.endsWith("/marketplace.html")
+            ? document.querySelector(".market-top-actions")
+            : null;
+        var notificationsLink = Array.prototype.find.call(
+            document.querySelectorAll(".sidebar nav a[href], .sidebar .nav a[href], .nav a[href]"),
+            function (link) {
+                return /(^|\/)notifications\.html(?:[?#]|$)/i.test(link.getAttribute("href") || "");
+            }
+        );
+        if (marketplaceActions) {
+            marketplaceActions.appendChild(bell);
+        } else if (notificationsLink && notificationsLink.parentNode) {
+            var navControl = el("div", "nd-nav-control");
+            notificationsLink.parentNode.insertBefore(navControl, notificationsLink);
+            navControl.appendChild(notificationsLink);
+            navControl.appendChild(bell);
+        } else {
+            bell.classList.add("nd-bell-floating");
+            document.body.appendChild(bell);
+        }
         document.body.appendChild(overlay);
         document.body.appendChild(panel);
 
@@ -234,6 +263,9 @@
         });
 
         load();
-        timer = setInterval(function () { if (!document.hidden) load(); }, 60000);
+        timer = setInterval(function () { if (!document.hidden) load(); }, 30000);
+        document.addEventListener("visibilitychange", function () {
+            if (!document.hidden) load();
+        });
     });
 })();

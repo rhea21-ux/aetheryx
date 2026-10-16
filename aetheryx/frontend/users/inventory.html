@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script src="../assets/js/role-context.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inventory — ÆTHERYX</title>
@@ -14,6 +16,7 @@
 <script defer src="../assets/js/aetheryx-consistent.js"></script>
 <style>
     .inventory-intro{max-width:720px;line-height:1.6}
+    .inventory-page,.inventory-page *,.inventory-page *::before,.inventory-page *::after{animation:none!important;scroll-behavior:auto!important;transition:none!important}
     .inventory-guide{display:flex;align-items:flex-start;gap:12px;margin:-7px 0 20px;padding:14px 16px;border:1px solid var(--ax-border);border-left:3px solid var(--ax-accent);border-radius:10px;background:var(--ax-surface);color:var(--ax-muted);font-size:13px;line-height:1.55}
     .inventory-guide strong{color:var(--ax-text)}
     .inventory-guide-icon{display:grid;place-items:center;flex:0 0 26px;height:26px;border:1px solid var(--ax-border-strong);border-radius:8px;color:var(--ax-accent);font:600 12px "IBM Plex Mono",monospace}
@@ -30,12 +33,96 @@
     .card .detail-value{overflow-wrap:anywhere}
     .inventory-notes{margin:0 0 14px;padding:10px 12px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);color:var(--ax-muted);font-size:12px;line-height:1.5}
     .inventory-notes strong{color:var(--ax-text);font-weight:600}
-    .card-footer .btn{min-width:92px}
+    .resale-price-controls{grid-column:1/-1;margin:0 0 2px;padding:13px 14px;border:1px solid var(--ax-border);border-radius:10px;background:var(--ax-bg)}
+    .resale-price-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--ax-muted);font-size:12px}
+    .resale-price-heading label{margin:0;color:var(--ax-text);font-size:13px;font-weight:600}
+    .resale-price-heading output{color:var(--ax-accent);font:600 13px "IBM Plex Mono",monospace}
+    .resale-price-slider{display:block;width:100%;height:24px;margin:8px 0 0;accent-color:var(--ax-accent);cursor:pointer}
+    .resale-price-limits{display:flex;justify-content:space-between;gap:10px;color:var(--ax-muted);font:11px "IBM Plex Mono",monospace}
+    .badge.sold{color:var(--ax-info);border-color:var(--ax-info)}
+    .card-footer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:9px}
+    .card-footer .badge{grid-column:1/-1;justify-self:start}
+    .card-footer .btn{width:100%;min-width:0;min-height:44px;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:600;line-height:1.25;white-space:normal}
+    .main .card-footer .inventory-sell-btn{background:var(--ax-accent)!important;border:1px solid var(--ax-accent)!important;color:#07131B!important}
+    .main .card-footer .inventory-sell-btn:hover{background:var(--ax-accent-hover)!important;border-color:var(--ax-accent-hover)!important;color:#07131B!important}
+    .main .card-footer .btn:disabled{opacity:.65!important;cursor:wait}
+    .inventory-page :focus-visible{outline:2px solid var(--ax-accent)!important;outline-offset:2px}
     @media(max-width:800px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:520px){.summary{grid-template-columns:1fr 1fr;gap:9px}.summary .stat{padding:14px;min-height:88px}.inventory-guide{font-size:12px}}
+    @media(max-width:520px){.summary{grid-template-columns:1fr 1fr;gap:9px}.summary .stat{padding:14px;min-height:88px}.inventory-guide{font-size:12px}.grid{grid-template-columns:minmax(0,1fr)}.card-footer{gap:8px}.card-footer .btn{min-height:46px;font-size:12px;padding:8px}}
+
+    /* ── SELL EQUIPMENT MODAL ── */
+    #inventorySellModal {
+        width: min(560px, calc(100% - 32px));
+        max-width: 92vw;
+        padding: 0;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 1px solid rgba(79,224,201,.2);
+        border-radius: 16px;
+        background: #0e1526;
+        color: var(--ax-text);
+        box-shadow: 0 30px 80px rgba(0,0,0,.6);
+    }
+    #inventorySellModal::backdrop { background: rgba(0,0,0,.7); backdrop-filter: blur(6px); }
+    #inventorySellModal .modal-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid var(--ax-border);
+    }
+    #inventorySellModal .modal-header h2 { font-family: "Space Grotesk"; font-size: 20px; margin: 0; }
+    #inventorySellModal .modal-eyebrow { color: var(--ax-accent); font-family: "IBM Plex Mono",monospace; font-size: 9px; letter-spacing: .15em; margin-bottom: 4px; display:block; }
+    #inventorySellModal .modal-close {
+        width: 32px; height: 32px; border-radius: 50%;
+        border: 1px solid var(--ax-border); background: transparent;
+        color: var(--ax-muted); font-size: 18px; cursor: pointer; transition: .2s;
+        display: grid; place-items: center;
+    }
+    #inventorySellModal .modal-close:hover { border-color: rgba(255,255,255,.2); color: var(--ax-text); }
+    #inventorySellModal .modal-body { padding: 20px 24px; display: grid; gap: 14px; max-height: 72vh; overflow-y: auto; }
+    #inventorySellModal .modal-item-summary {
+        padding: 14px 16px; border-radius: 10px;
+        background: rgba(79,224,201,.06); border: 1px solid rgba(79,224,201,.18);
+        display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+    }
+    #inventorySellModal .modal-item-name { font-family: "Space Grotesk"; font-size: 15px; color: var(--ax-text); font-weight: 600; margin: 0; }
+    #inventorySellModal .modal-item-price { font-size: 18px; font-weight: 700; color: var(--ax-accent); white-space: nowrap; font-family: "IBM Plex Mono",monospace; }
+    #inventorySellModal .form-section-label { font-family: "IBM Plex Mono",monospace; font-size: 9px; letter-spacing: .14em; color: var(--ax-muted); text-transform: uppercase; margin-bottom: 4px; }
+    #inventorySellModal .form-group { display: flex; flex-direction: column; gap: 5px; }
+    #inventorySellModal .form-group label { font-size: 12px; color: var(--ax-muted); }
+    #inventorySellModal .form-group input, #inventorySellModal .form-group select {
+        padding: 11px 13px; background: rgba(22,27,46,.9); color: var(--ax-text);
+        border: 1px solid var(--ax-border); border-radius: 8px;
+        font-family: "IBM Plex Sans"; font-size: 13px; outline: none; transition: .2s;
+    }
+    #inventorySellModal .form-group input:focus, #inventorySellModal .form-group select:focus { border-color: rgba(79,224,201,.45); box-shadow: 0 0 0 3px rgba(79,224,201,.05); }
+    #inventorySellModal .form-group select option { background: var(--ax-surface); }
+    #inventorySellModal .resale-price-limits { display:flex; justify-content:space-between; gap:10px; color: var(--ax-muted); font:11px "IBM Plex Mono",monospace; margin-top: 2px; }
+    #inventorySellModal output { display:block; font-size: 14px; font-weight: 700; color: var(--ax-text); text-align: right; font-family: "IBM Plex Mono",monospace; margin-bottom: 4px; }
+    #inventorySellModal input[type=range] { width: 100%; height: 24px; accent-color: var(--ax-accent); cursor: pointer; margin: 6px 0 0; }
+    #inventorySellModal .form-note { padding: 10px 13px; border-radius: 8px; background: rgba(139,111,234,.06); border: 1px solid rgba(139,111,234,.18); color: var(--ax-muted); font-size: 11px; line-height: 1.55; }
+    #inventorySellModal .modal-footer {
+        display: flex; justify-content: flex-end; gap: 10px;
+        padding: 16px 24px 20px; border-top: 1px solid var(--ax-border);
+    }
+    #inventorySellModal .btn-cancel {
+        padding: 11px 18px; border-radius: 9px; border: 1px solid var(--ax-border);
+        background: transparent; color: var(--ax-muted);
+        font-family: "IBM Plex Mono",monospace; font-size: 11px; cursor: pointer; transition: .2s;
+    }
+    #inventorySellModal .btn-cancel:hover { color: var(--ax-text); border-color: rgba(255,255,255,.2); }
+    #inventorySellModal .btn-submit {
+        padding: 11px 22px; border-radius: 9px;
+        border: 1px solid rgba(79,224,201,.35); background: rgba(79,224,201,.12);
+        color: var(--ax-accent); font-family: "IBM Plex Mono",monospace; font-size: 11px; font-weight: 700;
+        cursor: pointer; transition: .2s;
+    }
+    #inventorySellModal .btn-submit:hover:not(:disabled) { background: rgba(79,224,201,.2); }
+    #inventorySellModal .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
 </style>
 </head>
-<body>
+<body class="inventory-page">
 
     <header class="mobile-header">
         <div class="mobile-brand">ÆTHERYX</div>
@@ -48,17 +135,18 @@
             <div class="brand-symbol">Æ</div>
             <div>
                 <div class="brand-name">ÆTHERYX</div>
-                <div class="brand-subtitle">HERO NETWORK</div>
+                <div class="brand-subtitle" id="networkLabel">ÆTHERYX NETWORK</div>
             </div>
         </div>
 
         <div class="section-label">Command</div>
 
         <nav class="nav" aria-label="Primary navigation">
-            <a class="nav-item" href="../hero/hero-dashboard.html"><span class="nav-icon">⌂</span><span class="nav-text">Dashboard</span></a>
+            <a class="nav-item" id="dashboardLink" href="../hero/hero-dashboard.html"><span class="nav-icon">⌂</span><span class="nav-text">Dashboard</span></a>
             <a class="nav-item" href="marketplace.html"><span class="nav-icon">◈</span><span class="nav-text">Marketplace</span></a>
+            <a class="nav-item" href="resale.html"><span class="nav-icon">↻</span><span class="nav-text">Pre-Owned Gear</span></a>
             <a class="nav-item" href="cart.html"><span class="nav-icon">◇</span><span class="nav-text">Cart</span></a>
-            <a class="nav-item" href="my-requests.html"><span class="nav-icon">◎</span><span class="nav-text">My Requests</span></a>
+            <a class="nav-item" href="orders.html"><span class="nav-icon">▤</span><span class="nav-text">Order History</span></a>
             <a class="nav-item active" href="inventory.html" aria-current="page"><span class="nav-icon">▣</span><span class="nav-text">Inventory</span></a>
             <a class="nav-item" href="notifications.html"><span class="nav-icon">●</span><span class="nav-text">Notifications</span></a>
             <a class="nav-item" href="compatibility.html"><span class="nav-icon">⌁</span><span class="nav-text">Compatibility</span></a>
@@ -70,7 +158,7 @@
                 <div class="avatar">H</div>
                 <div class="user-name">
                     <strong>Authenticated</strong>
-                    <span>Hero</span>
+                    <span id="accountRole">Account</span>
                 </div>
             </div>
             <button class="logout-btn" id="logoutButton" type="button">Sign out</button>
@@ -91,7 +179,7 @@
 
         <aside class="inventory-guide" aria-label="Cart and inventory explanation">
             <span class="inventory-guide-icon" aria-hidden="true">i</span>
-            <span><strong>Cart is for requests.</strong> Add equipment there and submit it for approval. <strong>Inventory is for issued equipment.</strong> Approved items appear here while assigned, and returned items remain as a record.</span>
+            <span><strong>Buy:</strong> check out marketplace equipment using cash on delivery or a simulated demo payment. Successful orders appear here as assigned. <strong>Sell:</strong> choose a resale price from 50% to 95% of its reference price. The default is 5% below the reference price, and the sale price can never be higher. Online payment transfers are not connected.</span>
         </aside>
 
         <section class="summary" aria-label="Inventory summary">
@@ -107,6 +195,7 @@
                 <option value="">All status</option>
                 <option value="assigned">Assigned</option>
                 <option value="returned">Returned</option>
+                <option value="sold">Sold</option>
                 <option value="lost">Lost</option>
                 <option value="damaged">Damaged</option>
             </select>
@@ -137,6 +226,62 @@
             <div><strong>Inventory unavailable</strong><span id="errorText">Unable to retrieve inventory records.</span></div>
         </section>
 
+        <!-- SELL EQUIPMENT MODAL -->
+        <dialog id="inventorySellModal" aria-modal="true" aria-labelledby="inventorySellTitle">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-eyebrow">LIST TO PRE-OWNED EQUIPMENT</div>
+                    <h2 id="inventorySellTitle">Sell Equipment</h2>
+                </div>
+                <button class="modal-close" id="inventorySellClose" type="button" aria-label="Close sell modal">×</button>
+            </div>
+            <form id="inventorySellForm" novalidate>
+                <div class="modal-body">
+                    <div class="modal-item-summary">
+                        <div>
+                            <div style="font-size:10px;letter-spacing:.14em;color:var(--ax-muted);margin-bottom:3px;font-family:'IBM Plex Mono',monospace">ITEM</div>
+                            <div class="modal-item-name" id="sellItemName">—</div>
+                        </div>
+                        <div class="modal-item-price" id="sellItemPrice">₱0.00</div>
+                    </div>
+
+                    <div class="form-section-label">Item Condition</div>
+                    <div class="form-group">
+                        <label for="sellCondition">Condition grade</label>
+                        <select id="sellCondition" name="condition" required>
+                            <option value="like_new">Like New</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sellConditionDescription">Condition description</label>
+                        <textarea id="sellConditionDescription" name="condition_description" rows="3" maxlength="1000" required placeholder="Describe the item's current condition..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sellDefects">Known defects or missing parts (optional)</label>
+                        <textarea id="sellDefects" name="defects" rows="3" maxlength="1000" placeholder="Leave blank if none."></textarea>
+                    </div>
+
+                    <div class="form-section-label">Asking Price (PHP)</div>
+                    <div class="form-group">
+                        <label for="sellPrice">Choose your asking price</label>
+                        <output id="sellPriceOutput">₱0.00</output>
+                        <input type="range" id="sellPriceSlider" name="price" min="0" max="0" step="1" value="0"/>
+                        <div class="resale-price-limits"><span id="sellPriceMin">Min · ₱0.00</span><span id="sellPriceMax">Max · ₱0.00</span></div>
+                    </div>
+
+                    <div class="form-note">Your item will be listed on Pre-Owned Equipment at the chosen price. Heroes can list Hero-aligned and common gear; Villains can list Villain-aligned and common gear.</div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel" type="button" id="inventorySellCancel">Cancel</button>
+                    <button class="btn-submit" type="submit" id="inventorySellSubmit">List Item</button>
+                </div>
+            </form>
+        </dialog>
     </main>
 
 <script>
@@ -155,6 +300,8 @@
 "use strict";
 
 const API_URL = "../../backend/api/inventory/list.php";
+const SELL_API_URL = "../../backend/api/inventory/sell.php";
+const CREATE_API = "../../backend/api/resale-create.php";
 
 const grid = document.getElementById("grid");
 const loading = document.getElementById("loading");
@@ -172,6 +319,23 @@ const returnedCount = document.getElementById("returnedCount");
 const attentionCount = document.getElementById("attentionCount");
 const statusText = document.getElementById("statusText");
 const noMatch = document.getElementById("noMatch");
+
+const inventorySellModal = document.getElementById("inventorySellModal");
+const inventorySellForm  = document.getElementById("inventorySellForm");
+const inventorySellClose = document.getElementById("inventorySellClose");
+const inventorySellCancel= document.getElementById("inventorySellCancel");
+const inventorySellSubmit= document.getElementById("inventorySellSubmit");
+const sellItemName       = document.getElementById("sellItemName");
+const sellItemPrice      = document.getElementById("sellItemPrice");
+const sellPriceSlider    = document.getElementById("sellPriceSlider");
+const sellPriceOutput    = document.getElementById("sellPriceOutput");
+const sellPriceMin       = document.getElementById("sellPriceMin");
+const sellPriceMax       = document.getElementById("sellPriceMax");
+const sellCondition      = document.getElementById("sellCondition");
+const sellConditionDesc  = document.getElementById("sellConditionDescription");
+const sellDefects        = document.getElementById("sellDefects");
+
+let selectedItem = null;
 
 let inventory = [];
 
@@ -209,6 +373,9 @@ function normalize(item){
             "General",
 
         quantity:Number(item.quantity ?? 0),
+        purchasePrice:Number(item.purchase_price ?? 0),
+        currentPrice:Number(item.current_price ?? 0),
+        salePrice:item.sale_price === null || item.sale_price === undefined ? null : Number(item.sale_price),
 
         status:
             String(item.status ?? "assigned")
@@ -223,6 +390,8 @@ function normalize(item){
             item.returned_at ??
             item.returnedAt ??
             null,
+
+        soldAt:item.sold_at ?? item.soldAt ?? null,
 
         notes:
             item.notes ?? ""
@@ -273,7 +442,7 @@ async function requestJSON(){
     if(!data.success){
         throw new Error(
             data.message ||
-            "Inventory request was rejected."
+            "Inventory action failed."
         );
     }
 
@@ -302,6 +471,22 @@ function formatDate(value){
             day:"numeric"
         }
     );
+}
+
+function resalePriceBounds(item){
+    const referencePrice = item.purchasePrice > 0 ? item.purchasePrice : item.currentPrice;
+    const referenceCents = Math.round(referencePrice * 100);
+    const maxCents = Math.floor(referenceCents * 95 / 100);
+    const minCents = Math.max(1, Math.floor(referenceCents / 2));
+    return {
+        minCents:Math.min(minCents, maxCents),
+        maxCents,
+        referenceCents
+    };
+}
+
+function formatMoney(cents){
+    return `₱${(cents / 100).toFixed(2)}`;
 }
 
 function render(){
@@ -347,7 +532,10 @@ function render(){
         const card = document.createElement("article");
 
         card.className = "card";
-        
+        const resaleBounds = resalePriceBounds(item);
+        const canSell = item.status === "assigned" && resaleBounds.maxCents >= 1;
+        const initialSalePrice = resaleBounds.maxCents;
+
         const initials =
             item.name
                 .split(/\s+/)
@@ -358,7 +546,7 @@ function render(){
                 .toUpperCase() || "EQ";
 
         const statusClass =
-            ["assigned","returned","lost","damaged"]
+            ["assigned","returned","sold","lost","damaged"]
                 .includes(item.status)
                 ? item.status
                 : "assigned";
@@ -396,6 +584,17 @@ function render(){
                 </div>
 
                 <div class="detail">
+                    <div class="detail-label">Purchase price</div>
+                    <div class="detail-value">${item.purchasePrice > 0 ? `₱${escapeHTML(item.purchasePrice.toFixed(2))} each` : "Price not recorded"}</div>
+                </div>
+
+                ${item.salePrice !== null ? `
+                <div class="detail">
+                    <div class="detail-label">Sold for</div>
+                    <div class="detail-value">₱${escapeHTML((item.salePrice * item.quantity).toFixed(2))}</div>
+                </div>` : ""}
+
+                <div class="detail">
                     <div class="detail-label">Assigned</div>
                     <div class="detail-value">
                         ${escapeHTML(
@@ -410,6 +609,12 @@ function render(){
                     <div class="detail-value">${escapeHTML(formatDate(item.returnedAt))}</div>
                 </div>` : ""}
 
+                ${item.soldAt ? `
+                <div class="detail">
+                    <div class="detail-label">Sold</div>
+                    <div class="detail-value">${escapeHTML(formatDate(item.soldAt))}</div>
+                </div>` : ""}
+
                 <div class="detail">
                     <div class="detail-label">Record</div>
                     <div class="detail-value">
@@ -421,14 +626,13 @@ function render(){
 
             ${item.notes ? `<p class="inventory-notes"><strong>Note:</strong> ${escapeHTML(item.notes)}</p>` : ""}
 
+            ${canSell ? `
             <div class="card-footer">
                 <span class="badge ${statusClass}">
                     ${escapeHTML(item.status)}
                 </span>
-                ${item.status === "assigned"
-                    ? `<button class="btn btn-secondary btn-sm" type="button" data-return="${escapeHTML(item.id)}">Return</button>`
-                    : ""}
-            </div>
+                <button class="btn btn-sm inventory-sell-btn" type="button" data-inventory-sell="${escapeHTML(item.id)}" aria-label="Sell ${escapeHTML(item.name)}" title="Sell or list this equipment">Sell Equipment</button>
+            </div>` : ""}
         `;
 
         grid.appendChild(card);
@@ -464,6 +668,18 @@ async function load(){
     refresh.textContent = "Syncing...";
 
     try{
+
+        const sessionResponse = await fetch("../../backend/api/auth/session.php", {credentials:"include",cache:"no-store",headers:{"Accept":"application/json"}});
+        const session = await sessionResponse.json();
+        if (!sessionResponse.ok || !session.success || !["hero","enemy"].includes(session.role)) {
+            window.location.href = session.role === "admin" ? "../admin/admin-dashboard.html" : "../public/login.html";
+            return;
+        }
+        const villain = session.role === "enemy";
+        document.getElementById("accountRole").textContent = villain ? "Villain" : "Hero";
+        document.querySelector(".avatar").textContent = villain ? "V" : "H";
+        document.getElementById("networkLabel").textContent = villain ? "VILLAIN NETWORK" : "HERO NETWORK";
+        document.getElementById("dashboardLink").href = villain ? "../enemy/villain-dashboard.html" : "../hero/hero-dashboard.html";
 
         const data = await requestJSON();
 
@@ -514,29 +730,85 @@ async function load(){
 }
 
 grid.addEventListener("click", async event => {
-    const button = event.target.closest("[data-return]");
-    if(!button) return;
-    if(!confirm("Return this equipment? It will be made available to others again.")) return;
+    const sellBtn = event.target.closest("[data-inventory-sell]");
+    if (!sellBtn) return;
 
-    button.disabled = true;
-    button.textContent = "Returning...";
+    const item = inventory.find(row => String(row.id) === sellBtn.dataset.inventorySell);
+    if (!item) return;
 
-    try{
-        const response = await fetch("../../backend/api/inventory/return.php",{
-            method:"POST",
-            credentials:"include",
-            headers:{"Content-Type":"application/json","Accept":"application/json"},
-            body:JSON.stringify({inventory_id:Number(button.dataset.return)})
+    selectedItem = item;
+
+    const bounds = resalePriceBounds(item);
+    const ref = item.purchasePrice > 0 ? item.purchasePrice : item.currentPrice;
+
+    sellItemName.textContent = item.name || "Unknown Equipment";
+    sellItemPrice.textContent = formatMoney(Math.round(ref * 100));
+
+    sellPriceSlider.min = bounds.minCents;
+    sellPriceSlider.max = bounds.maxCents;
+    sellPriceSlider.value = bounds.maxCents;
+    const initialPrice = formatMoney(bounds.maxCents);
+    sellPriceOutput.textContent = initialPrice;
+    sellPriceMin.textContent = `Min · ${formatMoney(bounds.minCents)}`;
+    sellPriceMax.textContent = `Max · ${formatMoney(bounds.maxCents)}`;
+
+    inventorySellSubmit.disabled = false;
+    inventorySellSubmit.textContent = "List Item";
+
+    inventorySellModal.showModal();
+});
+
+inventorySellClose.addEventListener("click", () => inventorySellModal.close());
+inventorySellCancel.addEventListener("click", () => inventorySellModal.close());
+inventorySellModal.addEventListener("click", (e) => { if (e.target === inventorySellModal) inventorySellModal.close(); });
+
+sellPriceSlider.addEventListener("input", () => {
+    sellPriceOutput.textContent = formatMoney(Number(sellPriceSlider.value));
+});
+
+inventorySellForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!selectedItem) return;
+
+    inventorySellSubmit.disabled = true;
+    inventorySellSubmit.textContent = "Processing…";
+
+    try {
+        const priceCents = Number(sellPriceSlider.value);
+
+        if (!Number.isInteger(priceCents) || priceCents < 1) {
+            throw new Error("Choose a valid price before confirming.");
+        }
+
+        const condition = sellCondition.value;
+        const conditionDescription = sellConditionDesc.value.trim();
+        if (!conditionDescription) {
+            throw new Error("Condition description is required.");
+        }
+        const defects = sellDefects.value.trim() || null;
+
+        const response = await fetch(CREATE_API, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({
+                inventory_id: Number(selectedItem.id),
+                asking_price: priceCents / 100,
+                condition,
+                condition_description: conditionDescription,
+                defects
+            }),
         });
         const result = await response.json();
-        if(!response.ok || !result.success){
-            throw new Error(result.message || "Unable to return equipment.");
-        }
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to create listing.");
+        inventorySellModal.close();
+        alert("Your item is listed on Pre-Owned Equipment.");
         await load();
-    }catch(err){
+    } catch (err) {
         alert(err.message);
-        button.disabled = false;
-        button.textContent = "Return";
+        inventorySellSubmit.disabled = false;
+        inventorySellSubmit.textContent = "List Item";
     }
 });
 

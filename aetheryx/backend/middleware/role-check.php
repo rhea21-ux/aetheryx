@@ -39,6 +39,21 @@ function requireVillainRole(): void
     requireRole('enemy');
 }
 
+function requireMarketplaceRole(): void
+{
+    requireAuth();
+
+    if (!in_array(getAuthenticatedRole(), ['hero', 'enemy'], true)) {
+        http_response_code(403);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'message' => 'Marketplace access is limited to Hero and Villain accounts.',
+        ]);
+        exit;
+    }
+}
+
 /*
 |--------------------------------------------------------------------------
 | ÆTHERYX SENTINEL

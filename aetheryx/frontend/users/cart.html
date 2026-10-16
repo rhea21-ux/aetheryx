@@ -3,6 +3,8 @@
 
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script src="../assets/js/role-context.js"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Cart — ÆTHERYX</title>
@@ -390,10 +392,7 @@
         /* CART LAYOUT */
 
         .cart-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr);
-            gap: 20px;
-            align-items: start;
+            display: block;
         }
 
         .panel {
@@ -543,6 +542,12 @@
             color: var(--danger);
             border-color: rgba(255,99,125,.2);
             background: rgba(255,99,125,.05);
+        }
+
+        .item-status.restricted {
+            color: var(--warning);
+            border-color: rgba(245,189,92,.25);
+            background: rgba(245,189,92,.07);
         }
 
         .item-bottom {
@@ -965,7 +970,7 @@
             <a href="#" id="dashboardLink"><span class="nav-icon">⌂</span> Dashboard</a>
             <a href="marketplace.html"><span class="nav-icon">◈</span> Marketplace</a>
             <a class="active" href="cart.html"><span class="nav-icon">◇</span> Cart</a>
-            <a href="my-requests.html"><span class="nav-icon">◎</span> My Requests</a>
+            <a href="orders.html"><span class="nav-icon">▤</span> Order History</a>
             <a href="inventory.html"><span class="nav-icon">▣</span> Inventory</a>
             <a href="notifications.html"><span class="nav-icon">●</span> Notifications</a>
             <a href="compatibility.html"><span class="nav-icon">⌁</span> Compatibility</a>
@@ -1049,7 +1054,7 @@
 </h1>
 <p class="intro">
                         Review your selected equipment, adjust quantities,
-                        and prepare your request for authorization.
+                        and continue to checkout when ready.
                     </p>
 </div>
 <a class="back-btn" href="marketplace.html">
@@ -1100,58 +1105,14 @@
 </div>
 </div>
 </div>
-<!-- ORDER SUMMARY -->
-<aside class="panel summary-panel">
-<div class="panel-header">
-<div class="panel-title">
-                            Request Summary
-                        </div>
-<div class="panel-code">
-                            SECURE
-                        </div>
+<div style="display:flex;flex-wrap:wrap;gap:12px;padding:20px;">
+    <button class="checkout-btn" disabled id="checkoutBtn" style="width:auto;min-width:220px;">
+        PROCEED TO CHECKOUT
+    </button>
+    <a class="continue-btn" href="marketplace.html">
+        ← Browse more equipment
+    </a>
 </div>
-<div class="summary-body">
-<div class="summary-row">
-<span>Equipment types</span>
-<strong id="summaryTypes">
-                                0
-                            </strong>
-</div>
-<div class="summary-row">
-<span>Total units</span>
-<strong id="summaryUnits">
-                                0
-                            </strong>
-</div>
-<div class="summary-row">
-<span>Request status</span>
-<strong id="summaryStatus">
-                                DRAFT
-                            </strong>
-</div>
-<div class="summary-divider"></div>
-<div class="total-row">
-<div class="total-label">
-                                Total Items
-                            </div>
-<div class="total-value" id="summaryTotal">
-                                0
-                            </div>
-</div>
-<div class="notice">
-<strong>Notice:</strong>
-                            This cart represents an equipment request.
-                            Final approval and assignment are handled
-                            by the authorized system administrator.
-                        </div>
-<button class="checkout-btn" disabled="" id="checkoutBtn">
-                            REQUEST EQUIPMENT
-                        </button>
-<a class="continue-btn" href="marketplace.html">
-                            ← Browse more equipment
-                        </a>
-</div>
-</aside>
 </section>
 </main>
 </div>
@@ -1181,10 +1142,6 @@
             cartItemCount: document.getElementById("cartItemCount"),
             cartUnitCount: document.getElementById("cartUnitCount"),
             cartStatus: document.getElementById("cartStatus"),
-            summaryTypes: document.getElementById("summaryTypes"),
-            summaryUnits: document.getElementById("summaryUnits"),
-            summaryStatus: document.getElementById("summaryStatus"),
-            summaryTotal: document.getElementById("summaryTotal"),
             checkoutBtn: document.getElementById("checkoutBtn"),
             sessionUser: document.getElementById("sessionUser"),
             logoutBtn: document.getElementById("logoutBtn"),
@@ -1235,11 +1192,19 @@
             document
                 .querySelectorAll("[data-action]")
                 .forEach((button) => {
-                    button.disabled = value;
+                    const item = state.items.find(
+                        (cartItem) => Number(cartItem.cartId) === Number(button.dataset.cartId)
+                    );
+                    button.disabled = value || (
+                        button.dataset.action !== "remove" &&
+                        Boolean(item?.isRestricted)
+                    );
                 });
 
             elements.checkoutBtn.disabled =
-                value || state.items.length === 0;
+                value ||
+                state.items.length === 0 ||
+                state.items.some((item) => item.isRestricted);
         }
 
         /*
@@ -1318,6 +1283,8 @@
 
                 quantity: getCartQuantity(item),
 
+                price: getNumber(item.price ?? equipment.price, 0),
+
                 name:
                     item.name ??
                     equipment.name ??
@@ -1353,6 +1320,13 @@
                     equipment.available_quantity ??
                     equipment.availableQuantity ??
                     0
+                ),
+
+                isRestricted: Boolean(
+                    item.is_restricted ??
+                    item.isRestricted ??
+                    equipment.is_restricted ??
+                    equipment.isRestricted
                 )
             };
         }
@@ -1552,6 +1526,14 @@
                 return;
             }
 
+            if (item.isRestricted && action !== "remove") {
+                showToast(
+                    "Only Villain accounts can change or purchase Black Market cart items. Remove this listing to continue.",
+                    "error"
+                );
+                return;
+            }
+
             const currentQuantity = getCartQuantity(item);
 
             button.disabled = true;
@@ -1649,23 +1631,10 @@
                     ? "ACTIVE"
                     : "EMPTY";
 
-            elements.summaryTypes.textContent =
-                itemCount;
-
-            elements.summaryUnits.textContent =
-                unitCount;
-
-            elements.summaryStatus.textContent =
-                itemCount > 0
-                    ? "DRAFT"
-                    : "EMPTY";
-
-            elements.summaryTotal.textContent =
-                unitCount;
-
             elements.checkoutBtn.disabled =
                 itemCount === 0 ||
-                state.updating;
+                state.updating ||
+                state.items.some((item) => item.isRestricted);
 
             if (itemCount === 0) {
                 renderEmptyState();
@@ -1685,7 +1654,9 @@
                 String(item.status).toLowerCase() ===
                 "unavailable";
 
-            const statusText =
+            const statusText = item.isRestricted
+                ? "VILLAINS ONLY — REMOVE TO CONTINUE"
+                :
                 isUnavailable
                     ? "UNAVAILABLE"
                     : "AVAILABLE";
@@ -1738,7 +1709,7 @@
                             </div>
 
                             <span
-                                class="item-status ${isUnavailable ? "unavailable" : ""}"
+                                class="item-status ${item.isRestricted ? "restricted" : isUnavailable ? "unavailable" : ""}"
                             >
                                 ${statusText}
                             </span>
@@ -1757,6 +1728,7 @@
                                         data-action="decrease"
                                         data-cart-id="${item.cartId}"
                                         aria-label="Decrease quantity"
+                                        ${item.isRestricted ? "disabled" : ""}
                                     >
                                         −
                                     </button>
@@ -1771,6 +1743,7 @@
                                         data-action="increase"
                                         data-cart-id="${item.cartId}"
                                         aria-label="Increase quantity"
+                                        ${item.isRestricted ? "disabled" : ""}
                                     >
                                         +
                                     </button>
@@ -1790,6 +1763,8 @@
 
                             <div class="item-quantity-label">
                                 UNIT COUNT: ${item.quantity}
+                                <br>UNIT PRICE: ${item.price > 0 ? `₱${item.price.toFixed(2)}` : "PENDING ADMIN PRICE"}
+                                ${item.price > 0 ? `<br>LINE TOTAL: ₱${(item.price * item.quantity).toFixed(2)}` : ""}
                             </div>
 
                         </div>
@@ -1952,73 +1927,6 @@
             }
         }
 
-        async function requestEquipment() {
-            if (state.items.length === 0) {
-                showToast(
-                    "Your cart is empty.",
-                    "error"
-                );
-
-                return;
-            }
-
-            if (state.updating) {
-                return;
-            }
-
-            setCartLoading(true);
-            elements.checkoutBtn.textContent = "SUBMITTING REQUEST...";
-
-            const submitted = [];
-            const failed = [];
-
-            try {
-                for (const item of state.items) {
-                    try {
-                        await apiRequest(`${API_BASE_URL}/requests/create.php`, {
-                            method: "POST",
-                            body: JSON.stringify({
-                                equipment_id: item.equipmentId,
-                                quantity: item.quantity
-                            })
-                        });
-                        submitted.push(item);
-                    } catch (error) {
-                        failed.push({ item, error });
-                    }
-                }
-
-                for (const item of submitted) {
-                    try {
-                        await apiRequest(`${API_BASE_URL}/cart/remove.php`, {
-                            method: "DELETE",
-                            body: JSON.stringify({ cart_id: item.cartId })
-                        });
-                    } catch (error) {
-                        console.error("Request submitted, but cart cleanup failed:", error);
-                    }
-                }
-
-                await loadCart();
-
-                if (failed.length === 0) {
-                    showToast(
-                        `Submitted ${submitted.length} equipment ${submitted.length === 1 ? "request" : "requests"}.`
-                    );
-                } else if (submitted.length > 0) {
-                    showToast(
-                        `${submitted.length} request(s) submitted; ${failed.length} failed. ${failed[0].error.message}`,
-                        "error"
-                    );
-                } else {
-                    showToast(failed[0]?.error.message || "Unable to submit equipment requests.", "error");
-                }
-            } finally {
-                setCartLoading(false);
-                elements.checkoutBtn.textContent = "REQUEST EQUIPMENT";
-            }
-        }
-
         /*
          * MOBILE NAVIGATION
          */
@@ -2045,7 +1953,19 @@
 
         elements.checkoutBtn.addEventListener(
             "click",
-            requestEquipment
+            () => {
+                if (
+                    state.items.length > 0 &&
+                    !state.items.some((item) => item.isRestricted)
+                ) {
+                    window.location.href = "checkout.html";
+                } else if (state.items.some((item) => item.isRestricted)) {
+                    showToast(
+                        "Remove Black Market items from this cart. Only Villain accounts can purchase them.",
+                        "error"
+                    );
+                }
+            }
         );
 
         /*

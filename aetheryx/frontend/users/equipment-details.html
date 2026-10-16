@@ -2,6 +2,8 @@
 
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script src="../assets/js/role-context.js"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Equipment Details — ÆTHERYX</title>
@@ -735,6 +737,25 @@
             }
         }
 
+        .compatibility-section {
+            margin-top: 22px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+        }
+        .compatibility-section h2 { margin: 0 0 6px; }
+        .compatibility-results { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 12px; margin-top: 15px; }
+        .compatibility-card { padding: 15px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+        .compatibility-card h3 { margin: 0 0 9px; font-size: 15px; }
+        .compatibility-card p { margin: 7px 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+        .compatibility-label { display: inline-block; margin-bottom: 8px; padding: 5px 8px; border-radius: 7px; font-size: 11px; text-transform: capitalize; }
+        .compatibility-label.compatible { color: #5fd39a; background: rgba(95,211,154,.1); }
+        .compatibility-label.incompatible { color: var(--danger); background: rgba(255,135,151,.1); }
+        .compatibility-label.situational { color: #f0c36e; background: rgba(240,195,110,.1); }
+        .compatibility-roles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .compatibility-role { padding: 4px 7px; border: 1px solid var(--border); border-radius: 999px; color: var(--text); font-size: 10px; text-transform: capitalize; }
+
         @keyframes spin {
             to {
                 transform: rotate(360deg);
@@ -766,7 +787,7 @@
             <a href="../hero/hero-dashboard.html">Dashboard</a>
             <a href="marketplace.html">Marketplace</a>
             <a href="cart.html">Cart</a>
-            <a href="my-requests.html">My Requests</a>
+            <a href="orders.html">Order History</a>
             <a href="inventory.html">Inventory</a>
             <a href="notifications.html">Notifications</a>
             <a href="compatibility.html">Compatibility</a>
@@ -851,32 +872,42 @@
 <span>Availability</span>
 <strong id="availability">—</strong>
 </div>
+<div class="info-item">
+<span>Unit price</span>
+<strong id="detailPrice">—</strong>
+</div>
 </div>
 <section class="request-panel">
 <div class="request-heading">
 <div>
-<h2>Request Equipment</h2>
+<h2>Order this equipment</h2>
 <p>
-                                        Submit a request for administrator
-                                        review and approval.
+                                        Choose a quantity and continue directly to checkout.
                                     </p>
 </div>
 </div>
-<form class="request-form" id="requestForm">
+<form class="request-form" id="buyNowForm">
 <div class="quantity-field">
 <label for="quantity">
                                         Quantity
                                     </label>
 <input id="quantity" max="999" min="1" name="quantity" required="" type="number" value="1"/>
 </div>
-<button class="request-btn" id="requestBtn" type="submit">
-                                    Request Equipment
+<button class="request-btn" id="buyNowButton" type="submit">
+                                    Buy Now
                                 </button>
 </form>
-<div aria-live="polite" class="message" hidden="" id="requestMessage" role="status"></div>
+<div aria-live="polite" class="message" hidden="" id="buyNowMessage" role="status"></div>
 </section>
 </section>
 </div>
+<section class="compatibility-section" aria-labelledby="compatibilityHeading">
+<h2 id="compatibilityHeading">Compatible Equipment Combinations</h2>
+<p class="description">Role- and situation-specific guidance from saved compatibility records.</p>
+<div id="compatibilityResults" class="compatibility-results" aria-live="polite">
+<p class="description">Loading equipment combinations...</p>
+</div>
+</section>
 </section>
 </div>
 </main>
@@ -887,13 +918,14 @@
     const EQUIPMENT_API =
         "../../backend/api/equipment/list.php";
 
-    const REQUEST_API =
-        "../../backend/api/requests/create.php";
+    const COMPATIBILITY_API =
+        "../../backend/api/compatibility/list.php";
 
     const LOGOUT_API =
         "../../backend/api/auth/logout.php";
 
     let equipment = null;
+    let viewerRole = null;
 
     /* =========================================
        HELPERS
@@ -945,19 +977,8 @@
     }
 
     function getAvailability(item) {
-        if (
-            item.available_quantity !== undefined &&
-            item.available_quantity !== null
-        ) {
-            return `${item.available_quantity} available`;
-        }
-
-        if (
-            item.quantity !== undefined &&
-            item.quantity !== null
-        ) {
-            return `${item.quantity} available`;
-        }
+        const count = Number(item.availableQuantity ?? item.available_quantity ?? item.quantity);
+        if (Number.isFinite(count)) return `${count} available`;
 
         return item.status || "Available";
     }
@@ -971,11 +992,82 @@
     }
 
     function showMessage(type, text) {
-        const message = document.getElementById("requestMessage");
+        const message = document.getElementById("buyNowMessage");
 
         message.className = `message ${type}`;
         message.textContent = text;
         message.hidden = false;
+    }
+
+    function renderCompatibility(records, equipmentId) {
+        const root = document.getElementById("compatibilityResults");
+        const combinations = records.filter(record =>
+            [Number(record.equipment_id), Number(record.compatible_equipment_id)].includes(Number(equipmentId))
+        );
+        root.replaceChildren();
+        if (!combinations.length) {
+            const empty = document.createElement("p");
+            empty.className = "description";
+            empty.textContent = "No saved equipment combinations are available for this item yet.";
+            root.appendChild(empty);
+            return;
+        }
+
+        combinations.forEach(record => {
+            const card = document.createElement("article");
+            card.className = "compatibility-card";
+            const relationship = document.createElement("span");
+            relationship.className = `compatibility-label ${record.compatibility_type}`;
+            relationship.textContent = record.compatibility_type;
+            card.appendChild(relationship);
+
+            const title = document.createElement("h3");
+            title.textContent = `${record.equipment_name} + ${record.compatible_equipment_name}`;
+            card.appendChild(title);
+
+            const guidance = document.createElement("p");
+            guidance.textContent = record.compatibility_type === "incompatible"
+                ? `Not a recommended build: ${record.notes}`
+                : record.notes;
+            card.appendChild(guidance);
+
+            if (record.situations) {
+                const situation = document.createElement("p");
+                situation.textContent = `Useful when: ${record.situations}`;
+                card.appendChild(situation);
+            }
+
+            const roles = document.createElement("div");
+            roles.className = "compatibility-roles";
+            record.compatible_roles.forEach(role => {
+                const tag = document.createElement("span");
+                tag.className = "compatibility-role";
+                tag.textContent = role;
+                roles.appendChild(tag);
+            });
+            card.appendChild(roles);
+            root.appendChild(card);
+        });
+    }
+
+    async function loadCompatibility(equipmentId) {
+        const root = document.getElementById("compatibilityResults");
+        try {
+            const response = await fetch(COMPATIBILITY_API, {
+                method: "GET",
+                credentials: "include",
+                cache: "no-store",
+                headers: { "Accept": "application/json" }
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || `Compatibility API returned HTTP ${response.status}.`);
+            }
+            renderCompatibility(Array.isArray(data.compatibility) ? data.compatibility : [], equipmentId);
+        } catch (error) {
+            console.error("Equipment compatibility loading error:", error);
+            root.textContent = "Unable to load equipment combinations right now.";
+        }
     }
 
     /* =========================================
@@ -1027,6 +1119,8 @@
                 );
             }
 
+            viewerRole = data.role || null;
+
             const list = Array.isArray(data.equipment)
                 ? data.equipment
                 : Array.isArray(data.items)
@@ -1052,6 +1146,7 @@
 
             renderEquipment();
             setVisible(content, true);
+            await loadCompatibility(getEquipmentId(equipment));
 
         } catch (error) {
             console.error("Equipment loading error:", error);
@@ -1097,6 +1192,25 @@
 
         document.getElementById("availability").textContent =
             availability;
+
+        const availableQuantity = Number(
+            equipment.availableQuantity ??
+            equipment.available_quantity ??
+            equipment.quantity ??
+            0
+        );
+        const buyButton = document.getElementById("buyNowButton");
+        const quantityInput = document.getElementById("quantity");
+        const price = Number(equipment.price);
+        document.getElementById("detailPrice").textContent =
+            Number.isFinite(price) && price > 0 ? `₱${price.toFixed(2)}` : "Price not set";
+        quantityInput.max =
+            String(Math.max(1, Math.min(999, availableQuantity)));
+        buyButton.disabled =
+            availableQuantity < 1 ||
+            String(equipment.status || "").toLowerCase() !== "available" ||
+            !Number.isFinite(price) ||
+            price <= 0;
 
         document.getElementById("equipmentSymbol").textContent =
             name.charAt(0).toUpperCase();
@@ -1145,10 +1259,10 @@
     }
 
     /* =========================================
-       REQUEST EQUIPMENT
+       BUY NOW
     ========================================= */
 
-    async function requestEquipment(event) {
+    async function startBuyNow(event) {
         event.preventDefault();
 
         if (!equipment) {
@@ -1156,12 +1270,12 @@
         }
 
         const quantityInput = document.getElementById("quantity");
-        const button = document.getElementById("requestBtn");
+        const button = document.getElementById("buyNowButton");
 
         const quantity = Number(quantityInput.value);
         const equipmentId = getEquipmentId(equipment);
 
-        const message = document.getElementById("requestMessage");
+        const message = document.getElementById("buyNowMessage");
 
         message.hidden = true;
         message.className = "message";
@@ -1195,52 +1309,8 @@
         }
 
         button.disabled = true;
-        button.textContent = "Submitting...";
-
-        try {
-            const response = await fetch(REQUEST_API, {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-                body: JSON.stringify({
-                    equipment_id: Number(equipmentId),
-                    quantity: quantity
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                throw new Error(
-                    data.message ||
-                    "Unable to submit equipment request."
-                );
-            }
-
-            showMessage(
-                "success",
-                data.message ||
-                "Equipment request submitted successfully."
-            );
-
-            quantityInput.value = "1";
-
-        } catch (error) {
-            console.error("Request submission error:", error);
-
-            showMessage(
-                "error",
-                error.message ||
-                "Unable to submit equipment request."
-            );
-
-        } finally {
-            button.disabled = false;
-            button.textContent = "Request Equipment";
-        }
+        button.textContent = "Opening checkout…";
+        window.location.href = `checkout.html?equipment_id=${encodeURIComponent(equipmentId)}&quantity=${encodeURIComponent(quantity)}`;
     }
 
     /* =========================================
@@ -1272,8 +1342,8 @@
     ========================================= */
 
     document
-        .getElementById("requestForm")
-        .addEventListener("submit", requestEquipment);
+        .getElementById("buyNowForm")
+        .addEventListener("submit", startBuyNow);
 
     document
         .getElementById("logoutBtn")

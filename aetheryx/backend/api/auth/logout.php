@@ -4,28 +4,28 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../config/session.php';
 startSecureSession();
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../middleware/auth-check.php';
+require_once __DIR__ . '/../../helpers/notify.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, private');
 
-$_SESSION = [];
-
-if (ini_get('session.use_cookies')) {
-    $params = session_get_cookie_params();
-
-    setcookie(
-        session_name(),
-        '',
-        time() - 42000,
-        $params['path'],
-        $params['domain'],
-        $params['secure'],
-        $params['httponly']
-    );
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+    exit;
 }
 
-session_destroy();
+requireAuth();
+$userId = getAuthenticatedUserId();
+revokeTabAuthSession($pdo, (string) ($_SERVER['HTTP_X_AETHERYX_TAB_SESSION'] ?? ''));
+if ($userId !== null) {
+    createNotification($pdo, $userId, 'Signed out', 'This tab was signed out successfully.', 'info');
+    notifyAdminsOfActivity($pdo, $userId, 'Account signed out', 'A user signed out.', 'info');
+}
 
 echo json_encode([
     'success' => true,
-    'message' => 'Logout successful.'
-]); 
+    'message' => 'This tab has been signed out.',
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

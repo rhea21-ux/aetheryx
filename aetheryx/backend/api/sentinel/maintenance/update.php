@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../../../config/session.php';
+startSecureSession();
 
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../middleware/role-check.php';
 require_once __DIR__ . '/../../../helpers/response.php';
 require_once __DIR__ . '/../../../helpers/sentinel-intelligence.php';
+require_once __DIR__ . '/../../../helpers/notify.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -125,6 +125,9 @@ try {
     );
 
     $pdo->commit();
+    $message = sprintf('Maintenance request #%d moved from "%s" to "%s".', $requestId, $currentStatus, $newStatus);
+    createNotification($pdo, (int) $actorId, 'Maintenance request updated', $message, 'success');
+    notifyAdminsOfActivity($pdo, (int) $actorId, 'Maintenance request updated', $message, 'info');
 
     respond(true, 'Maintenance request updated successfully.', [
         'requestId' => $requestId,

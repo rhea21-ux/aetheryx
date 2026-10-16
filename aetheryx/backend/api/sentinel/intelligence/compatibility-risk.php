@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../../../config/session.php';
+startSecureSession();
 
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../middleware/role-check.php';
@@ -27,7 +26,7 @@ try {
     $stmt = $pdo->query("
         SELECT c.equipment_id, c.resource_id, c.compatibility_type, c.notes,
                r.name AS resource_name
-        FROM compatibility c
+        FROM equipment_resource_compatibility c
         LEFT JOIN resources r ON r.id = c.resource_id
     ");
     foreach ($stmt->fetchAll() as $row) {

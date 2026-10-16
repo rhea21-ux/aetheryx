@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script src="../assets/js/tab-auth-context.js"></script>
+    <script src="../assets/js/role-context.js"></script>
+    <script defer src="../assets/js/notification-drawer.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Order History — ÆTHERYX</title>
+    <link rel="stylesheet" href="../assets/css/no-gradient.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: dark;
+            --page: #0c111b;
+            --surface: #131b28;
+            --surface-raised: #182231;
+            --surface-hover: #1d2938;
+            --border: #293748;
+            --text: #f0f3f6;
+            --muted: #9ba9b7;
+            --quiet: #6f8191;
+            --accent: #74dcc7;
+            --accent-ink: #10231f;
+            --gold: #d4b777;
+            --danger: #ed8792;
+            --success: #79d6a9;
+            --warning: #e4bd74;
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text);
+            background: var(--page);
+            font: 15px/1.55 "IBM Plex Sans", Arial, sans-serif;
+        }
+        button, input, select, textarea { font: inherit; }
+        a { color: inherit; }
+        .page-shell { width: min(1240px, calc(100% - 56px)); margin: 0 auto; }
+        .topbar {
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text);
+            text-decoration: none;
+        }
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #3d756d;
+            border-radius: 10px;
+            color: var(--accent);
+            font: 600 18px/1 "Space Grotesk", sans-serif;
+        }
+        .brand-name {
+            font: 600 14px/1.15 "Space Grotesk", sans-serif;
+            letter-spacing: .14em;
+        }
+        .brand-caption {
+            margin-top: 4px;
+            color: var(--quiet);
+            font: 10px/1 "IBM Plex Mono", monospace;
+            letter-spacing: .12em;
+        }
+        .topbar-side { display: flex; align-items: center; gap: 20px; }
+        .role-label { color: var(--muted); font-size: 13px; }
+        .back-link, .text-link {
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .back-link:hover, .text-link:hover { color: #a2efdf; }
+        main { padding: 38px 0 64px; }
+        .eyebrow {
+            margin: 0 0 10px;
+            color: var(--gold);
+            font: 11px/1.4 "IBM Plex Mono", monospace;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+        .heading-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        h1, h2, h3, p { margin-top: 0; }
+        h1 {
+            margin-bottom: 8px;
+            font: 600 clamp(32px, 4vw, 42px)/1.12 "Space Grotesk", sans-serif;
+            letter-spacing: -.035em;
+        }
+        .intro { max-width: 610px; margin-bottom: 0; color: var(--muted); }
+        .shop-button, .primary-button {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 0 16px;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            color: var(--accent-ink);
+            background: var(--accent);
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease;
+        }
+        .shop-button:hover, .primary-button:hover { background: #9aead9; border-color: #9aead9; }
+        .summary-strip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 68px;
+            margin-bottom: 18px;
+            padding: 15px 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+        }
+        .summary-count {
+            color: var(--text);
+            font: 600 26px/1 "Space Grotesk", sans-serif;
+            font-variant-numeric: tabular-nums;
+        }
+        .summary-copy { color: var(--muted); font-size: 13px; }
+        .summary-divider { width: 1px; height: 28px; margin: 0 5px; background: var(--border); }
+        .summary-note { margin-left: auto; color: var(--quiet); font-size: 12px; text-align: right; }
+        .filters {
+            display: grid;
+            grid-template-columns: minmax(250px, 1fr) minmax(165px, .62fr) minmax(175px, .68fr) auto;
+            align-items: end;
+            gap: 12px;
+            margin-bottom: 22px;
+            padding: 17px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: #101824;
+        }
+        .filter-field { min-width: 0; display: grid; gap: 6px; }
+        .filter-field label {
+            color: var(--muted);
+            font: 500 10px/1.4 "IBM Plex Mono", monospace;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+        .filter-field input, .filter-field select {
+            width: 100%;
+            height: 44px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            color: var(--text);
+            background: #0c131e;
+        }
+        .filter-field input:focus, .filter-field select:focus, dialog textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px #74dcc71c;
+        }
+        .filter-field input::placeholder { color: var(--quiet); }
+        .filter-actions { display: flex; gap: 8px; }
+        .filter-button, .clear-button, .secondary-button {
+            min-height: 42px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: var(--text);
+            background: var(--surface-raised);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .filter-button { border-color: var(--accent); color: var(--accent-ink); background: var(--accent); }
+        .filter-button:hover { border-color: #9aead9; background: #9aead9; }
+        .clear-button:hover, .secondary-button:hover { border-color: #536679; background: var(--surface-hover); }
+        .orders-heading {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 26px 0 12px;
+        }
+        .orders-heading h2 { margin: 0; font: 500 18px/1.3 "Space Grotesk", sans-serif; }
+        .results-label { color: var(--quiet); font-size: 12px; }
+        .order-list { display: grid; gap: 10px; }
+        .order-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+            transition: border-color .15s ease;
+        }
+        .order-card:hover { border-color: #3c4c5e; }
+        .order-main {
+            display: grid;
+            grid-template-columns: minmax(175px, 1.25fr) minmax(130px, .8fr) minmax(130px, .8fr) minmax(115px, .7fr) auto;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 20px;
+        }
+        .order-ref {
+            overflow: hidden;
+            color: var(--text);
+            font: 600 14px/1.35 "IBM Plex Mono", monospace;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .order-date, .order-label { margin-top: 5px; color: var(--muted); font-size: 12px; }
+        .order-label { margin-top: 0; font: 500 10px/1.4 "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+        .order-value { margin-top: 5px; color: var(--text); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+        .order-total { text-align: right; }
+        .status-stack { display: flex; flex-wrap: wrap; gap: 6px; }
+        .status {
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            padding: 3px 9px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--muted);
+            background: #ffffff05;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.35;
+            text-transform: capitalize;
+        }
+        .status::before { width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: currentColor; content: ""; }
+        .status--pending, .status--processing, .status--ready_for_delivery { color: var(--warning); border-color: #725d36; }
+        .status--confirmed, .status--delivered, .status--completed, .status--paid { color: var(--success); border-color: #376b55; }
+        .status--cancelled, .status--failed, .status--refunded { color: var(--danger); border-color: #74434c; }
+        .status--shipped, .status--out_for_delivery { color: #92b8ed; border-color: #425d7b; }
+        .card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+        .detail-toggle {
+            min-height: 40px;
+            padding: 0 13px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: var(--text);
+            background: transparent;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .detail-toggle:hover { border-color: var(--accent); background: #74dcc70d; }
+        .detail-toggle::after { display: inline-block; margin-left: 7px; color: var(--accent); content: "+"; }
+        .order-card.is-open .detail-toggle::after { content: "−"; }
+        .cancel-button {
+            min-height: 40px;
+            padding: 0 13px;
+            border: 1px solid #74434c;
+            border-radius: 7px;
+            color: var(--danger);
+            background: #ed87920a;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .cancel-button:hover { border-color: var(--danger); background: #ed87921c; }
+        .cancel-button:disabled { opacity: .55; cursor: wait; }
+        .order-details {
+            padding: 0 20px 20px;
+            border-top: 1px solid var(--border);
+            background: #0f1722;
+        }
+        .detail-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 28px; padding-top: 16px; }
+        .detail-title { margin: 0 0 9px; color: var(--quiet); font: 10px/1.4 "IBM Plex Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid #ffffff0b;
+            font-size: 13px;
+        }
+        .item-row:last-child { border-bottom: 0; }
+        .item-name { min-width: 0; }
+        .item-sub { display: block; margin-top: 2px; color: var(--quiet); font-size: 11px; }
+        .item-price { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+        .delivery-copy, .payment-copy, .cancellation-copy { margin: 0 0 7px; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+        .cancellation-copy { margin-top: 14px; color: var(--danger); }
+        .empty-state, .loading-state, .error-state {
+            padding: 48px 22px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            text-align: center;
+            background: var(--surface);
+        }
+        .empty-mark { width: 46px; height: 46px; display: grid; place-items: center; margin: 0 auto 14px; border: 1px solid #3b625b; border-radius: 14px; color: var(--accent); font-size: 21px; }
+        .empty-state h3 { margin-bottom: 6px; font: 500 19px "Space Grotesk", sans-serif; }
+        .empty-state p, .loading-state, .error-state { color: var(--muted); }
+        .empty-state p { margin-bottom: 18px; }
+        .error-state { border-style: solid; border-color: #74434c; color: var(--danger); }
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 16px;
+            padding: 12px 0;
+        }
+        .pagination-label { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+        .pagination-actions { display: flex; gap: 8px; }
+        .page-button {
+            min-width: 86px;
+            min-height: 38px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: var(--text);
+            background: var(--surface);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .page-button:hover:not(:disabled) { border-color: var(--accent); }
+        .page-button:disabled { opacity: .4; cursor: not-allowed; }
+        button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+        #orderMessage { min-height: 0; color: var(--success); font-size: 13px; }
+        #orderMessage:not(:empty) { margin: 0 0 12px; }
+        dialog {
+            width: min(490px, calc(100% - 28px));
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            color: var(--text);
+            background: var(--surface);
+            box-shadow: 0 24px 90px #0008;
+        }
+        dialog::backdrop { background: #05080dbd; }
+        dialog h2 { margin: 0 0 8px; font: 500 23px "Space Grotesk", sans-serif; }
+        dialog p { color: var(--muted); font-size: 13px; }
+        dialog label { display: block; margin: 18px 0 7px; font-size: 12px; font-weight: 600; }
+        dialog textarea {
+            width: 100%;
+            min-height: 112px;
+            padding: 11px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            color: var(--text);
+            background: var(--page);
+            font: inherit;
+            resize: vertical;
+        }
+        .dialog-error { min-height: 20px; margin: 6px 0 0; color: var(--danger)!important; }
+        .dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 14px; }
+        .dialog-actions button { min-height: 40px; padding: 0 13px; border-radius: 7px; font-size: 12px; }
+        #confirmCancellation { border: 1px solid #9f5660; color: white; background: #743d47; font-weight: 700; cursor: pointer; }
+        #confirmCancellation:hover { background: #8a4651; }
+        #keepOrder { border: 1px solid var(--border); color: var(--text); background: var(--surface-raised); }
+        .footer-links { display: flex; gap: 18px; margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--border); }
+        @media (max-width: 1080px) {
+            .filters { grid-template-columns: minmax(220px, 1fr) minmax(150px, .7fr) minmax(160px, .75fr); }
+            .filter-actions { grid-column: 1 / -1; justify-content: flex-end; }
+            .order-main { grid-template-columns: minmax(175px, 1.2fr) minmax(130px, .8fr) minmax(130px, .8fr) minmax(115px, .7fr); }
+            .card-actions { grid-column: 1 / -1; justify-content: flex-end; padding-top: 12px; border-top: 1px solid var(--border); }
+        }
+        @media (max-width: 850px) {
+            .filters { grid-template-columns: 1fr 1fr; }
+            .filter-search { grid-column: 1 / -1; }
+            .order-main { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+            .order-reference, .card-actions { grid-column: 1 / -1; }
+            .order-total { text-align: left; }
+            .card-actions { grid-column: 1 / -1; justify-content: flex-start; }
+        }
+        @media (max-width: 600px) {
+            .page-shell { width: min(520px, calc(100% - 28px)); }
+            .topbar { min-height: 66px; }
+            .topbar-side { gap: 12px; }
+            .role-label { display: none; }
+            .back-link { display: none; }
+            main { padding: 30px 0 48px; }
+            .heading-row { align-items: flex-start; flex-direction: column; gap: 16px; margin-bottom: 21px; }
+            .heading-row .shop-button { width: 100%; }
+            .summary-strip { display: grid; grid-template-columns: auto 1fr; gap: 7px 11px; padding: 14px; }
+            .summary-divider { display: none; }
+            .summary-note { width: 100%; margin: 0; }
+            .summary-note { grid-column: 1 / -1; text-align: left; }
+            .filters { grid-template-columns: 1fr; padding: 13px; }
+            .filter-search { grid-column: auto; }
+            .filter-actions { display: grid; grid-template-columns: 1fr 1fr; }
+            .order-main { grid-template-columns: 1fr 1fr; gap: 13px; padding: 15px; }
+            .order-reference { grid-column: 1 / -1; }
+            .order-main > div:nth-child(2), .order-main > div:nth-child(3) { min-width: 0; }
+            .order-total { text-align: right; }
+            .card-actions { grid-column: 1 / -1; flex-wrap: wrap; justify-content: stretch; }
+            .card-actions button { flex: 1 1 auto; }
+            .detail-grid { grid-template-columns: 1fr; gap: 16px; }
+            .order-details { padding: 0 15px 15px; }
+            .pagination { align-items: flex-start; flex-direction: column; }
+            .pagination-actions { width: 100%; }
+            .page-button { flex: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto!important; transition-duration: .01ms!important; }
+        }
+    </style>
+</head>
+<body>
+<div class="page-shell">
+    <header class="topbar">
+        <a class="brand" id="brandHomeLink" href="../hero/hero-dashboard.html" aria-label="ÆTHERYX Dashboard">
+            <span class="brand-mark" aria-hidden="true">Æ</span>
+            <span>
+                <span class="brand-name">ÆTHERYX</span>
+                <span class="brand-caption" style="display:block">ACCOUNT DASHBOARD</span>
+            </span>
+        </a>
+        <div class="topbar-side">
+            <span class="role-label" id="role">Loading account…</span>
+            <a class="back-link" href="marketplace.html">← Marketplace</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="heading-row">
+            <div>
+                <p class="eyebrow">Your account · Orders</p>
+                <h1>Order history</h1>
+                <p class="intro">Track fulfillment, review payment details, and manage orders that are still eligible for cancellation.</p>
+            </div>
+            <a class="shop-button" href="marketplace.html"><span aria-hidden="true">↗</span> Continue shopping</a>
+        </div>
+
+        <section class="summary-strip" aria-label="Order count">
+            <span class="summary-count" id="orderCount">—</span>
+            <span class="summary-copy" id="orderCountLabel">orders in your history</span>
+            <span class="summary-divider" aria-hidden="true"></span>
+            <span class="summary-note">Payment and status information updates with your order.</span>
+        </section>
+
+        <form class="filters" id="filterForm">
+            <div class="filter-field filter-search">
+                <label for="searchOrders">Find an order</label>
+                <input id="searchOrders" name="search" type="search" maxlength="120" placeholder="Order number or product">
+            </div>
+            <div class="filter-field">
+                <label for="statusFilter">Order status</label>
+                <select id="statusFilter" name="status">
+                    <option value="">All statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="processing">Processing</option>
+                    <option value="ready_for_delivery">Ready for delivery</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="out_for_delivery">Out for delivery</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="sortOrders">Sort by</label>
+                <select id="sortOrders" name="sort">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="total_high">Highest total</option>
+                    <option value="total_low">Lowest total</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="filter-button" type="submit">Apply</button>
+                <button class="clear-button" id="clearFilters" type="button">Clear</button>
+            </div>
+        </form>
+
+        <div id="orderMessage" role="status" aria-live="polite"></div>
+        <div class="orders-heading">
+            <h2 id="resultsHeading">Recent orders</h2>
+            <span class="results-label" id="resultsLabel"></span>
+        </div>
+        <div id="orders" aria-live="polite"><div class="loading-state">Loading your orders…</div></div>
+        <nav class="pagination" id="pagination" aria-label="Order history pages" hidden>
+            <span class="pagination-label" id="paginationLabel"></span>
+            <div class="pagination-actions">
+                <button class="page-button" id="previousPage" type="button">← Previous</button>
+                <button class="page-button" id="nextPage" type="button">Next →</button>
+            </div>
+        </nav>
+        <footer class="footer-links">
+            <a class="text-link" href="marketplace.html">Marketplace</a>
+            <a class="text-link" href="cart.html">Shopping cart</a>
+        </footer>
+    </main>
+</div>
+
+<dialog id="cancelDialog" aria-labelledby="cancelTitle">
+    <form id="cancelForm">
+        <h2 id="cancelTitle">Cancel order</h2>
+        <p>Why do you want to cancel this order?</p>
+        <p>Cancellation stops fulfillment. Any payment already recorded is not automatically refunded.</p>
+        <label for="cancellationReason">Cancellation reason</label>
+        <textarea id="cancellationReason" name="reason" maxlength="500" required></textarea>
+        <p id="cancelDialogError" class="dialog-error" role="alert"></p>
+        <div class="dialog-actions">
+            <button id="keepOrder" type="button">Keep order</button>
+            <button id="confirmCancellation" type="submit">Confirm cancellation</button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+"use strict";
+const API = "../../backend/api";
+const PAGE_SIZE = 10;
+const CANCELLABLE_STATUSES = new Set(["pending", "confirmed", "processing", "ready_for_delivery"]);
+const state = { page: 1, pages: 1, total: 0, status: "", search: "", sort: "newest" };
+let orderToCancel = null;
+let accountRole = null;
+
+function esc(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    }[character]));
+}
+
+function money(value) {
+    const amount = Number(value);
+    return `₱${(Number.isFinite(amount) ? amount : 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function titleCase(value) {
+    return String(value ?? "").replaceAll("_", " ").replace(/\b\w/g, character => character.toUpperCase());
+}
+
+function formatDate(value) {
+    const date = new Date(String(value ?? "").replace(" ", "T"));
+    return Number.isNaN(date.getTime()) ? "Date unavailable" : date.toLocaleString("en-PH", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+}
+
+async function get(path) {
+    const response = await fetch(`${API}/${path}`, {
+        credentials: "include",
+        headers: { Accept: "application/json" }
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to retrieve order history.");
+    }
+    return data;
+}
+
+function itemRows(items) {
+    return items.map(item => `<div class="item-row">
+        <span class="item-name">${esc(item.equipment_name)}<span class="item-sub">Qty ${Number(item.quantity)} × ${money(item.unit_price)}</span></span>
+        <span class="item-price">${money(item.line_total)}</span>
+    </div>`).join("");
+}
+
+function renderOrder(order) {
+    const status = String(order.order_status ?? "").toLowerCase();
+    const paymentStatus = String(order.payment_status ?? "").toLowerCase();
+    const canCancel = CANCELLABLE_STATUSES.has(status);
+    const items = Array.isArray(order.items) ? order.items : [];
+    const totalQuantity = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+    const delivery = order.delivery;
+    const paymentLabel = order.payment_method === "demo_payment"
+        ? "Simulated demonstration payment"
+        : "Cash on delivery";
+    const transaction = order.payment?.transaction_reference
+        ? `<p class="payment-copy">Reference: ${esc(order.payment.transaction_reference)}</p>`
+        : "";
+    const deliveryMarkup = delivery
+        ? `<p class="delivery-copy"><strong>${esc(delivery.recipient_name)}</strong> · ${esc(delivery.phone)}<br>${esc(delivery.address_line)}, ${esc(delivery.city)}, ${esc(delivery.region)} ${esc(delivery.postal_code)}${delivery.delivery_notes ? `<br>Note: ${esc(delivery.delivery_notes)}` : ""}</p>`
+        : `<p class="delivery-copy">Delivery information is not available.</p>`;
+    const cancellationMarkup = status === "cancelled"
+        ? `<p class="cancellation-copy"><strong>Cancellation reason:</strong> ${esc(order.cancellation_reason || "Not provided")}<br><strong>Cancelled:</strong> ${order.cancelled_at ? esc(formatDate(order.cancelled_at)) : "Date unavailable"}</p>`
+        : "";
+
+    return `<article class="order-card">
+        <div class="order-main">
+            <div class="order-reference">
+                <div class="order-ref">${esc(order.order_number || `Order #${order.id}`)}</div>
+                <div class="order-date">Placed ${esc(formatDate(order.created_at))}</div>
+            </div>
+            <div>
+                <div class="order-label">Fulfillment</div>
+                <div class="status-stack"><span class="status status--${esc(status)}">${esc(titleCase(status))}</span></div>
+            </div>
+            <div>
+                <div class="order-label">Payment</div>
+                <div class="status-stack"><span class="status status--${esc(paymentStatus)}">${esc(titleCase(paymentStatus || "pending"))}</span></div>
+            </div>
+            <div class="order-total">
+                <div class="order-label">Order total</div>
+                <div class="order-value">${money(order.total_amount)}</div>
+            </div>
+            <div class="card-actions">
+                <button class="detail-toggle" type="button" aria-expanded="false">View details</button>
+                ${canCancel ? `<button type="button" class="cancel-button" data-cancel-order="${Number(order.id)}">Cancel order</button>` : ""}
+            </div>
+        </div>
+        <div class="order-details" hidden>
+            <div class="detail-grid">
+                <section>
+                    <h3 class="detail-title">Items · ${totalQuantity} ${totalQuantity === 1 ? "item" : "items"}</h3>
+                    ${itemRows(items) || `<p class="delivery-copy">Item details are not available.</p>`}
+                </section>
+                <section>
+                    <h3 class="detail-title">Delivery</h3>
+                    ${deliveryMarkup}
+                    <h3 class="detail-title" style="margin-top:14px">Payment method</h3>
+                    <p class="payment-copy">${paymentLabel}${order.payment?.is_simulated ? " · no real funds transferred" : ""}</p>
+                    ${transaction}
+                    ${cancellationMarkup}
+                </section>
+            </div>
+        </div>
+    </article>`;
+}
+
+function renderOrders(orders) {
+    const root = document.getElementById("orders");
+    const pagination = document.getElementById("pagination");
+    document.getElementById("orderCount").textContent = Number(state.total).toLocaleString("en-PH");
+    document.getElementById("orderCountLabel").textContent = state.total === 1 ? "order in your history" : "orders in your history";
+    document.getElementById("resultsLabel").textContent = state.total
+        ? `Showing ${Math.min((state.page - 1) * PAGE_SIZE + 1, state.total)}–${Math.min(state.page * PAGE_SIZE, state.total)} of ${state.total.toLocaleString("en-PH")}`
+        : "";
+
+    if (!orders.length) {
+        pagination.hidden = true;
+        if (state.total === 0 && !state.status && !state.search) {
+            root.innerHTML = `<section class="empty-state">
+                <span class="empty-mark" aria-hidden="true">◇</span>
+                <h3>Your next favorite starts here</h3>
+                <p>Your orders will appear here as soon as you place one.</p>
+                <a class="shop-button" href="marketplace.html">Explore the marketplace</a>
+            </section>`;
+        } else {
+            root.innerHTML = `<section class="empty-state">
+                <span class="empty-mark" aria-hidden="true">⌕</span>
+                <h3>No matching orders</h3>
+                <p>Try another order number, product name, or status filter.</p>
+                <button class="secondary-button" id="emptyClearFilters" type="button">Clear filters</button>
+            </section>`;
+            document.getElementById("emptyClearFilters").addEventListener("click", clearFilters);
+        }
+        document.getElementById("paginationLabel").textContent = "";
+        return;
+    }
+
+    root.innerHTML = `<div class="order-list">${orders.map(renderOrder).join("")}</div>`;
+    root.querySelectorAll(".detail-toggle").forEach(button => button.addEventListener("click", () => {
+        const card = button.closest(".order-card");
+        const details = card.querySelector(".order-details");
+        const expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        button.textContent = expanded ? "View details" : "Hide details";
+        details.hidden = expanded;
+        card.classList.toggle("is-open", !expanded);
+    }));
+    root.querySelectorAll("[data-cancel-order]").forEach(button => button.addEventListener("click", () => {
+        orderToCancel = Number(button.dataset.cancelOrder);
+        document.getElementById("cancellationReason").value = "";
+        document.getElementById("cancelDialogError").textContent = "";
+        document.getElementById("cancelDialog").showModal();
+        document.getElementById("cancellationReason").focus();
+    }));
+
+    pagination.hidden = state.pages <= 1;
+    document.getElementById("paginationLabel").textContent = `Page ${state.page} of ${state.pages}`;
+    document.getElementById("previousPage").disabled = state.page <= 1;
+    document.getElementById("nextPage").disabled = state.page >= state.pages;
+}
+
+function setLoading() {
+    document.getElementById("orders").innerHTML = `<div class="loading-state">Loading your orders…</div>`;
+}
+
+async function load() {
+    setLoading();
+    const params = new URLSearchParams({
+        page: String(state.page),
+        per_page: String(PAGE_SIZE),
+        sort: state.sort
+    });
+    if (state.status) params.set("status", state.status);
+    if (state.search) params.set("search", state.search);
+
+    try {
+        if (!accountRole) {
+            const session = await get("auth/session.php");
+            accountRole = String(session.role || session.user?.role || "").toLowerCase();
+            if (!["hero", "enemy"].includes(accountRole)) {
+                location.href = accountRole === "admin" ? "../admin/admin-dashboard.html" : "../public/login.html";
+                return;
+            }
+            document.getElementById("brandHomeLink").href = accountRole === "enemy"
+                ? "../enemy/villain-dashboard.html"
+                : "../hero/hero-dashboard.html";
+            document.getElementById("role").textContent = `${accountRole === "enemy" ? "Villain" : "Hero"} account`;
+        }
+        const result = await get(`orders/list.php?${params.toString()}`);
+        state.total = Number(result.total ?? result.count ?? 0);
+        state.pages = Math.max(1, Number(result.pages ?? Math.ceil(state.total / PAGE_SIZE)));
+        state.page = Number(result.page ?? state.page);
+        document.getElementById("orderMessage").textContent = "";
+        renderOrders(result.orders || []);
+    } catch (error) {
+        document.getElementById("pagination").hidden = true;
+        document.getElementById("orders").innerHTML = `<div class="error-state">${esc(error.message)}</div>`;
+    }
+}
+
+function clearFilters() {
+    document.getElementById("searchOrders").value = "";
+    document.getElementById("statusFilter").value = "";
+    document.getElementById("sortOrders").value = "newest";
+    state.page = 1;
+    state.status = "";
+    state.search = "";
+    state.sort = "newest";
+    load();
+}
+
+document.getElementById("filterForm").addEventListener("submit", event => {
+    event.preventDefault();
+    state.page = 1;
+    state.status = document.getElementById("statusFilter").value;
+    state.search = document.getElementById("searchOrders").value.trim();
+    state.sort = document.getElementById("sortOrders").value;
+    load();
+});
+document.getElementById("statusFilter").addEventListener("change", () => document.getElementById("filterForm").requestSubmit());
+document.getElementById("sortOrders").addEventListener("change", () => document.getElementById("filterForm").requestSubmit());
+document.getElementById("clearFilters").addEventListener("click", clearFilters);
+document.getElementById("previousPage").addEventListener("click", () => {
+    if (state.page > 1) { state.page -= 1; load(); }
+});
+document.getElementById("nextPage").addEventListener("click", () => {
+    if (state.page < state.pages) { state.page += 1; load(); }
+});
+document.getElementById("keepOrder").addEventListener("click", () => document.getElementById("cancelDialog").close());
+document.getElementById("cancelForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const reason = document.getElementById("cancellationReason").value.trim();
+    const errorNode = document.getElementById("cancelDialogError");
+    if (!reason) {
+        errorNode.textContent = "Please enter a reason for cancelling this order.";
+        return;
+    }
+    const confirmButton = document.getElementById("confirmCancellation");
+    confirmButton.disabled = true;
+    errorNode.textContent = "";
+    try {
+        const response = await fetch(`${API}/orders/cancel.php`, {
+            method: "POST",
+            credentials: "include",
+            headers: { Accept: "application/json", "Content-Type": "application/json" },
+            body: JSON.stringify({ order_id: orderToCancel, reason })
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Unable to cancel this order.");
+        document.getElementById("cancelDialog").close();
+        orderToCancel = null;
+        await load();
+        document.getElementById("orderMessage").textContent = result.message || "Order cancelled successfully.";
+    } catch (error) {
+        errorNode.textContent = error.message;
+    } finally {
+        confirmButton.disabled = false;
+    }
+});
+
+load();
+</script>
+</body>
+</html>

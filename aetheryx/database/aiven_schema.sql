@@ -27,6 +27,19 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `uq_users_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `tab_auth_sessions` (
+  `token_hash` CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  `user_id` INT UNSIGNED NOT NULL,
+  `last_seen_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expires_at` TIMESTAMP NOT NULL,
+  `revoked_at` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`token_hash`),
+  KEY `idx_tab_auth_user` (`user_id`,`revoked_at`),
+  KEY `idx_tab_auth_expiry` (`expires_at`),
+  CONSTRAINT `fk_tab_auth_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(100) NOT NULL,
@@ -41,11 +54,13 @@ CREATE TABLE IF NOT EXISTS `equipment` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `category_id` INT UNSIGNED DEFAULT NULL,
   `access_role` ENUM('common','hero','enemy') NOT NULL DEFAULT 'common',
+  `is_black_market` TINYINT(1) NOT NULL DEFAULT 0,
   `name` VARCHAR(150) NOT NULL,
   `description` TEXT DEFAULT NULL,
   `brand` VARCHAR(100) DEFAULT NULL,
   `quantity` INT UNSIGNED NOT NULL DEFAULT 0,
   `available_quantity` INT UNSIGNED NOT NULL DEFAULT 0,
+  `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `status` ENUM('available','unavailable','maintenance') NOT NULL DEFAULT 'available',
   `condition_status` ENUM('excellent','good','fair','damaged') DEFAULT NULL,
   `image_url` VARCHAR(500) DEFAULT NULL,
@@ -70,36 +85,86 @@ CREATE TABLE IF NOT EXISTS `cart_items` (
   CONSTRAINT `fk_aiven_cart_equipment` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `equipment_requests` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `user_id` INT UNSIGNED NOT NULL,
-  `equipment_id` INT UNSIGNED NOT NULL,
-  `quantity` INT UNSIGNED NOT NULL DEFAULT 1,
-  `status` ENUM('pending','approved','rejected','cancelled') NOT NULL DEFAULT 'pending',
-  `requested_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `reviewed_at` TIMESTAMP NULL DEFAULT NULL,
-  `reviewed_by` INT UNSIGNED DEFAULT NULL,
-  `notes` TEXT DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_aiven_requests_user` (`user_id`,`status`),
-  CONSTRAINT `fk_aiven_request_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_aiven_request_equipment` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_aiven_request_reviewer` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 CREATE TABLE IF NOT EXISTS `inventory` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
   `equipment_id` INT UNSIGNED NOT NULL,
   `quantity` INT UNSIGNED NOT NULL DEFAULT 1,
-  `status` ENUM('assigned','returned','lost','damaged') NOT NULL DEFAULT 'assigned',
+  `status` ENUM('assigned','returned','sold','lost','damaged') NOT NULL DEFAULT 'assigned',
+  `purchase_price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `sale_price` DECIMAL(10,2) DEFAULT NULL,
   `assigned_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `returned_at` TIMESTAMP NULL DEFAULT NULL,
+  `sold_at` TIMESTAMP NULL DEFAULT NULL,
   `notes` TEXT DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_aiven_inventory_user` (`user_id`,`status`),
   CONSTRAINT `fk_aiven_inventory_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_aiven_inventory_equipment` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `orders` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `order_number` VARCHAR(32) NOT NULL,
+  `checkout_token` CHAR(36) NOT NULL,
+  `order_status` ENUM('pending','confirmed','processing','ready_for_delivery','shipped','out_for_delivery','delivered','completed','cancelled','failed','refunded') NOT NULL DEFAULT 'pending',
+  `payment_method` ENUM('cash_on_delivery','demo_payment') NOT NULL,
+  `payment_status` ENUM('pending','paid','failed','refunded','cancelled') NOT NULL DEFAULT 'pending',
+  `cancellation_reason` VARCHAR(500) DEFAULT NULL,
+  `cancelled_at` TIMESTAMP NULL DEFAULT NULL,
+  `total_amount` DECIMAL(10,2) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_orders_order_number` (`order_number`),
+  UNIQUE KEY `uq_orders_user_checkout_token` (`user_id`,`checkout_token`),
+  KEY `idx_orders_user_created` (`user_id`,`created_at`),
+  KEY `idx_orders_status_payment` (`order_status`,`payment_status`),
+  CONSTRAINT `fk_aiven_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `order_items` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `order_id` INT UNSIGNED NOT NULL,
+  `equipment_id` INT UNSIGNED DEFAULT NULL,
+  `equipment_name` VARCHAR(150) NOT NULL,
+  `quantity` INT UNSIGNED NOT NULL,
+  `unit_price` DECIMAL(10,2) NOT NULL,
+  `line_total` DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_aiven_order_items_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_aiven_order_items_equipment` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `payment_transactions` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `order_id` INT UNSIGNED NOT NULL,
+  `transaction_reference` VARCHAR(48) NOT NULL,
+  `payment_method` ENUM('cash_on_delivery','demo_payment') NOT NULL,
+  `amount` DECIMAL(10,2) NOT NULL,
+  `payment_status` ENUM('pending','paid','failed','refunded','cancelled') NOT NULL,
+  `is_simulated` TINYINT(1) NOT NULL DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_payment_transaction_reference` (`transaction_reference`),
+  UNIQUE KEY `uq_aiven_payment_transactions_order` (`order_id`),
+  CONSTRAINT `fk_aiven_payment_transactions_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `order_delivery_details` (
+  `order_id` INT UNSIGNED NOT NULL,
+  `recipient_name` VARCHAR(100) NOT NULL,
+  `phone` VARCHAR(30) NOT NULL,
+  `address_line` VARCHAR(255) NOT NULL,
+  `city` VARCHAR(100) NOT NULL,
+  `region` VARCHAR(100) NOT NULL,
+  `postal_code` VARCHAR(20) NOT NULL,
+  `delivery_notes` VARCHAR(500) DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`order_id`),
+  CONSTRAINT `fk_aiven_order_delivery_details_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `notifications` (
@@ -138,6 +203,37 @@ CREATE TABLE IF NOT EXISTS `resources` (
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `equipment_resource_compatibility` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `assigned_user_id` INT UNSIGNED DEFAULT NULL,
+  `equipment_id` INT UNSIGNED NOT NULL,
+  `resource_id` INT UNSIGNED DEFAULT NULL,
+  `compatible_equipment_id` INT UNSIGNED DEFAULT NULL,
+  `compatibility_type` ENUM('compatible','incompatible','situational') NOT NULL DEFAULT 'compatible',
+  `notes` TEXT DEFAULT NULL,
+  `situations` TEXT DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_erc_equipment_resource` (`equipment_id`,`resource_id`),
+  UNIQUE KEY `uq_user_equipment_compatibility_pair` (`assigned_user_id`,`equipment_id`,`compatible_equipment_id`),
+  KEY `idx_erc_resource` (`resource_id`),
+  CONSTRAINT `fk_erc_assigned_user` FOREIGN KEY (`assigned_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_erc_equipment` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_erc_resource` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_erc_compatible_equipment` FOREIGN KEY (`compatible_equipment_id`) REFERENCES `equipment` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `chk_equipment_pair_order` CHECK (`compatible_equipment_id` IS NULL OR `equipment_id` < `compatible_equipment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `equipment_compatibility_roles` (
+  `compatibility_id` INT UNSIGNED NOT NULL,
+  `compatible_role` ENUM('mage','fighter','marksman','tank','support') NOT NULL,
+  PRIMARY KEY (`compatibility_id`,`compatible_role`),
+  KEY `idx_compatibility_roles_role` (`compatible_role`),
+  CONSTRAINT `fk_compatibility_roles_record`
+    FOREIGN KEY (`compatibility_id`) REFERENCES `equipment_resource_compatibility` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `rules` (

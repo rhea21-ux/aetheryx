@@ -2,6 +2,8 @@
 
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script src="../assets/js/role-context.js"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Marketplace — ÆTHERYX</title>
@@ -369,6 +371,7 @@
         .cart-count {
             min-width: 21px;
             height: 21px;
+            margin-left: auto;
 
             display: grid;
             place-items: center;
@@ -391,6 +394,11 @@
 
             margin-bottom: 28px;
         }
+        .role-finder { margin: 12px 0 18px; }
+        .role-finder h2 { margin: 0 0 8px; font-size: 16px; }
+        .role-options { display:flex; flex-wrap:wrap; gap:8px; }
+        .role-options button { padding:9px 12px; border:1px solid var(--border); border-radius:999px; background:rgba(22,27,46,.78); color:var(--text); cursor:pointer; }
+        .role-options button[aria-pressed="true"] { border-color:var(--cyan); color:var(--cyan); }
 
         .search,
         .filter {
@@ -633,9 +641,142 @@
             color: var(--danger);
         }
 
+        .compatibility-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 11px;
+        }
+
+        .compatibility-tag {
+            padding: 5px 7px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--cyan);
+            font: 500 9px "IBM Plex Mono";
+            text-transform: capitalize;
+            white-space: nowrap;
+        }
+
+        .compatibility-tag.situational {
+            color: var(--warning);
+        }
+
+        .compatibility-tag.incompatible {
+            color: var(--danger);
+        }
+
+        .compatibility-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 11px;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(255,255,255,.03);
+            font: 500 9px "IBM Plex Mono";
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .compatibility-badge .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--cyan);
+        }
+
+        .compatibility-badge.situational .badge-dot { background: var(--warning); }
+        .compatibility-badge.incompatible .badge-dot { background: var(--danger); }
+        .compatibility-badge.unknown .badge-dot { background: var(--muted); }
+
+        .compatibility-detail {
+            margin-top: 6px;
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.5;
+            padding: 0 2px;
+        }
+
+        .compatibility-detail strong {
+            color: var(--text);
+        }
+
+        .recommendations {
+            margin: 18px 0 22px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--surface);
+        }
+
+        .recommendations-heading {
+            margin-bottom: 12px;
+        }
+
+        .recommendations-heading h2 {
+            font-family: "Space Grotesk";
+            font-size: 18px;
+        }
+
+        .recommendations-heading p,
+        .recommendation-copy {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .recommendation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .recommendation-card {
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--base);
+        }
+
+        .recommendation-card h3 {
+            margin: 8px 0;
+            font-family: "Space Grotesk";
+            font-size: 15px;
+        }
+
+        .recommendation-type {
+            color: var(--cyan);
+            font: 600 9px "IBM Plex Mono";
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .recommendation-card.situational .recommendation-type {
+            color: var(--warning);
+        }
+
+        .recommendation-card a {
+            display: inline-block;
+            margin-top: 10px;
+            color: var(--cyan);
+            font-size: 11px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .recommendation-card a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         .card-actions {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
 
             gap: 8px;
 
@@ -643,7 +784,8 @@
         }
 
         .details-btn,
-        .add-btn {
+        .add-btn,
+        .buy-now-btn {
             padding: 10px;
 
             border-radius: 8px;
@@ -651,7 +793,8 @@
             cursor: pointer;
 
             font-family: "IBM Plex Mono";
-            font-size: 9px;
+            font-size: 8px;
+            line-height: 1.3;
 
             transition: .2s;
         }
@@ -677,11 +820,22 @@
             color: var(--cyan);
         }
 
+        .buy-now-btn {
+            border: 1px solid rgba(139,111,234,.28);
+            background: rgba(139,111,234,.08);
+            color: #b7a8ff;
+        }
+
+        .buy-now-btn:hover:not(:disabled) {
+            background: rgba(139,111,234,.15);
+        }
+
         .add-btn:hover:not(:disabled) {
             background: rgba(79,224,201,.16);
         }
 
-        .add-btn:disabled {
+        .add-btn:disabled,
+        .buy-now-btn:disabled {
             opacity: .4;
             cursor: not-allowed;
         }
@@ -853,6 +1007,294 @@
                 font-size: 2.2rem;
             }
         }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .market-main-zone {
+            display: flex;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .main {
+            flex: 1;
+            padding: 30px 32px 48px;
+            background: transparent;
+        }
+
+        .topbar {
+            margin-bottom: 28px;
+        }
+
+        .market-top-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid rgba(79,224,201,.38);
+            background: rgba(79,224,201,.08);
+            color: var(--cyan);
+            border-radius: 999px;
+            padding: 10px 16px;
+            font: 600 11px "IBM Plex Mono";
+            letter-spacing: 0.06em;
+        }
+
+        .market-top-actions .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0 16px;
+            border: 1px solid rgba(79,224,201,.38);
+            border-radius: 9px;
+            background: rgba(79,224,201,.1);
+            color: var(--cyan);
+            font: 600 11px "IBM Plex Mono";
+            letter-spacing: .04em;
+            line-height: 1.3;
+            text-align: center;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background .2s ease, border-color .2s ease, transform .2s ease;
+        }
+
+        .market-top-actions .btn-primary:hover {
+            transform: translateY(-1px);
+            border-color: rgba(79,224,201,.65);
+            background: rgba(79,224,201,.17);
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .market-top-actions .btn-primary:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 3px;
+        }
+
+        .detail-panel {
+            width: 360px;
+            min-width: 360px;
+            background: rgba(15, 24, 38, 0.94);
+            border-left: 1px solid rgba(255,255,255,0.08);
+            padding: 22px 18px 18px;
+
+            /* Stick to the top of the viewport while the page scrolls */
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            align-self: flex-start;
+        }
+
+        .detail-panel.hidden {
+            display: none;
+        }
+
+        .detail-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .detail-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 11px;
+            background: rgba(79,224,201,.08);
+            border: 1px solid rgba(79,224,201,.26);
+            border-radius: 999px;
+            color: var(--cyan);
+            font: 600 10px "IBM Plex Mono";
+            letter-spacing: 0.06em;
+        }
+
+        .detail-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--muted);
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .detail-card {
+            padding: 18px 16px 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            background: rgba(17,25,40,0.8);
+            box-shadow: inset 0 0 0 1px rgba(79,224,201,0.04);
+        }
+
+        .detail-visual {
+            display: grid;
+            place-items: center;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 14px;
+            border-radius: 28px;
+            background: radial-gradient(circle at 50% 30%, rgba(79,224,201,.2), rgba(17,25,40,0.7) 60%);
+            border: 1px solid rgba(79,224,201,.3);
+        }
+
+        .detail-symbol {
+            font-family: "Space Grotesk";
+            font-size: 52px;
+            font-weight: 700;
+            color: rgba(79,224,201,.82);
+        }
+
+        .detail-name-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .detail-role {
+            display: inline-flex;
+            padding: 5px 8px;
+            border-radius: 999px;
+            font: 600 9px "IBM Plex Mono";
+            background: rgba(79,224,201,.07);
+            border: 1px solid rgba(79,224,201,.22);
+            color: var(--cyan);
+            text-transform: uppercase;
+        }
+
+        #detailName {
+            text-align: center;
+            font-family: "Space Grotesk";
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0 0 12px;
+        }
+
+        .detail-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .detail-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .detail-kind {
+            padding: 5px 8px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--muted);
+            font: 600 9px "IBM Plex Mono";
+            text-transform: uppercase;
+        }
+
+        .detail-grid {
+            margin-top: 18px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .detail-section {
+            padding: 14px 0 0;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .detail-section h3 {
+            margin: 0 0 10px;
+            color: var(--text);
+            font: 600 14px "Space Grotesk";
+        }
+
+        .detail-section ul {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .detail-section p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 13px;
+        }
+
+        .related-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .related-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(79,224,201,.22);
+            background: rgba(79,224,201,.05);
+            color: var(--cyan);
+            font: 600 11px "IBM Plex Mono";
+        }
+
+        .detail-buy {
+            width: 100%;
+            margin-top: 14px;
+            border: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(79,224,201,.84), rgba(79,224,201,.66));
+            color: #051720;
+            min-height: 48px;
+            font: 700 12px "IBM Plex Sans";
+            cursor: pointer;
+        }
+
+        @media (max-width: 1200px) {
+            .detail-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .market-top-actions {
+                justify-content: flex-start;
+                margin: 0;
+            }
+            .main {
+                padding-top: 10px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .market-top-actions {
+                width: 100%;
+            }
+
+            .market-top-actions .btn-primary {
+                flex: 1;
+            }
+        }
     </style>
 <link rel="stylesheet" href="../assets/css/no-gradient.css">
 <script defer src="../assets/js/notification-drawer.js"></script>
@@ -886,8 +1328,8 @@
 <nav class="nav">
             <a href="../hero/hero-dashboard.html"><span class="nav-icon">⌂</span> Dashboard</a>
             <a class="active" href="marketplace.html"><span class="nav-icon">◈</span> Marketplace</a>
-            <a href="cart.html"><span class="nav-icon">◇</span> Cart</a>
-            <a href="my-requests.html"><span class="nav-icon">◎</span> My Requests</a>
+            <a href="cart.html"><span class="nav-icon">◇</span> Cart<span class="cart-count" id="cartCount" aria-label="Items in cart">0</span></a>
+            <a href="orders.html"><span class="nav-icon">▤</span> Order History</a>
             <a href="inventory.html"><span class="nav-icon">▣</span> Inventory</a>
             <a href="notifications.html"><span class="nav-icon">●</span> Notifications</a>
             <a href="compatibility.html"><span class="nav-icon">⌁</span> Compatibility</a>
@@ -907,29 +1349,30 @@
 </div>
 </div>
 </aside>
+<div class="market-main-zone">
 <main class="main">
 <header class="topbar">
 <div>
 <div class="eyebrow">
-                     EQUIPMENT ACCESS PROTOCOL
+                     MARKETPLACE
                 </div>
 <h1>
-                    MARKETPLACE <span>CORE.</span>
+                    Equipment Marketplace
 </h1>
 <p class="intro">
-                    Explore available ÆTHERYX equipment,
-                    inspect system specifications, and add
-                    required assets to your personal cart.
+                    Find equipment compatible with your character role. Hero and Villain account access is enforced by the server.
                 </p>
 </div>
-<a class="cart-button" href="cart.html">
-                CART
-
-                <span class="cart-count" id="cartCount">
-                    0
-                </span>
-</a>
+<div class="market-top-actions">
+    <span class="filter-chip">Hero Only</span>
+    <a class="btn-primary" href="resale.html">Pre-Owned Equipment</a>
+</div>
 </header>
+<section class="role-finder" aria-labelledby="roleFinderTitle">
+<h2 id="roleFinderTitle">Find Equipment for Your Role</h2>
+<div class="role-options" id="roleOptions" role="group" aria-label="Equipment compatibility role">
+<button type="button" data-character-role="mage" aria-pressed="false">Mage</button><button type="button" data-character-role="fighter" aria-pressed="false">Fighter</button><button type="button" data-character-role="marksman" aria-pressed="false">Marksman</button><button type="button" data-character-role="tank" aria-pressed="false">Tank</button><button type="button" data-character-role="support" aria-pressed="false">Support</button><button type="button" data-character-role="multiple" aria-pressed="false">Multiple Roles</button><button type="button" data-character-role="" aria-pressed="true">All Equipment</button>
+</div></section>
 <section class="controls">
 <input autocomplete="off" class="search" id="searchInput" placeholder="Search equipment..." type="search"/>
 <select class="filter" id="categoryFilter">
@@ -948,6 +1391,13 @@
                     UNAVAILABLE
                 </option>
 </select>
+</section>
+<section id="recommendationsSection" class="recommendations hidden" aria-live="polite">
+<div class="recommendations-heading">
+<h2>Recommended for your account</h2>
+<p>Equipment pairings curated for your account or Hero/Villain group.</p>
+</div>
+<div id="recommendationList" class="recommendation-grid"></div>
 </section>
 <div class="system-line">
 <span class="pulse"></span>
@@ -969,6 +1419,42 @@
 </div>
 </section>
 </main>
+<aside class="detail-panel hidden" id="detailPanel">
+    <div class="detail-panel-header">
+        <div class="detail-badge" id="accountBadge">Account</div>
+        <button class="detail-close" id="detailCloseBtn" type="button" aria-label="Close details">×</button>
+    </div>
+    <div class="detail-card" id="detailSummary">
+        <div class="detail-visual"><div class="detail-symbol">Æ</div></div>
+        <div class="detail-name-row">
+            <span class="detail-role" id="detailRole">Mage Compatible</span>
+        </div>
+        <h2 id="detailName">Holy Crystal</h2>
+        <div class="detail-price-row">
+            <span class="detail-price" id="detailPrice">₱1800.00</span>
+            <span class="detail-kind" id="detailKind">Magic</span>
+        </div>
+    </div>
+    <div class="detail-grid">
+        <div class="detail-section">
+            <h3>Attributes</h3>
+            <ul id="detailAttributes"></ul>
+        </div>
+        <div class="detail-section">
+            <h3>Equipment Details</h3>
+            <p id="detailDescription"></p>
+        </div>
+        <div class="detail-section detail-bottom">
+            <h3>Best Used For</h3>
+            <p id="detailBestFor">Mage</p>
+        </div>
+        <div class="detail-section detail-bottom">
+            <h3>Related Equipment</h3>
+            <div id="detailRelated" class="related-list"></div>
+        </div>
+    </div>
+    <button class="detail-buy" id="detailBuyBtn" type="button">View in Marketplace</button>
+</aside>
 </div>
 <div class="toast" id="toast"></div>
 <script>
@@ -982,6 +1468,9 @@ const SESSION_API =
 
 const EQUIPMENT_API =
     "../../backend/api/equipment/list.php";
+
+const COMPATIBILITY_API =
+    "../../backend/api/compatibility/list.php";
 
 const CART_LIST_API =
     "../../backend/api/cart/list.php";
@@ -999,12 +1488,20 @@ const LOGOUT_API =
 
 const state = {
     equipment: [],
+    compatibility: [],
     search: "",
     category: "all",
     availability: "all",
+    characterRole: "",
     cartCount: 0,
     role: null
 };
+
+const recommendationsSection =
+    document.getElementById("recommendationsSection");
+
+const recommendationList =
+    document.getElementById("recommendationList");
 
 
 /* =========================================================
@@ -1034,6 +1531,39 @@ const sessionUser =
 
 const toast =
     document.getElementById("toast");
+
+const detailPanel =
+    document.getElementById("detailPanel");
+
+const detailRole =
+    document.getElementById("detailRole");
+
+const detailName =
+    document.getElementById("detailName");
+
+const detailPrice =
+    document.getElementById("detailPrice");
+
+const detailKind =
+    document.getElementById("detailKind");
+
+const detailAttributes =
+    document.getElementById("detailAttributes");
+
+const detailDescription =
+    document.getElementById("detailDescription");
+
+const detailBestFor =
+    document.getElementById("detailBestFor");
+
+const detailRelated =
+    document.getElementById("detailRelated");
+
+const detailCloseBtn =
+    document.getElementById("detailCloseBtn");
+
+const detailBuyBtn =
+    document.getElementById("detailBuyBtn");
 
 
 /* =========================================================
@@ -1073,6 +1603,151 @@ function escapeHTML(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+function openDetailPanel(item) {
+    if (!item) {
+        return;
+    }
+
+    const tags = getCompatibilityTags(Number(item.id));
+    const firstRole = tags[0]?.role || (item.displayAccess || item.accessRole || "common");
+    const kindLabel = item.category || "Unclassified";
+    const bestFor = firstRole ? `${String(firstRole).replace(/-/g, " ").replace(/\b\w/g, char => char.toUpperCase())} strategy` : "General play";
+    const related = state.equipment
+        .filter(other => Number(other.id) !== Number(item.id) && (other.category === item.category || other.displayAccess === item.displayAccess))
+        .slice(0, 4)
+        .map(other => `<span class="related-pill">${escapeHTML(other.name)}</span>`)
+        .join("");
+
+    detailRole.textContent = item.displayAccess === "Hero Only" ? "Hero Ready" : item.displayAccess === "Villain Only" ? "Villain Ready" : "General Gear";
+    detailName.textContent = item.name || "Equipment";
+    detailPrice.textContent = Number(item.price) > 0 ? `₱${Number(item.price).toFixed(2)}` : "Price unavailable";
+    detailKind.textContent = kindLabel.toUpperCase();
+    detailDescription.textContent = item.description || "No equipment description available.";
+    const roleNames = Array.isArray(item.compatibleRoles) ? item.compatibleRoles : [];
+    detailBestFor.textContent = roleNames.length ? roleNames.map(role => role[0].toUpperCase() + role.slice(1)).join(", ") : bestFor;
+    detailAttributes.innerHTML = "";
+
+    const attributeList = [
+        `Brand: ${item.brand || "ÆTHERYX ASSET"}`,
+        `Access: ${item.displayAccess || "Common"}`,
+        `Status: ${isEquipmentAvailable(item) ? "Available" : "Unavailable"}`,
+        `Category: ${kindLabel}`
+    ];
+    if (item.itemType) attributeList.push(`Item type: ${item.itemType}`);
+    if (item.rarity) attributeList.push(`Rarity: ${item.rarity}`);
+    if (item.fictionalEffect) attributeList.push(item.fictionalEffect);
+    if (item.lore) attributeList.push(`Lore: ${item.lore}`);
+
+    attributeList.forEach(attribute => {
+        const li = document.createElement("li");
+        li.textContent = attribute;
+        detailAttributes.appendChild(li);
+    });
+
+    detailRelated.innerHTML = related || '<span class="related-pill">No related equipment</span>';
+    const canPurchase = isEquipmentAvailable(item) && Number(item.price) > 0;
+    detailBuyBtn.textContent = canPurchase ? "Add to Cart" : "Check availability";
+    detailBuyBtn.onclick = () => {
+        if (canPurchase) {
+            addToCart(Number(item.id));
+            return;
+        }
+        showToast("This item is unavailable for checkout right now.", true);
+    };
+
+    detailPanel.classList.remove("hidden");
+}
+
+function getCompatibilityTags(equipmentId) {
+    return state.compatibility
+        .filter(record => [Number(record.equipment_id), Number(record.compatible_equipment_id)].includes(Number(equipmentId)))
+        .map(record => ({
+            role: record.compatible_roles?.[0] || 'general',
+            type: record.compatibility_type,
+            situation: record.situations || '',
+            reason: record.notes || '',
+            compatibleWith: Number(record.equipment_id) === Number(equipmentId) ? record.compatible_equipment_name : record.equipment_name
+        }))
+        .filter((tag, index, tags) => tags.findIndex(other => other.role === tag.role && other.type === tag.type && other.compatibleWith === tag.compatibleWith) === index);
+}
+
+function renderRecommendations() {
+    const equipmentById = new Map(
+        state.equipment.map(item => [Number(item.id), item])
+    );
+    const recommendations = state.compatibility
+        .filter(record =>
+            (Number(record.assigned_user_id) > 0 || record.assigned_role === state.role)
+            && ["compatible", "situational"].includes(String(record.compatibility_type).toLowerCase())
+        )
+        .map(record => {
+            const firstId = Number(record.equipment_id);
+            const secondId = Number(record.compatible_equipment_id);
+            const pair = [equipmentById.get(firstId), equipmentById.get(secondId)].filter(Boolean);
+            const recommendedItem = pair.find(item => Number(item.id) === secondId)
+                || pair[0];
+            return recommendedItem ? { record, recommendedItem } : null;
+        })
+        .filter(recommendation => recommendation !== null);
+
+    recommendationList.replaceChildren();
+
+    if (!recommendations.length) {
+        recommendationsSection.classList.add("hidden");
+    } else {
+        recommendationsSection.classList.remove("hidden");
+    }
+    const renderRecommendation = ({record, recommendedItem}, root) => {
+        const card = document.createElement("article");
+        const type = String(record.compatibility_type).toLowerCase();
+        card.className = `recommendation-card ${type}`;
+
+        const badge = document.createElement("span");
+        badge.className = "recommendation-type";
+        badge.textContent = type === "situational" ? "Situational pairing" : "Compatible pairing";
+        card.appendChild(badge);
+
+        const title = document.createElement("h3");
+        title.textContent = `${record.equipment_name} + ${record.compatible_equipment_name}`;
+        card.appendChild(title);
+
+        const target = document.createElement("p");
+        target.className = "recommendation-copy";
+        target.textContent = `Recommended item: ${recommendedItem.name}`;
+        card.appendChild(target);
+
+        const guidance = document.createElement("p");
+        guidance.className = "recommendation-copy";
+        guidance.textContent = record.notes || "An administrator recommended this equipment pairing.";
+        card.appendChild(guidance);
+
+        if (record.situations) {
+            const situation = document.createElement("p");
+            situation.className = "recommendation-copy";
+            situation.textContent = `Useful when: ${record.situations}`;
+            card.appendChild(situation);
+        }
+
+        const roles = Array.isArray(record.compatible_roles) && record.compatible_roles.length
+            ? `Best for: ${record.compatible_roles.map(r => r[0].toUpperCase() + r.slice(1)).join(", ")}`
+            : "";
+        if (roles) {
+            const roleLine = document.createElement("p");
+            roleLine.className = "recommendation-copy";
+            roleLine.textContent = roles;
+            card.appendChild(roleLine);
+        }
+
+        const link = document.createElement("a");
+        link.href = `equipment-details.html?id=${encodeURIComponent(recommendedItem.id)}`;
+        link.textContent = "View recommended equipment";
+        card.appendChild(link);
+
+        root.appendChild(card);
+    };
+    recommendations.forEach(recommendation => renderRecommendation(recommendation, recommendationList));
 }
 
 
@@ -1139,6 +1814,15 @@ async function verifySession() {
         state.role =
             data.role;
 
+        document.querySelector(".filter-chip").textContent = data.role === "enemy" ? "Villain Equipment" : "Hero Equipment";
+        document.getElementById("accountBadge").textContent = data.role === "enemy" ? "Villain account" : "Hero account";
+
+        document.querySelectorAll("#roleOptions [data-character-role]").forEach(button => button.addEventListener("click", async () => {
+            state.characterRole = button.dataset.characterRole || "";
+            document.querySelectorAll("#roleOptions [data-character-role]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+            await loadEquipment();
+        }));
+
 
         sessionUser.textContent =
             data.handle
@@ -1189,7 +1873,7 @@ async function loadEquipment() {
 
         const response =
             await fetch(
-                EQUIPMENT_API,
+                EQUIPMENT_API + (state.characterRole ? "?character_role=" + encodeURIComponent(state.characterRole) : ""),
                 {
                     method: "GET",
 
@@ -1214,7 +1898,7 @@ async function loadEquipment() {
 
             throw new Error(
                 data.message ||
-                "Equipment request failed."
+                "Adding equipment to the cart failed."
             );
         }
 
@@ -1236,6 +1920,26 @@ async function loadEquipment() {
                 ? data.equipment
                 : [];
 
+        try {
+            const compatibilityResponse = await fetch(COMPATIBILITY_API, {
+                method: "GET",
+                credentials: "include",
+                cache: "no-store",
+                headers: { "Accept": "application/json" }
+            });
+            const compatibilityData = await compatibilityResponse.json();
+            if (!compatibilityResponse.ok || !compatibilityData.success) {
+                throw new Error(compatibilityData.message || "Compatibility API request failed.");
+            }
+            state.compatibility = Array.isArray(compatibilityData.compatibility)
+                ? compatibilityData.compatibility
+                : [];
+        } catch (error) {
+            state.compatibility = [];
+            showToast("Compatibility tags are unavailable right now.", true);
+            console.error("Marketplace compatibility loading error:", error);
+        }
+
 
         /*
          * Keep the authenticated role
@@ -1246,6 +1950,7 @@ async function loadEquipment() {
             state.role = data.role;
         }
 
+        renderRecommendations();
 
         buildCategoryFilter();
 
@@ -1352,7 +2057,6 @@ function getFilteredEquipment() {
 
 
     return state.equipment.filter(item => {
-
         const searchable = [
 
             item.name,
@@ -1410,12 +2114,8 @@ function getFilteredEquipment() {
     });
 }
 
-
-/* =========================================================
-   RENDER EQUIPMENT
-========================================================= */
-
 function renderEquipment() {
+
 
     const items =
         getFilteredEquipment();
@@ -1448,7 +2148,6 @@ function renderEquipment() {
 
         return;
     }
-
 
     const grid =
         document.createElement("div");
@@ -1483,12 +2182,15 @@ function renderEquipment() {
                 item.displayAccess ||
                 "Common";
 
+            const compatibilityTags = getCompatibilityTags(item.id);
+
 
             return `
 
                 <article
                     class="card"
                     data-id="${Number(item.id)}"
+                    data-detail-id="${Number(item.id)}"
                 >
 
                     <div class="card-media">
@@ -1546,6 +2248,8 @@ function renderEquipment() {
 
                         </div>
 
+                        <div class="meta"><span>${escapeHTML(item.itemType || "Equipment")}</span><span>${escapeHTML(item.rarity || "Unrated")}</span></div>
+
 
                         <h2>
 
@@ -1564,6 +2268,24 @@ function renderEquipment() {
                             )}
 
                         </p>
+
+                        ${item.compatibleRoles?.length ? `<div class="compatibility-tags" aria-label="Compatible character roles">${item.compatibleRoles.map(role => `<span class="compatibility-tag">${escapeHTML(role)}</span>`).join("")}</div>` : ""}
+
+                        ${compatibilityTags.length ? `
+                            <div class="compatibility-badge ${escapeHTML(compatibilityTags[0].type)}" aria-label="Compatibility information">
+                                <span class="badge-dot"></span>
+                                <span>${escapeHTML(compatibilityTags[0].type.toUpperCase())} · ${escapeHTML(compatibilityTags[0].role)}</span>
+                                ${compatibilityTags.length > 1 ? `<span>+${compatibilityTags.length - 1} more</span>` : ''}
+                            </div>
+                            ${compatibilityTags[0].situation ? `<div class="compatibility-detail"><strong>Best when:</strong> ${escapeHTML(compatibilityTags[0].situation)}</div>` : ''}
+                            ${compatibilityTags[0].compatibleWith ? `<div class="compatibility-detail"><strong>Pairs with:</strong> ${escapeHTML(compatibilityTags[0].compatibleWith)}</div>` : ''}
+                        ` : ""}
+
+                        <div class="equipment-price" style="margin:12px 0;font-weight:700;color:#7dd3fc">
+                            ${Number(item.price) > 0
+                                ? `₱${Number(item.price).toFixed(2)} each`
+                                : "Price unavailable — checkout disabled"}
+                        </div>
 
 
                         <div class="meta">
@@ -1605,29 +2327,41 @@ function renderEquipment() {
 
                         </div>
 
+                        ${compatibilityTags.length ? `
+                            <div class="compatibility-tags" aria-label="Compatibility information">
+                                ${compatibilityTags.map(tag => `
+                                    <span class="compatibility-tag ${escapeHTML(tag.type)}">
+                                        ${escapeHTML(tag.role)} ${escapeHTML(tag.type)}
+                                    </span>
+                                `).join("")}
+                            </div>
+                        ` : ""}
+
 
                         <div class="card-actions">
 
                             <button
                                 class="details-btn"
-                                onclick="viewDetails(${Number(item.id)})"
+                                type="button"
+                                data-detail-id="${Number(item.id)}"
                             >
                                 DETAILS
                             </button>
-
-
                             <button
                                 class="add-btn"
-                                onclick="addToCart(${Number(item.id)})"
-                                ${available ? "" : "disabled"}
+                                type="button"
+                                data-add-cart="${Number(item.id)}"
+                                ${available && Number(item.price) > 0 ? "" : "disabled"}
                             >
-
-                                ${
-                                    available
-                                        ? "ADD TO CART"
-                                        : "UNAVAILABLE"
-                                }
-
+                                ${!available ? "UNAVAILABLE" : Number(item.price) > 0 ? "ADD TO CART" : "PRICE NOT SET"}
+                            </button>
+                            <button
+                                class="buy-now-btn"
+                                type="button"
+                                onclick="buyNow(${Number(item.id)})"
+                                ${available && Number(item.price) > 0 ? "" : "disabled"}
+                            >
+                                ${!available ? "UNAVAILABLE" : Number(item.price) > 0 ? "BUY NOW" : "PRICE NOT SET"}
                             </button>
 
                         </div>
@@ -1644,6 +2378,29 @@ function renderEquipment() {
     content.innerHTML = "";
 
     content.appendChild(grid);
+
+    content.querySelectorAll("[data-detail-id]").forEach(button => {
+        button.addEventListener("click", event => {
+            const id = Number(event.currentTarget.getAttribute("data-detail-id"));
+            const selectedItem = state.equipment.find(item => Number(item.id) === id);
+            openDetailPanel(selectedItem);
+        });
+    });
+
+    content.querySelectorAll("[data-add-cart]").forEach(button => {
+        button.addEventListener("click", () => addToCart(Number(button.getAttribute("data-add-cart"))));
+    });
+
+    content.querySelectorAll(".card[data-detail-id]").forEach(card => {
+        card.addEventListener("click", event => {
+            if (event.target.closest("button")) {
+                return;
+            }
+            const id = Number(card.getAttribute("data-detail-id"));
+            const selectedItem = state.equipment.find(item => Number(item.id) === id);
+            openDetailPanel(selectedItem);
+        });
+    });
 }
 
 
@@ -1696,7 +2453,6 @@ async function addToCart(equipmentId) {
             );
         }
 
-
         showToast(
             "Equipment added to cart."
         );
@@ -1712,6 +2468,10 @@ async function addToCart(equipmentId) {
             true
         );
     }
+}
+
+function buyNow(equipmentId) {
+    window.location.href = `checkout.html?equipment_id=${encodeURIComponent(equipmentId)}&quantity=1`;
 }
 
 
@@ -1768,27 +2528,20 @@ async function loadCartCount() {
                 Number(total);
 
 
-            cartCount.textContent =
-                state.cartCount;
+            if (cartCount) {
+                cartCount.textContent =
+                    state.cartCount;
+            }
         }
 
 
     } catch (error) {
 
-        cartCount.textContent =
-            "0";
+        if (cartCount) {
+            cartCount.textContent =
+                "0";
+        }
     }
-}
-
-
-/* =========================================================
-   EQUIPMENT DETAILS
-========================================================= */
-
-function viewDetails(id) {
-
-    window.location.href =
-        `equipment-details.html?id=${encodeURIComponent(id)}`;
 }
 
 
@@ -1822,6 +2575,11 @@ categoryFilter.addEventListener(
         renderEquipment();
     }
 );
+
+
+detailCloseBtn.addEventListener("click", () => {
+    detailPanel.classList.add("hidden");
+});
 
 
 /* =========================================================

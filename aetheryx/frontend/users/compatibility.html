@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="../assets/js/tab-auth-context.js"></script>
+<script src="../assets/js/role-context.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Compatibility — ÆTHERYX</title>
@@ -23,13 +25,13 @@
   .compat-status{position:relative;z-index:1;display:inline-flex;align-items:center;gap:9px;padding:10px 13px;border:1px solid var(--ax-border-strong);border-radius:999px;background:rgba(11,16,32,.72);font:500 11px "IBM Plex Mono",monospace;color:var(--ax-muted);white-space:nowrap;}
   .compat-status .dot{width:8px;height:8px;border-radius:50%;background:var(--ax-success);box-shadow:0 0 0 4px rgba(95,211,154,.12);}
   .compat-status.offline .dot{background:var(--ax-danger);box-shadow:0 0 0 4px rgba(230,107,123,.12);}
-  .compat-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 22px;}
+  .compat-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0 0 22px;}
   .summary-chip{position:relative;overflow:hidden;min-height:96px;padding:17px 18px;border:1px solid var(--ax-border);border-radius:13px;background:var(--ax-surface);color:var(--ax-muted);font-size:12px;}
   .summary-chip:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:var(--ax-border-strong);}
   .summary-chip.compat-stat:after{background:var(--ax-success);}.summary-chip.incompat-stat:after{background:var(--ax-danger);}.summary-chip.show-stat:after{background:var(--ax-accent);}
   .summary-chip span{display:block;font:500 11px "IBM Plex Mono",monospace;letter-spacing:.05em;text-transform:uppercase;}
   .summary-chip strong{display:block;margin-top:10px;color:var(--ax-text);font:600 26px/1 "Space Grotesk",sans-serif;}
-  .compat-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) 220px auto auto;gap:10px;margin:0 0 12px;padding:12px;border:1px solid var(--ax-border);border-radius:14px;background:var(--ax-surface);}
+  .compat-toolbar{display:grid;grid-template-columns:minmax(200px,1fr) repeat(3,minmax(150px,.7fr)) auto auto;gap:10px;margin:0 0 12px;padding:12px;border:1px solid var(--ax-border);border-radius:14px;background:var(--ax-surface);}
   .compat-toolbar input,.compat-toolbar select{min-width:0;width:100%;height:44px;padding-inline:13px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);color:var(--ax-text);}
   .compat-toolbar input:focus,.compat-toolbar select:focus{outline:2px solid rgba(73,201,181,.32);border-color:var(--ax-accent);}
   .compat-toolbar button{height:44px;white-space:nowrap;}
@@ -39,7 +41,7 @@
   .compat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;}
   .compat-card{position:relative;overflow:hidden;background:var(--ax-surface);border:1px solid var(--ax-border);border-radius:14px;padding:18px;transition:border-color var(--ax-motion),transform var(--ax-motion),box-shadow var(--ax-motion);animation:compat-rise .35s both;}
   .compat-card:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--ax-success);}
-  .compat-card.incompatible:before{background:var(--ax-danger);}.compat-card.unknown:before{background:var(--ax-warning);}
+  .compat-card.incompatible:before{background:var(--ax-danger);}.compat-card.situational:before,.compat-card.unknown:before{background:var(--ax-warning);}
   .compat-card:hover{border-color:var(--ax-border-strong);transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,0,0,.16);}
   @keyframes compat-rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
   .compat-card-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px;}
@@ -47,12 +49,15 @@
   .status-badge{font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;padding:6px 8px;border-radius:6px;white-space:nowrap;}
   .status-badge.compatible{color:var(--ax-success);border:1px solid rgba(95,211,154,.28);background:rgba(95,211,154,.07);}
   .status-badge.incompatible{color:var(--ax-danger);border:1px solid rgba(230,107,123,.28);background:rgba(230,107,123,.07);}
+  .status-badge.situational{color:var(--ax-warning);border:1px solid rgba(231,184,93,.28);background:rgba(231,184,93,.07);}
   .status-badge.unknown{color:var(--ax-warning);border:1px solid rgba(231,184,93,.28);background:rgba(231,184,93,.07);}
   .compat-card h3{font:500 10px "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--ax-muted);margin-bottom:10px;}
   .pair{display:grid;grid-template-columns:1fr 24px 1fr;align-items:center;gap:8px;margin-bottom:16px;}
   .pair span:not(.plus){display:grid;place-items:center;min-height:52px;padding:9px;border:1px solid var(--ax-border);border-radius:9px;background:var(--ax-bg);font-size:12px;font-weight:600;text-align:center;color:var(--ax-text);overflow-wrap:anywhere;}
   .pair .plus{color:var(--ax-accent);font:600 16px "IBM Plex Mono",monospace;text-align:center;}
   .compat-note{font-size:12px;line-height:1.6;color:var(--ax-muted);min-height:38px;}
+  .compat-roles{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.compat-role{padding:5px 8px;border:1px solid var(--ax-border);border-radius:999px;color:var(--ax-text);font:500 10px "IBM Plex Mono",monospace;text-transform:capitalize}
+  .compat-situation{margin-top:9px;font-size:12px;line-height:1.55;color:var(--ax-warning)}
   .compat-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:15px;padding-top:13px;border-top:1px solid var(--ax-border);}
   .compat-action{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 12px;border:1px solid var(--ax-border);border-radius:8px;background:var(--ax-surface-2);color:var(--ax-text);font-size:11px;font-weight:600;text-decoration:none;transition:all var(--ax-motion);}
   .compat-action:hover{border-color:var(--ax-accent);color:var(--ax-accent);}
@@ -60,7 +65,8 @@
   .compat-state strong{display:block;color:var(--ax-text);margin-bottom:6px;font:600 16px "Space Grotesk",sans-serif;}
   .compat-state.error strong{color:var(--ax-danger);}
   .hidden{display:none!important;}
-  @media(max-width:900px){.compat-header{align-items:flex-start;flex-direction:column}.compat-status{align-self:flex-start}.compat-toolbar{grid-template-columns:1fr 1fr}.compat-toolbar input{grid-column:1/-1}}
+  @media(max-width:1100px){.compat-toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}.compat-toolbar input{grid-column:1/-1}}
+  @media(max-width:900px){.compat-header{align-items:flex-start;flex-direction:column}.compat-status{align-self:flex-start}}
   @media(max-width:620px){.compat-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.summary-chip{min-height:84px;padding:14px}.compat-toolbar{grid-template-columns:1fr}.compat-toolbar input{grid-column:auto}.compat-header{margin-bottom:14px;padding:23px}.compat-intro{font-size:13px}.compat-results-head{align-items:flex-start;flex-direction:column}.compat-page{width:100%}}
   @media(prefers-reduced-motion:reduce){.compat-card{animation:none;transition:none}.compat-card:hover{transform:none}}
 </style>
@@ -72,14 +78,16 @@
       <div class="compat-header-copy">
         <div class="compat-kicker">ÆTHERYX / Equipment intelligence</div>
         <h1 class="compat-title">Compatibility</h1>
-        <p class="compat-intro">Check the registered relationship between equipment and resources before you submit a request. Compatibility is an information tool: it shows what your system has recorded, including compatible and incompatible pairings.</p>
+  <p class="compat-intro">Explore equipment pairings by character role and gameplay situation. These records are guidance, not universal build recommendations, and do not block checkout.</p>
       </div>
       <div class="compat-status" id="statusPill"><span class="dot"></span><span id="statusText">Connecting...</span></div>
     </header>
 
     <section class="compat-toolbar" aria-label="Compatibility controls">
-      <input id="search" type="search" autocomplete="off" placeholder="Search equipment or resource..." aria-label="Search compatibility records">
-      <select id="filter" aria-label="Filter compatibility status"><option value="">All relationships</option></select>
+      <input id="search" type="search" autocomplete="off" placeholder="Search equipment or guidance..." aria-label="Search compatibility records">
+      <select id="roleFilter" aria-label="Filter character role"><option value="">All character roles</option></select>
+      <select id="filter" aria-label="Filter relationship type"><option value="">All relationships</option></select>
+      <select id="equipmentFilter" aria-label="Filter equipment item"><option value="">All equipment</option></select>
       <button id="reset" type="button">Reset</button>
       <button id="refresh" type="button">Refresh</button>
     </section>
@@ -88,10 +96,11 @@
       <div class="summary-chip"><span>Total records</span><strong id="countTotal">0</strong></div>
       <div class="summary-chip compat-stat"><span>Compatible</span><strong id="countCompatible">0</strong></div>
       <div class="summary-chip incompat-stat"><span>Incompatible</span><strong id="countIncompatible">0</strong></div>
+      <div class="summary-chip"><span>Situational</span><strong id="countSituational">0</strong></div>
       <div class="summary-chip show-stat"><span>Currently shown</span><strong id="countShowing">0</strong></div>
     </section>
 
-    <div class="compat-results-head"><h2>Recorded relationships</h2><p>Reference data from the equipment catalog</p></div>
+    <div class="compat-results-head"><h2>Recommendations for your account</h2><p>Private equipment guidance assigned by an administrator</p></div>
     <section id="matrix" class="compat-grid" aria-live="polite"></section>
     <section id="loading" class="compat-state"><strong>Loading compatibility records</strong>Reading the current compatibility data from ÆTHERYX.</section>
     <section id="empty" class="compat-state hidden"><strong id="emptyTitle">No matching records</strong><span id="emptyText">Try a different search term or reset the filter.</span></section>
@@ -112,6 +121,8 @@ const emptyTitle = document.getElementById('emptyTitle');
 const emptyText = document.getElementById('emptyText');
 const search = document.getElementById('search');
 const filter = document.getElementById('filter');
+const roleFilter = document.getElementById('roleFilter');
+const equipmentFilter = document.getElementById('equipmentFilter');
 const reset = document.getElementById('reset');
 const refresh = document.getElementById('refresh');
 const statusText = document.getElementById('statusText');
@@ -119,9 +130,11 @@ const statusPill = document.getElementById('statusPill');
 const countTotal = document.getElementById('countTotal');
 const countCompatible = document.getElementById('countCompatible');
 const countIncompatible = document.getElementById('countIncompatible');
+const countSituational = document.getElementById('countSituational');
 const countShowing = document.getElementById('countShowing');
 
 let records = [];
+let equipment = [];
 
 function escapeHTML(value) {
   return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
@@ -132,10 +145,12 @@ function normalize(item) {
   return {
     id: item.id ?? item.compatibility_id ?? '',
     equipment_id: item.equipment_id ?? null,
-    equipment_name: item.equipment_name ?? item.equipment ?? item.name ?? 'Equipment',
-    resource_id: item.resource_id ?? null,
-    resource_name: item.resource_name ?? item.resource ?? 'Resource',
+    compatible_equipment_id: item.compatible_equipment_id ?? null,
+    equipment_name: item.equipment_name ?? 'Equipment',
+    compatible_equipment_name: item.compatible_equipment_name ?? 'Equipment',
     description: item.description ?? item.notes ?? item.details ?? 'No additional notes recorded.',
+    situations: item.situations ?? '',
+    compatible_roles: Array.isArray(item.compatible_roles) ? item.compatible_roles : [],
     type: type.charAt(0).toUpperCase() + type.slice(1)
   };
 }
@@ -155,29 +170,50 @@ async function requestJSON() {
 }
 
 function populateFilter() {
-  const values = [...new Set(records.map(item => item.type).filter(Boolean))].sort();
+  const previousType = filter.value;
+  const previousRole = roleFilter.value;
+  const previousEquipment = equipmentFilter.value;
   filter.innerHTML = '<option value="">All relationships</option>';
-  values.forEach(value => {
+  ['Compatible','Incompatible','Situational'].forEach(value => {
     const option = document.createElement('option');
     option.value = value.toLowerCase();
     option.textContent = value;
     filter.appendChild(option);
   });
+  filter.value = previousType;
+  roleFilter.innerHTML = '<option value="">All character roles</option>';
+  ['mage','fighter','marksman','tank','support'].forEach(value => {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value.charAt(0).toUpperCase() + value.slice(1);
+    roleFilter.appendChild(option);
+  });
+  roleFilter.value = previousRole;
+  equipmentFilter.innerHTML = '<option value="">All equipment</option>' + equipment.map(item =>
+    `<option value="${Number(item.id)}">${escapeHTML(item.name)}</option>`).join('');
+  equipmentFilter.value = previousEquipment;
 }
 
 function updateSummary(visible) {
   countTotal.textContent = records.length;
   countCompatible.textContent = records.filter(item => item.type.toLowerCase() === 'compatible').length;
   countIncompatible.textContent = records.filter(item => item.type.toLowerCase() === 'incompatible').length;
+  countSituational.textContent = records.filter(item => item.type.toLowerCase() === 'situational').length;
   countShowing.textContent = visible.length;
 }
 
 function render() {
   const query = search.value.trim().toLowerCase();
   const selected = filter.value.trim().toLowerCase();
+  const selectedRole = roleFilter.value;
+  const selectedEquipment = equipmentFilter.value;
   const visible = records.filter(item => {
-    const text = [item.equipment_name, item.resource_name, item.description, item.type].join(' ').toLowerCase();
-    return (!query || text.includes(query)) && (!selected || item.type.toLowerCase() === selected);
+    const text = [item.equipment_name, item.compatible_equipment_name, item.description, item.situations, item.type, ...item.compatible_roles].join(' ').toLowerCase();
+    const hasEquipment = !selectedEquipment || [item.equipment_id, item.compatible_equipment_id].includes(Number(selectedEquipment));
+    return (!query || text.includes(query))
+      && (!selected || item.type.toLowerCase() === selected)
+      && (!selectedRole || item.compatible_roles.includes(selectedRole))
+      && hasEquipment;
   });
 
   updateSummary(visible);
@@ -188,7 +224,7 @@ function render() {
     emptyTitle.textContent = records.length ? 'No matching records' : 'No compatibility records yet';
     emptyText.textContent = records.length
       ? 'Try a different search term or reset the filter.'
-      : 'There are no equipment and resource relationships recorded in the catalog.';
+      : 'There are no equipment pairings recorded in the catalog.';
     setState(empty);
     return;
   }
@@ -199,7 +235,7 @@ function render() {
   visible.forEach((item, index) => {
     const card = document.createElement('article');
     const type = item.type.toLowerCase();
-    const statusClass = type === 'compatible' ? 'compatible' : type === 'incompatible' ? 'incompatible' : 'unknown';
+    const statusClass = ['compatible','incompatible','situational'].includes(type) ? type : 'unknown';
     card.className = `compat-card ${statusClass}`;
     card.style.animationDelay = `${Math.min(index * 30, 300)}ms`;
     card.innerHTML = `
@@ -207,15 +243,17 @@ function render() {
         <span class="status-badge ${statusClass}">${escapeHTML(item.type)}</span>
         <span class="compat-record">RECORD #${escapeHTML(item.id || '—')}</span>
       </div>
-      <h3>Equipment relationship</h3>
+      <h3>Equipment combination</h3>
       <div class="pair">
         <span>${escapeHTML(item.equipment_name)}</span>
         <span class="plus">↔</span>
-        <span>${escapeHTML(item.resource_name)}</span>
+        <span>${escapeHTML(item.compatible_equipment_name)}</span>
       </div>
-      <p class="compat-note">${escapeHTML(item.description)}</p>
+      <p class="compat-note">${type === 'incompatible' ? 'Not recommended: ' : ''}${escapeHTML(item.description)}</p>
+      <div class="compat-roles">${item.compatible_roles.map(role=>`<span class="compat-role">${escapeHTML(role)}</span>`).join('')}</div>
+      ${item.situations?`<p class="compat-situation"><strong>Useful when:</strong> ${escapeHTML(item.situations)}</p>`:''}
       <div class="compat-card-footer">
-        <span class="compat-record">Reference only</span>
+        <span class="compat-record">${type==='incompatible'?'Not a recommended build':'Reference guidance'}</span>
         ${item.equipment_id ? `<a class="compat-action" href="equipment-details.html?id=${encodeURIComponent(item.equipment_id)}">View equipment</a>` : ''}
       </div>`;
     matrix.appendChild(card);
@@ -231,13 +269,14 @@ async function load() {
     const data = await requestJSON();
     const list = Array.isArray(data.compatibility) ? data.compatibility : [];
     records = list.map(normalize);
+    equipment = Array.isArray(data.equipment) ? data.equipment : [];
     populateFilter();
     statusText.textContent = `${records.length} record${records.length === 1 ? '' : 's'} online`;
     statusPill.classList.remove('offline');
     render();
     if (!records.length) {
       emptyTitle.textContent = 'No compatibility records yet';
-      emptyText.textContent = 'There are no equipment and resource relationships recorded in the catalog.';
+      emptyText.textContent = 'There are no equipment pairings recorded in the catalog.';
       setState(empty);
     }
   } catch (err) {
@@ -257,7 +296,9 @@ async function load() {
 
 search.addEventListener('input', render);
 filter.addEventListener('change', render);
-reset.addEventListener('click', () => { search.value = ''; filter.value = ''; render(); });
+roleFilter.addEventListener('change', render);
+equipmentFilter.addEventListener('change', render);
+reset.addEventListener('click', () => { search.value = ''; filter.value = ''; roleFilter.value = ''; equipmentFilter.value = ''; render(); });
 refresh.addEventListener('click', load);
 load();
 </script>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../middleware/role-check.php';
+require_once __DIR__ . '/../../helpers/notify.php';
 
 header('Content-Type: application/json');
 
@@ -301,6 +302,10 @@ try {
             ':user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null
         ]);
 
+        $activityMessage = 'Your account was updated by an administrator: ' . implode(', ', $changes) . '.';
+        createNotification($pdo, $userId, 'Account updated', $activityMessage, 'info');
+        createNotification($pdo, (int) $adminId, 'User account updated', $description, 'success');
+        notifyAdminsOfActivity($pdo, (int) $adminId, 'User account updated', $description, 'info');
 
         echo json_encode([
             'success' => true,
@@ -470,6 +475,9 @@ try {
         */
 
         $adminId = getAuthenticatedUserId();
+        $activityMessage = sprintf('Deleted user #%d (@%s).', $userId, (string) $user['handle']);
+        createNotification($pdo, (int) $adminId, 'User account deleted', $activityMessage, 'warning');
+        notifyAdminsOfActivity($pdo, (int) $adminId, 'User account deleted', $activityMessage, 'warning');
 
         $log = $pdo->prepare("
             INSERT INTO activity_logs

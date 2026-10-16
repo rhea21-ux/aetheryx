@@ -12,7 +12,7 @@
         "hero-dashboard.html": "⌂",
         "marketplace.html": "◈",
         "cart.html": "◇",
-        "my-requests.html": "◎",
+        "orders.html": "▤",
         "inventory.html": "▣",
         "profile.html": "○",
         "resources.html": "◉",

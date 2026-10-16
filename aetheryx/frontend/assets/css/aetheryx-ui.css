@@ -140,7 +140,7 @@ input:focus,select:focus{border-color:var(--primary);}
 .request-stat-label{font:500 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
 .request-stat-value{font:700 26px var(--font-head);margin-top:4px;}
 .request-stat.pending .request-stat-value{color:var(--warning);}
-.request-stat.approved .request-stat-value{color:var(--success);}
+.request-stat.processing .request-stat-value{color:var(--success);}
 .request-stat.rejected .request-stat-value{color:var(--danger);}
 .recent-requests{display:flex;flex-direction:column;}
 .request-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--border);}
@@ -148,7 +148,7 @@ input:focus,select:focus{border-color:var(--primary);}
 .request-equipment-meta{font-size:13px;color:var(--muted);}
 .request-status,.badge{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--border);font:600 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
 .request-status.pending{color:var(--warning);border-color:rgba(231,184,93,.4);}
-.request-status.approved,.badge.assigned{color:var(--success);border-color:rgba(95,211,154,.4);}
+.request-status.processing,.request-status.completed,.badge.assigned{color:var(--success);border-color:rgba(95,211,154,.4);}
 .request-status.rejected,.request-status.cancelled,.badge.lost,.badge.damaged{color:var(--danger);border-color:rgba(230,107,123,.4);}
 .badge.returned{color:var(--info);border-color:rgba(143,167,240,.4);}
 .requests-loading,.requests-error{padding:20px 0;color:var(--muted);text-align:center;}

@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../middleware/auth-check.php';
+require_once __DIR__ . '/../../middleware/role-check.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../helpers/notify.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-requireAuth();
+requireMarketplaceRole();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
     http_response_code(405);
@@ -84,6 +85,9 @@ try {
 
         exit;
     }
+    $message = sprintf('Removed cart item #%d.', $cartId);
+    createNotification($pdo, (int) $userId, 'Cart updated', $message, 'info');
+    notifyAdminsOfActivity($pdo, (int) $userId, 'Cart updated', $message, 'info');
 
     echo json_encode([
         'success' => true,

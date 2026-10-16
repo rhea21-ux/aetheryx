@@ -1,0 +1,691 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <script src="../assets/js/tab-auth-context.js"></script>
+    <script defer src="../assets/js/notification-drawer.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pricing & Stock — AETHERYX Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/no-gradient.css">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0b1020;
+            --panel: #13192b;
+            --panel-raised: #1c2438;
+            --line: #273046;
+            --text: #e8eaf6;
+            --muted: #94a3b8;
+            --accent: #22d3ee;
+            --accent-dim: rgba(34, 211, 238, 0.12);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --ring: rgba(34, 211, 238, 0.35);
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.55 "IBM Plex Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+        button, input, select { font: inherit; }
+        a { color: var(--accent); text-decoration: none; }
+
+        /* Shell */
+        .shell { display: grid; grid-template-columns: 260px 1fr; height: 100vh; min-height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { position: sticky; top: 0; height: 100vh; padding: 28px 22px; display: flex; flex-direction: column; border-right: 1px solid var(--line); background: var(--panel); z-index: 10; overflow-y: auto; }
+        .brand { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 30px; color: var(--text); font-weight: 700; letter-spacing: 0.14em; font-size: 13px; text-transform: uppercase; }
+        .brand-mark { width: 34px; height: 34px; grid: 34px / 34px; place-items: center; border-radius: 10px; border: 1px solid rgba(34,211,238,0.4); background: #0b2520; color: var(--accent); }
+        .nav-list { list-style: none; padding: 0; margin: 0 0 24px; display: flex; flex-direction: column; gap: 5px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: var(--muted); font-size: 13.5px; cursor: pointer; transition: all 0.18s; border: 1px solid transparent; }
+        .nav-item .icon { width: 20px; height: 20px; grid: 20px / 20px; place-items: center; border-radius: 8px; background: var(--panel-raised); border: 1px solid var(--line); color: var(--muted); font-size: 13px; font-weight: 700; flex: 0 0 20px; }
+        .nav-item:hover { background: var(--panel-raised); color: var(--text); border-color: var(--line); }
+        .nav-item.active { background: var(--accent-dim); color: var(--accent); border-color: var(--ring); }
+        .nav-item.active .icon { color: var(--accent); border-color: var(--accent); background: rgba(34,211,238,0.18); }
+
+        /* Content */
+        .content { overflow-y: auto; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 26px; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+        .topbar-left { display: flex; flex-direction: column; gap: 4px; }
+        .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+        h1 { margin: 0; font-size: clamp(22px, 3vw, 28px); letter-spacing: -0.02em; color: var(--text); }
+        .intro { margin: 0; color: var(--muted); font-size: 13px; }
+
+        /* Stats */
+        .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 0; }
+        .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
+        .stat-icon { width: 42px; height: 42px; grid: 42px / 42px; place-items: center; border-radius: 12px; background: var(--panel-raised); color: var(--accent); font-size: 19px; flex: 0 0 42px; }
+        .stat-body { min-width: 0; }
+        .stat-label { font-size: 11.5px; color: var(--muted); margin: 0 0 3px; letter-spacing: 0.04em; text-transform: uppercase; }
+        .stat-value { font-size: 25px; font-weight: 700; letter-spacing: -0.03em; margin: 0; }
+        .stat-caption { font-size: 11px; color: var(--muted); margin: 0; }
+        .stat.accent .stat-value { color: var(--accent); }
+        .stat.success .stat-value { color: var(--success); }
+        .stat.warning .stat-value { color: var(--warning); }
+
+        /* Toolbar */
+        .toolbar { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .field { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+        .field label { font-size: 12px; color: var(--muted); }
+        input[type=search], select { min-height: 40px; padding: 8px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel-raised); color: var(--text); min-width: 190px; outline: none; transition: border 0.15s, box-shadow 0.15s; }
+        input[type=search]:focus, select:focus { border-color: rgba(34,211,238,0.5); box-shadow: 0 0 0 3px rgba(34,211,238,0.08); }
+        select { cursor: pointer; min-width: 170px; }
+
+        /* Buttons */
+        button { min-height: 40px; padding: 8px 16px; border: 1px solid transparent; border-radius: 10px; background: var(--panel-raised); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+        button:hover:not(:disabled) { background: #242e42; border-color: var(--line); }
+        button.primary { background: var(--accent); color: #051b20; border-color: var(--accent); }
+        button.primary:hover:not(:disabled) { filter: brightness(1.08); }
+        button.primary:disabled, button:disabled { opacity: 0.55; cursor: wait; }
+        button.secondary { border-color: var(--line); }
+        button.danger { background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.35); color: var(--danger); }
+        button.danger:hover:not(:disabled) { background: rgba(248, 113, 113, 0.22); }
+        button.saving { opacity: 0.75; cursor: wait; pointer-events: none; }
+        button.saved { background: var(--success); border-color: var(--success); color: #071319; }
+        .sync-text { font-size: 12px; color: var(--muted); }
+
+        /* Status banner */
+        #status { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin: 0; display: none; }
+        .status.error { background: rgba(248, 113, 113, 0.14); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.35); }
+        .status.success { background: rgba(52, 211, 153, 0.14); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.35); }
+        .status.info { background: rgba(34, 211, 238, 0.12); color: var(--accent); border: 1px solid rgba(34, 211, 238, 0.3); }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+        th { text-align: left; font-size: 11.5px; font-weight: 600; color: var(--muted); padding: 13px 16px; border-bottom: 1px solid var(--line); background: var(--panel-raised); letter-spacing: 0.05em; text-transform: uppercase; }
+        td { padding: 14px 16px; border-bottom: 1px solid var(--line); font-size: 14px; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(34,211,238,0.04); }
+
+        .equipment-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .equipment-icon { width: 38px; height: 38px; grid: 38px / 38px; place-items: center; border-radius: 10px; background: var(--panel-raised); color: var(--accent); font-size: 16px; font-weight: 700; flex: 0 0 38px; border: 1px solid var(--line); }
+        .equipment-info-body { min-width: 0; }
+        .equipment-name { font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .equipment-meta { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+
+        .badge { display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 8px; letter-spacing: 0.04em; text-transform: uppercase; border: 1px solid transparent; }
+        .badge.access-hero { color: var(--accent); border-color: rgba(34,211,238,0.35); background: rgba(34,211,238,0.08); }
+        .badge.access-enemy { color: var(--warning); border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.08); }
+        .badge.access-common { color: var(--muted); border-color: var(--line); background: rgba(148,163,184,0.08); }
+        .badge.stock-ok { color: var(--success); border-color: rgba(52,211,153,0.35); background: rgba(52,211,153,0.08); }
+        .badge.stock-low { color: var(--warning); border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.08); }
+        .badge.stock-out { color: var(--danger); border-color: rgba(248,113,113,0.35); background: rgba(248,113,113,0.08); }
+
+        .price-cell { display: flex; align-items: center; gap: 10px; }
+        .price-input { width: 120px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-raised); color: var(--text); font-size: 13px; }
+        .restock-cell { display: flex; align-items: center; gap: 8px; }
+        .restock-input { width: 115px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-raised); color: var(--text); font-size: 13px; }
+        .stock-cell { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .stock-current { font-size: 13px; font-weight: 700; color: var(--text); }
+        .stock-available { font-size: 11.5px; color: var(--muted); }
+
+        .row-actions { display: flex; gap: 8px; align-items: center; }
+        .row-actions button { padding: 7px 13px; font-size: 12.5px; min-height: 34px; }
+        .save-btn { background: var(--accent); border-color: var(--accent); color: #051b20; font-weight: 700; }
+        .save-btn:hover:not(:disabled) { filter: brightness(1.06); }
+        .restock-btn { background: rgba(52,211,153,0.15); border-color: rgba(52,211,153,0.4); color: var(--success); font-weight: 700; }
+        .restock-btn:hover:not(:disabled) { background: rgba(52,211,153,0.25); }
+        .restock-btn.saving { opacity: 0.75; cursor: wait; pointer-events: none; }
+        .restock-btn.saved { background: var(--success); border-color: var(--success); color: #071319; }
+
+        .empty { padding: 48px; text-align: center; color: var(--muted); }
+        .empty strong { color: var(--text); display: block; margin-bottom: 6px; font-size: 15px; }
+        .empty p { margin: 0; font-size: 13px; }
+
+        /* Toasts */
+        .toast-container { position: fixed; right: 22px; bottom: 22px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { pointer-events: auto; padding: 12px 16px; border-radius: 10px; border: 1px solid transparent; background: var(--panel); color: var(--text); font-size: 13px; box-shadow: 0 20px 50px rgba(0,0,0,0.45); transform: translateY(20px); opacity: 0; transition: transform 0.25s, opacity 0.25s; min-width: 260px; max-width: 420px; display: flex; align-items: center; gap: 10px; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-color: rgba(52,211,153,0.4); background: rgba(13,78,59,0.75); }
+        .toast.error { border-color: rgba(248,113,113,0.4); background: rgba(74,22,28,0.8); }
+        .toast.info { border-color: rgba(34,211,238,0.4); background: rgba(9,30,47,0.8); }
+        .toast-mark { width: 20px; height: 20px; grid: 20px / 20px; place-items: center; border-radius: 50%; flex: 0 0 20px; font-weight: 800; font-size: 12px; }
+        .toast.success .toast-mark { background: var(--success); color: #071319; }
+        .toast.error .toast-mark { background: var(--danger); color: #fff; }
+        .toast.info .toast-mark { background: var(--accent); color: #051b20; }
+
+        @media (max-width: 900px) {
+            .shell { grid-template-columns: 1fr; }
+            .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+            .nav-list { flex-direction: row; overflow-x: auto; padding-bottom: 12px; gap: 8px; }
+            .nav-item { flex: 0 0 auto; }
+            .content { padding: 18px 20px 30px; gap: 18px; }
+            .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .topbar-right { width: 100%; justify-content: space-between; }
+            table { font-size: 12px; }
+            th, td { padding: 10px 12px; }
+            .price-input, .restock-input { width: 100%; }
+            .row-actions { flex-direction: column; gap: 6px; align-items: stretch; }
+            .row-actions button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand"><span class="brand-mark" aria-hidden="true">AE</span><span>AETHERYX ADMIN</span></div>
+        <ul class="nav-list">
+            <li class="nav-item" onclick="location.href='admin-dashboard.html'"><span class="icon" aria-hidden="true">D</span>Dashboard</li>
+            <li class="nav-item" onclick="location.href='manage-users.html'"><span class="icon" aria-hidden="true">U</span>Users</li>
+            <li class="nav-item" onclick="location.href='manage-orders.html'"><span class="icon" aria-hidden="true">O</span>Orders & Payments</li>
+            <li class="nav-item" onclick="location.href='manage-compatibility.html'"><span class="icon" aria-hidden="true">C</span>Compatibility</li>
+            <li class="nav-item active" aria-current="page"><span class="icon" aria-hidden="true">P</span>Pricing & Stock</li>
+            <li class="nav-item" onclick="location.href='manage-inventory.html'"><span class="icon" aria-hidden="true">I</span>Inventory</li>
+            <li class="nav-item" onclick="location.href='manage-equipment.html'"><span class="icon" aria-hidden="true">E</span>Equipment</li>
+            <li class="nav-item" onclick="location.href='manage-categories.html'"><span class="icon" aria-hidden="true">T</span>Categories</li>
+            <li class="nav-item" onclick="location.href='manage-activity.html'"><span class="icon" aria-hidden="true">L</span>Activity Logs</li>
+            <li class="nav-item" onclick="location.href='admin-notifications.html'"><span class="icon" aria-hidden="true">N</span>Notifications</li>
+            <li class="nav-item" onclick="location.href='manage-settings.html'"><span class="icon" aria-hidden="true">S</span>Settings</li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <p class="eyebrow">Catalog operations</p>
+                <h1>Pricing & Stock</h1>
+                <p class="intro">Manage equipment prices and restock inventory. Changes are reflected live on the marketplace.</p>
+            </div>
+            <div class="topbar-right">
+                <div class="sync-text" id="lastUpdated">Last updated —</div>
+                <button class="primary" id="refreshBtn" type="button" aria-label="Refresh catalog data"><span style="margin-right:6px;">↻</span>Refresh</button>
+            </div>
+        </header>
+
+        <p id="status" class="status info" style="display:none;"></p>
+
+        <section class="stats" aria-label="Catalog overview">
+            <article class="stat">
+                <div class="stat-icon" aria-hidden="true">P</div>
+                <div class="stat-body">
+                    <p class="stat-label">Catalog items</p>
+                    <p class="stat-value" id="statItems">—</p>
+                    <p class="stat-caption">Total equipment in catalog</p>
+                </div>
+            </article>
+            <article class="stat success">
+                <div class="stat-icon" aria-hidden="true">S</div>
+                <div class="stat-body">
+                    <p class="stat-label">Units available</p>
+                    <p class="stat-value" id="statAvailable">—</p>
+                    <p class="stat-caption">Ready for marketplace purchase</p>
+                </div>
+            </article>
+            <article class="stat accent">
+                <div class="stat-icon" aria-hidden="true">Q</div>
+                <div class="stat-body">
+                    <p class="stat-label">Total stock</p>
+                    <p class="stat-value" id="statStock">—</p>
+                    <p class="stat-caption">Combined quantity across all items</p>
+                </div>
+            </article>
+            <article class="stat warning">
+                <div class="stat-icon" aria-hidden="true">L</div>
+                <div class="stat-body">
+                    <p class="stat-label">Low stock</p>
+                    <p class="stat-value" id="statLow">—</p>
+                    <p class="stat-caption">Items at or below reorder level</p>
+                </div>
+            </article>
+        </section>
+
+        <div class="toolbar" aria-label="Catalog filters">
+            <div class="field">
+                <label for="searchItems">Search</label>
+                <input id="searchItems" type="search" autocomplete="off" placeholder="Search equipment by name…">
+            </div>
+            <div class="field">
+                <label for="categoryFilter">Category</label>
+                <select id="categoryFilter"><option value="">All categories</option></select>
+            </div>
+            <div class="field">
+                <label for="accessFilter">Access level</label>
+                <select id="accessFilter">
+                    <option value="">All access levels</option>
+                    <option value="common">Common</option>
+                    <option value="hero">Hero</option>
+                    <option value="enemy">Villain</option>
+                </select>
+            </div>
+            <div class="field" style="flex:1;">
+                <label for="stockFilter">Stock status</label>
+                <select id="stockFilter">
+                    <option value="">All stock</option>
+                    <option value="available">In stock</option>
+                    <option value="low">Low stock</option>
+                    <option value="out">Out of stock</option>
+                </select>
+            </div>
+            <button class="secondary" id="clearFilters" type="button">Clear filters</button>
+        </div>
+
+        <table aria-label="Equipment pricing and stock table">
+            <thead>
+                <tr>
+                    <th style="width:28%">Equipment / Access</th>
+                    <th style="width:16%">Price (PHP)</th>
+                    <th style="width:19%">Restock Units</th>
+                    <th style="width:17%">Current Stock</th>
+                    <th style="width:20%">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="equipmentTableBody">
+                <tr><td colspan="5" class="empty"><strong>Loading catalog</strong><p>Retrieving equipment prices and stock data…</p></td></tr>
+            </tbody>
+        </table>
+    </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+"use strict";
+
+const API = "../../backend/api";
+const PRICE_API = "admin/equipment/prices.php";
+const STOCK_API = "admin/equipment/stock.php";
+const SESSION_API = "auth/session.php";
+const $ = id => document.getElementById(id);
+const toastContainer = $("toastContainer");
+
+const state = {
+    equipment: [],
+    loading: false,
+    categories: new Set(),
+    filters: { search: "", access: "", category: "", stock: "" },
+    savingPrice: new Set(),
+    restocking: new Set()
+};
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    })[c]);
+}
+
+function roleLabel(role) {
+    if (role === "enemy") return "Villain";
+    if (role === "hero") return "Hero";
+    return "Common";
+}
+
+function roleClass(role) {
+    if (role === "enemy") return "access-enemy";
+    if (role === "hero") return "access-hero";
+    return "access-common";
+}
+
+function stockBadgeClass(available, quantity) {
+    const a = Number(available) || 0;
+    const q = Number(quantity) || 0;
+    if (a <= 0) return "stock-out";
+    if (q > 0 && a <= Math.ceil(q * 0.25)) return "stock-low";
+    return "stock-ok";
+}
+
+function stockStatusLabel(available, quantity) {
+    const a = Number(available) || 0;
+    const q = Number(quantity) || 0;
+    if (a <= 0) return "Out of stock";
+    if (q > 0 && a <= Math.ceil(q * 0.25)) return "Low stock (" + a + " left)";
+    return "In stock (" + a + " of " + q + ")";
+}
+
+function formatPrice(value) {
+    const price = Number(value);
+    return Number.isFinite(price) ? price.toFixed(2) : "0.00";
+}
+
+function setStatus(text, type = "") {
+    const el = $("status");
+    if (!text) { el.style.display = "none"; el.textContent = ""; el.className = "status"; return; }
+    el.textContent = text;
+    el.className = "status " + type;
+    el.style.display = "block";
+}
+
+function showToast(message, type = "info") {
+    const el = document.createElement("div");
+    el.className = "toast " + type;
+    const mark = type === "success" ? "✓" : type === "error" ? "!" : "i";
+    el.innerHTML = '<div class="toast-mark" aria-hidden="true">' + escapeHTML(mark) + '</div><div>' + escapeHTML(message) + '</div>';
+    toastContainer.appendChild(el);
+    requestAnimationFrame(() => el.classList.add("show"));
+    setTimeout(() => {
+        el.classList.remove("show");
+        setTimeout(() => el.remove(), 300);
+    }, 3000);
+}
+
+async function request(path, options = {}) {
+    const response = await fetch(API + "/" + path, {
+        credentials: "include",
+        headers: { "Accept": "application/json", "Content-Type": "application/json", ...(options.headers || {}) },
+        ...options
+    });
+    let data;
+    try { data = await response.json(); } catch {
+        throw new Error("The server returned an invalid response (HTTP " + response.status + ").");
+    }
+    if (!response.ok || data.success !== true) {
+        const error = new Error(data.message || "Request failed (HTTP " + response.status + ").");
+        error.status = response.status;
+        throw error;
+    }
+    return data;
+}
+
+function itemMatches(item) {
+    const query = state.filters.search;
+    const selectedAccess = state.filters.access;
+    const selectedCat = state.filters.category;
+    const selectedStock = state.filters.stock;
+    const matchesSearch = !query || String(item.name || "").toLowerCase().includes(query);
+    const matchesAccess = !selectedAccess || item.access_role === selectedAccess;
+    const matchesCat = !selectedCat || item.category === selectedCat;
+    const a = Number(item.available_quantity) || 0;
+    const q = Number(item.quantity) || 0;
+    let matchesStock = true;
+    if (selectedStock === "available") matchesStock = a > 0;
+    else if (selectedStock === "low") matchesStock = a > 0 && q > 0 && a <= Math.ceil(q * 0.25);
+    else if (selectedStock === "out") matchesStock = a <= 0;
+    return matchesSearch && matchesAccess && matchesCat && matchesStock;
+}
+
+function updateSummary() {
+    const visible = state.equipment.filter(itemMatches);
+    const totalStock = state.equipment.reduce((t, i) => t + (Number(i.quantity) || 0), 0);
+    const totalAvailable = state.equipment.reduce((t, i) => t + (Number(i.available_quantity) || 0), 0);
+    let lowCount = 0;
+    state.equipment.forEach(i => { const a = Number(i.available_quantity) || 0; const q = Number(i.quantity) || 0; if (a > 0 && q > 0 && a <= Math.ceil(q * 0.25)) lowCount++; });
+    const outCount = state.equipment.reduce((t, i) => t + ((Number(i.available_quantity) || 0) <= 0 ? 1 : 0), 0);
+    statItems.textContent = String(state.equipment.length);
+    statAvailable.textContent = totalAvailable.toLocaleString();
+    statStock.textContent = totalStock.toLocaleString();
+    statLow.textContent = String(lowCount + outCount);
+}
+
+function renderTable() {
+    const visible = state.equipment.filter(itemMatches);
+    const tbody = equipmentTableBody;
+    tbody.innerHTML = visible.length
+        ? visible.map(item => renderRow(item)).join("")
+        : '<tr><td colspan="5" class="empty"><strong>' + (state.equipment.length ? "No matching equipment" : "No catalog items") + '</strong><p>' + (state.equipment.length ? " Try another search or filter." : " Equipment will appear here once configured.") + '</p></td></tr>';
+    updateSummary();
+}
+
+function renderRow(item) {
+    const id = Number(item.id);
+    const available = Number(item.available_quantity) || 0;
+    const quantity = Number(item.quantity) || 0;
+    const isSavingPrice = state.savingPrice.has(id);
+    const isRestocking = state.restocking.has(id);
+    return '<tr data-id="' + id + '" class="equipment-row">' +
+        '<td>' +
+        '<div class="equipment-cell">' +
+        '<div class="equipment-icon" aria-hidden="true">' + getItemIconLetter(item.name) + '</div>' +
+        '<div class="equipment-info-body">' +
+        '<div class="equipment-name">' + escapeHTML(item.name) + '</div>' +
+        '<div class="equipment-meta">' +
+        '<span class="badge ' + roleClass(item.access_role) + '">' + roleLabel(item.access_role) + '</span>' +
+        '<span class="badge ' + stockBadgeClass(available, quantity) + '">' + (item.status === "available" ? "Active" : "Inactive") + '</span>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</td>' +
+        '<td>' +
+        '<div class="price-cell">' +
+        '<input class="price-input" type="number" name="price" min="0" max="99999999.99" step="0.01" value="' + escapeHTML(formatPrice(item.price)) + '" data-id="' + id + '" aria-label="Price for ' + escapeHTML(item.name) + '">' +
+        '<button class="save-btn' + (isSavingPrice ? " saving" : "") + '" type="button" data-id="' + id + '" ' + (isSavingPrice ? "disabled" : "") + ' aria-label="Save price for ' + escapeHTML(item.name) + '">' + (isSavingPrice ? "Saving…" : "Save price") + '</button>' +
+        '</div>' +
+        '</td>' +
+        '<td>' +
+        '<div class="restock-cell">' +
+        '<input class="restock-input" type="number" name="restockUnits" min="1" max="2147483647" step="1" value="" placeholder="Units" data-id="' + id + '" aria-label="Restock units for ' + escapeHTML(item.name) + '">' +
+        '<button class="restock-btn' + (isRestocking ? " saving" : "") + '" type="button" data-id="' + id + '" ' + (isRestocking ? "disabled" : "") + ' aria-label="Restock ' + escapeHTML(item.name) + '">' + (isRestocking ? "Restocking…" : "Restock") + '</button>' +
+        '</div>' +
+        '</td>' +
+        '<td>' +
+        '<div class="stock-cell">' +
+        '<span class="stock-current">' + available.toLocaleString() + ' / ' + quantity.toLocaleString() + '</span>' +
+        '<span class="stock-available">' + stockStatusLabel(available, quantity) + '</span>' +
+        '</div>' +
+        '</td>' +
+        '<td>' +
+        '<div class="row-actions">' +
+        '</div>' +
+        '</td>' +
+        '</tr>';
+}
+
+function getItemIconLetter(name) {
+    const n = (name || "").toLowerCase();
+    if (n.includes("staff")) return "STF";
+    if (n.includes("sword") || n.includes("blade")) return "SWD";
+    if (n.includes("armor") || n.includes("plate")) return "ARM";
+    if (n.includes("launcher")) return "LNC";
+    if (n.includes("shield")) return "SHD";
+    if (n.includes("bastion")) return "BAS";
+    return "EQP";
+}
+
+function rowEl(id) { return document.querySelector('tr.equipment-row[data-id="' + id + '"]'); }
+
+async function savePrice(itemId) {
+    const row = rowEl(itemId);
+    if (!row) return;
+    const btn = row.querySelector('.save-btn[data-id="' + itemId + '"]');
+    const priceInput = row.querySelector('.price-input[data-id="' + itemId + '"]');
+    const stateItem = state.equipment.find(i => Number(i.id) === Number(itemId));
+    if (!btn || !priceInput || !stateItem) return;
+
+    const priceVal = priceInput.value.trim();
+    if (!/^\d{1,8}(?:\.\d{1,2})?$/.test(priceVal)) {
+        showToast("Enter a valid price (up to 8 digits, 2 decimals).", "error");
+        priceInput.focus();
+        return;
+    }
+    const price = Number(priceVal);
+
+    state.savingPrice.add(itemId);
+    renderTable();
+    try {
+        await request(PRICE_API, {
+            method: "PUT",
+            body: JSON.stringify({ equipment_id: Number(itemId), price: price })
+        });
+        stateItem.price = price;
+        renderTable();
+        btn.classList.add("saved");
+        btn.textContent = "Saved";
+        showToast(stateItem.name + " price updated to ₱" + formatPrice(price), "success");
+        setTimeout(function() {
+            btn.classList.remove("saved");
+            btn.textContent = "Save price";
+            state.savingPrice.delete(itemId);
+            renderTable();
+        }, 1000);
+    } catch (error) {
+        showToast(error.message || "Failed to save price.", "error");
+        state.savingPrice.delete(itemId);
+        renderTable();
+    }
+}
+
+async function restockItem(itemId) {
+    const row = rowEl(itemId);
+    if (!row) return;
+    const btn = row.querySelector('.restock-btn[data-id="' + itemId + '"]');
+    const input = row.querySelector('.restock-input[data-id="' + itemId + '"]');
+    const stateItem = state.equipment.find(i => Number(i.id) === Number(itemId));
+    if (!btn || !input || !stateItem) return;
+
+    const qtyVal = input.value.trim();
+    let qty = Number(qtyVal);
+    if (!qtyVal || !Number.isInteger(qty) || qty < 1 || qty > 2147483647) {
+        showToast("Enter a whole number from 1 to 2,147,483,647 to restock.", "error");
+        input.focus();
+        return;
+    }
+
+    state.restocking.add(itemId);
+    renderTable();
+    try {
+        const result = await request(STOCK_API, {
+            method: "POST",
+            body: JSON.stringify({ equipment_id: Number(itemId), quantity: qty })
+        });
+        stateItem.quantity = Number(result.quantity);
+        stateItem.available_quantity = Number(result.available_quantity);
+        if (stateItem.status === "unavailable") stateItem.status = "available";
+        input.value = "";
+        renderTable();
+        btn.classList.add("saved");
+        btn.textContent = "Restocked";
+        showToast(stateItem.name + " restocked (+ " + qty.toLocaleString() + " units). Marketplace stock updated.", "success");
+        setTimeout(function() {
+            btn.classList.remove("saved");
+            btn.textContent = "Restock";
+            state.restocking.delete(itemId);
+            renderTable();
+        }, 1000);
+    } catch (error) {
+        showToast(error.message || "Restock failed.", "error");
+        state.restocking.delete(itemId);
+        renderTable();
+    }
+}
+
+async function load() {
+    if (state.loading) return;
+    state.loading = true;
+    equipmentTableBody.innerHTML = '<tr><td colspan="5" class="empty"><strong>Loading catalog</strong><p>Retrieving equipment prices and stock data…</p></td></tr>';
+    setStatus("Loading catalog and stock…", "info");
+
+    try {
+        const session = await request(SESSION_API);
+        const role = String(session.role || (session.user && session.user.role) || "").toLowerCase();
+        if (role !== "admin") {
+            window.location.href = "../public/login.html";
+            return;
+        }
+
+        const [priceResult, stockResult] = await Promise.allSettled([
+            request(PRICE_API),
+            request(STOCK_API)
+        ]);
+
+        const pricesLoaded = priceResult.status === "fulfilled" && Array.isArray(priceResult.value.equipment);
+        const stockLoaded = stockResult.status === "fulfilled" && Array.isArray(stockResult.value.equipment);
+
+        let prices = [];
+        let stocks = {};
+
+        if (pricesLoaded) {
+            prices = priceResult.value.equipment.map(function(i) {
+                return {
+                    id: Number(i.id),
+                    name: i.name,
+                    access_role: i.access_role,
+                    category: i.category || "",
+                    price: Number(i.price),
+                    status: i.status
+                };
+            });
+        }
+        if (stockLoaded) {
+            stocks = stockResult.value.equipment.reduce(function(acc, i) {
+                acc[Number(i.id)] = {
+                    quantity: Number(i.quantity),
+                    available_quantity: Number(i.available_quantity)
+                };
+                return acc;
+            }, {});
+        }
+
+        state.equipment = prices.map(function(p) {
+            return Object.assign({}, p, stocks[p.id] || { quantity: 0, available_quantity: 0 });
+        });
+
+        state.equipment.forEach(function(i) { if (i.category) state.categories.add(i.category); });
+        const catSelect = $("categoryFilter");
+        catSelect.innerHTML = '<option value="">All categories</option>' + Array.from(state.categories).sort().map(function(c) {
+            return '<option value="' + escapeHTML(c) + '">' + escapeHTML(c) + '</option>';
+        }).join("");
+
+        renderTable();
+
+        const failures = Number(!pricesLoaded) + Number(!stockLoaded);
+        setStatus(failures ? "Some catalog data could not be loaded. Click Refresh to retry." : "Catalog and stock are up to date.", failures ? "error" : "success");
+
+    } catch (error) {
+        state.equipment = [];
+        renderTable();
+        setStatus(error.message, "error");
+        showToast(error.message || "Unable to load catalog.", "error");
+    } finally {
+        state.loading = false;
+        const now = new Date();
+        $("lastUpdated").textContent = "Last updated " + now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+}
+
+document.addEventListener("click", async function(event) {
+    const saveBtn = event.target.closest(".save-btn");
+    if (saveBtn) {
+        const id = saveBtn.dataset.id;
+        if (id) await savePrice(Number(id));
+        return;
+    }
+    const restockBtn = event.target.closest(".restock-btn");
+    if (restockBtn) {
+        const id = restockBtn.dataset.id;
+        if (id) await restockItem(Number(id));
+        return;
+    }
+});
+
+document.addEventListener("blur", function(event) {
+    if (event.target.matches(".price-input")) {
+        const v = event.target.value.trim();
+        if (v !== "" && !/^\d{1,8}(?:\.\d{1,2})?$/.test(v)) {
+            showToast("Enter a valid price (up to 8 digits, 2 decimals).", "error");
+        }
+    }
+}, true);
+
+$("searchItems").addEventListener("input", function() {
+    state.filters.search = this.value.trim().toLowerCase();
+    renderTable();
+});
+$("accessFilter").addEventListener("change", function() {
+    state.filters.access = this.value;
+    renderTable();
+});
+$("categoryFilter").addEventListener("change", function() {
+    state.filters.category = this.value;
+    renderTable();
+});
+$("stockFilter").addEventListener("change", function() {
+    state.filters.stock = this.value;
+    renderTable();
+});
+$("clearFilters").addEventListener("click", function() {
+    $("searchItems").value = "";
+    $("accessFilter").value = "";
+    $("categoryFilter").value = "";
+    $("stockFilter").value = "";
+    state.filters = { search: "", access: "", category: "", stock: "" };
+    renderTable();
+    $("searchItems").focus();
+});
+$("refreshBtn").addEventListener("click", load);
+
+load();
+</script>
+</body>
+</html>

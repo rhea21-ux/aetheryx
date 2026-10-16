@@ -9,7 +9,7 @@
   const userLinks = [
     ['▣','Dashboard','../hero/hero-dashboard.html','hero-dashboard.html'],
     ['◈','Marketplace','marketplace.html','marketplace.html'],
-    ['▤','My Requests','my-requests.html','my-requests.html'],
+    ['▤','Order History','orders.html','orders.html'],
     ['▥','Inventory','inventory.html','inventory.html'],
     ['◫','Resources','resources.html','resources.html'],
     ['⌁','Compatibility','compatibility.html','compatibility.html'],

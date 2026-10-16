@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../../../config/session.php';
+startSecureSession();
 
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../middleware/auth-check.php';
 require_once __DIR__ . '/../../../helpers/response.php';
+require_once __DIR__ . '/../../../helpers/notify.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -84,21 +84,10 @@ try {
         ':entity_id' => $requestId
     ]);
 
-    // Notify admins
-    $admins = $pdo->query("SELECT id FROM users WHERE role = 'admin'")->fetchAll();
-    $notifyStmt = $pdo->prepare("
-        INSERT INTO notifications (user_id, title, message, type)
-        VALUES (:user_id, :title, :message, 'info')
-    ");
-    foreach ($admins as $admin) {
-        $notifyStmt->execute([
-            ':user_id' => $admin['id'],
-            ':title' => 'New maintenance request',
-            ':message' => sprintf('A new maintenance request was submitted for "%s".', $equipment['name'])
-        ]);
-    }
-
     $pdo->commit();
+    $message = sprintf('Maintenance request #%d was submitted for "%s".', $requestId, $equipment['name']);
+    createNotification($pdo, (int) $requesterId, 'Maintenance request submitted', $message, 'success');
+    notifyAdminsOfActivity($pdo, (int) $requesterId, 'New maintenance request', $message, 'info');
 
     respond(true, 'Maintenance request submitted successfully.', [
         'requestId' => $requestId
